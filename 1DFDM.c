@@ -4,13 +4,16 @@
 #include <string.h>
 int main()
 {
-    matrix inputMatrix;
-    initilizeMatrix(&inputMatrix,3,3);
-    fillMatrix33Test(&inputMatrix);
-    forwardElimination(&inputMatrix);
-    for (int i = 0; i < inputMatrix.numCol; i++)
+    matrix A;
+    matrix b;    
+    initilizeMatrix(&A,3,3);
+    initilizeMatrix(&b,3,1);
+    fillMatrix33Test(&A);
+    fillMatrix31Test(&b);
+    backwardSubstitution(&A,&b);
+    for (int i = 0; i < b.numRow; i++)
     {
-        double val = inputMatrix.mat[i][i];
+        double val = b.mat[i][0];
         printf("%f",val);
     }
     
@@ -57,14 +60,20 @@ void freeMatrix(matrix *T)
 void fillMatrix33Test(matrix *T)
 {
     T->mat[0][0] = 1;
-    T->mat[0][1] = 2;
-    T->mat[0][2] = 1;
-    T->mat[1][0] = 2;
-    T->mat[1][1] = 5;
-    T->mat[1][2] = 4;
-    T->mat[2][0] = 1;
-    T->mat[2][1] = 4;
-    T->mat[2][2] = 8;
+    T->mat[0][1] = 1;
+    T->mat[0][2] = 3;
+    T->mat[1][0] = 0;
+    T->mat[1][1] = 1;
+    T->mat[1][2] = 2;
+    T->mat[2][0] = 0;
+    T->mat[2][1] = 0;
+    T->mat[2][2] = 1;
+}
+void fillMatrix31Test(matrix *T)
+{
+    T->mat[0][0] = 12;
+    T->mat[1][0] = 8;
+    T->mat[2][0] = 3;
 }
 
 // Direct method
@@ -120,10 +129,18 @@ int backwardSubstitution(matrix *A, matrix* b)
         // current just support load vector
         return 0;
     }
-    for (int i = A->numRow - 1; i >= 0; i--)
+    for (int i = A->numRow - 1; i > 0; i--)
     {
-        
+        for (int j = i-1; j >= 0; j--)
+        {
+            if (A->mat[j][i] == 0)
+            {
+                continue;
+            }
+            double ratio = A->mat[j][i]/A->mat[i][i];
+            A->mat[j][i] = 0.0;
+            b->mat[j][0] = b->mat[j][0]-ratio*b->mat[i][0];
+        }
     }
-
     return 1;
 }

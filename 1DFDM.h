@@ -12,3 +12,4 @@ void forwardElimination(matrix *T);
 void fillMatrix33Test(matrix *T);
 int backwardSubstitution(matrix *A, matrix* b);
 int gaussianElimination(matrix *A,matrix *b);
+void fillMatrix31Test(matrix *T);
