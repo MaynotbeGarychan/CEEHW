@@ -11,7 +11,7 @@
       "stopAtEntry": false,
       "cwd": "c:/Users/Gary/Desktop/CEE2021/CEE_hw",
       "environment": [],
-      "program": "c:/Users/Gary/Desktop/CEE2021/CEE_hw/build/Debug/outDebug",
+      "program": "c:/Users/Gary/Desktop/CEE2021/CEE_hw/1DFDM.exe",
       "internalConsoleOptions": "openOnSessionStart",
       "MIMode": "gdb",
       "miDebuggerPath": "D:/MinGW/mingw64/bin/gdb.exe",

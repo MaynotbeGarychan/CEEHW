@@ -4,23 +4,46 @@
 #include <string.h>
 int main()
 {
-    matrix A;
-    matrix b;    
-    initilizeMatrix(&A,3,3);
-    initilizeMatrix(&b,3,1);
-    fillMatrix33Test(&A);
-    fillMatrix31Test(&b);
-    backwardSubstitution(&A,&b);
-    for (int i = 0; i < b.numRow; i++)
+    // reading mesh file
+    struct meshInfo meshInfoDb;
+    FILE *fileIo = fopen("problem1.txt","rt");
+    if (fileIo == NULL)
     {
-        double val = b.mat[i][0];
-        printf("%f",val);
+        return 0;
     }
+    char readType[4];
+    fscanf(fileIo,"%s %d %d %d",readType,&(meshInfoDb.nodeNum),&(meshInfoDb.elementNum),&(meshInfoDb.boundaryNum));
     
+    struct node nodeDb[meshInfoDb.nodeNum];
+    struct element elementDb[meshInfoDb.elementNum];
+    struct boundary boundaryDb[meshInfoDb.boundaryNum];
+    
+    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[0].id),&(nodeDb[0].x));
+    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[1].id),&(nodeDb[1].x));
+    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[2].id),&(nodeDb[2].x));
+    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[3].id),&(nodeDb[3].x));
+    
+    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[0].id),&(elementDb[0].nodeId[0]),&(elementDb[0].nodeId[1]));
+    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[1].id),&(elementDb[1].nodeId[0]),&(elementDb[1].nodeId[1]));
+    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[2].id),&(elementDb[2].nodeId[0]),&(elementDb[2].nodeId[1]));
+
+    fscanf(fileIo,"%s %d %lf",readType,&(boundaryDb[0].id),&(boundaryDb[0].value));
+    fscanf(fileIo,"%s %d %lf",readType,&(boundaryDb[1].id),&(boundaryDb[1].value));
+    // end read mesh file
+
+    // assemble element stiffness matrix
+    
+
+
+
+
     return 1;
 }
 
-
+/**
+ * @brief Matrix related functions
+ * 
+ */
 // allocate the matrix
 void allocateMatrix(matrix *T, int numRow, int numCol)
 {
@@ -62,62 +85,80 @@ void fillMatrix33Test(matrix *T)
     T->mat[0][0] = 1;
     T->mat[0][1] = 1;
     T->mat[0][2] = 3;
-    T->mat[1][0] = 0;
+    T->mat[1][0] = 6;
     T->mat[1][1] = 1;
     T->mat[1][2] = 2;
-    T->mat[2][0] = 0;
+    T->mat[2][0] = 4;
     T->mat[2][1] = 0;
     T->mat[2][2] = 1;
 }
 void fillMatrix31Test(matrix *T)
 {
-    T->mat[0][0] = 12;
+    T->mat[0][0] = 2;
     T->mat[1][0] = 8;
     T->mat[2][0] = 3;
 }
 
 // Direct method
+int gaussianElimination(matrix *A,matrix *b)
 /*begin
     Target: solve Ax = b
     Step:
-        1. Forward elimination A
-        2. Combine {A,b}
-        3. Backward substitution
+        1. Forward elimination
+        2. Backward substitution
     Flag:   1: True  0:False
 end*/
-int gaussianElimination(matrix *A,matrix *b)
 {
     if (A->numRow != b->numRow)
     {
         return 0;
     }
-    
-
-
+    // forward elimination
+    if (!forwardElimination(A,b))
+    {
+        return 0;
+    }
+    // backward substitution
+    if (!backwardSubstitution(A,b))
+    {
+        return 0;
+    }
     return 1;
 }
 
 // Forward elimination
-void forwardElimination(matrix *T)
+int forwardElimination(matrix *A, matrix *b)
 {
-    for (int i = 0; i < T->numRow; i++)
+    if(A->numRow != b->numRow)
     {
-        for (int j = i+1; j < T->numRow; j++)
+        return 0;
+    }
+    if (b->numCol != 1)
+    {
+        // current just support load vector
+        return 0;
+    }
+    for (int i = 0; i < A->numRow; i++)
+    {
+        for (int j = i+1; j < A->numRow; j++)
         {
-            if (T->mat[j][i] == 0)
+            if (A->mat[j][i] == 0)
             {
                 continue;
             }
-            double ratio = T->mat[j][i]/T->mat[i][i];
-            T->mat[j][i] = 0;
-            for (int k = i+1; k < T->numCol; k++)
+            double ratio = A->mat[j][i]/A->mat[i][i];
+            A->mat[j][i] = 0;
+            for (int k = i+1; k < A->numCol; k++)
             {
-                T->mat[j][k] = T->mat[j][k] - ratio * T->mat[i][k];
+                A->mat[j][k] = A->mat[j][k] - ratio * A->mat[i][k];
             }
+            b->mat[j][0] = b->mat[j][0] - ratio * b->mat[i][0];
         }
     }
+    return 1;
 }
 
+// backward substitution
 int backwardSubstitution(matrix *A, matrix* b)
 {
     if(A->numRow != b->numRow)
@@ -142,5 +183,57 @@ int backwardSubstitution(matrix *A, matrix* b)
             b->mat[j][0] = b->mat[j][0]-ratio*b->mat[i][0];
         }
     }
+    return 1;
+}
+
+
+/**
+ * @brief Pre post process related funtions
+ * 
+ */
+
+// read header of txt
+int readMeshHeader(const char* fileName, struct meshInfo *meshInfoDb)
+/*begin
+    Target: Read the basic information of meshes
+    Flag:   1: True  0:False
+end*/
+{
+    FILE *fileIo = fopen(fileName,"rt");
+    if (fileIo == NULL)
+    {
+        return 0;
+    }
+    printf("Begin to read the input file\n");
+
+    // meshinfo
+    char readType[4];
+    fscanf(fileIo,"%s %d %d %d",readType,&(meshInfoDb->nodeNum),&(meshInfoDb->elementNum),&(meshInfoDb->boundaryNum));
+    
+    fclose(fileIo);
+    return 1;
+}
+
+
+// read all the mesh information
+int readMeshFile(const char* fileName, struct meshInfo *meshInfoDb, struct node *nodeDb)
+{
+    FILE *fileIo = fopen(fileName,"rt");
+    if (fileIo == NULL)
+    {
+        return 0;
+    }
+    printf("Begin to read the mesh file\n");
+
+    // meshinfo
+    char readType[4];
+    fscanf(fileIo,"%s %d %d %d",readType,&(meshInfoDb->nodeNum),&(meshInfoDb->elementNum),&(meshInfoDb->boundaryNum));
+
+    // nodeinfo
+    for (int i = 0; i < meshInfoDb->nodeNum; i++,nodeDb++)
+    {
+        fscanf(fileIo,"%s %d %lf",readType,&(nodeDb->id),&(nodeDb->x));
+    }
+
     return 1;
 }
