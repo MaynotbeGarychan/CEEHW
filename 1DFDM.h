@@ -18,7 +18,7 @@ int gaussianElimination(matrix *A,matrix *b);
 void fillMatrix31Test(matrix *T);
 
 /**
- * @brief Database and pre post processing
+ * @brief Database, solver and pre post processing
  * 
  */
 struct node
@@ -38,7 +38,7 @@ struct element
 
 struct boundary
 {
-    int id;
+    int nodeId;
     double value;
 };
 
@@ -49,17 +49,9 @@ struct meshInfo
     int boundaryNum;
 };
 
-typedef struct
-{
-    int elementId;
-    matrix mat;
-}elementMatrix;
-
-typedef struct
-{
-    matrix mat;
-    int dof;
-}globalMatrix;
-
 int readMeshHeader(const char* fileName, struct meshInfo *meshInfoDb);
 int readMeshFile(const char* fileName, struct meshInfo *meshInfoDb, struct node *nodeDb);
+
+int assembleLoadVector(struct meshInfo meshInfoDb,struct boundary boundaryDb[],matrix *loadVector);
+int assembleElementStiffnessMatrix(struct element elementDb,struct node nodeDb[],matrix *elemMatrix);
+int assembleGlobalStiffnessMatrix(struct meshInfo meshInfoDb,struct element elementDb[],matrix elemMatrix[],matrix *globalMatrix);

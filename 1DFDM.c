@@ -4,7 +4,8 @@
 #include <string.h>
 int main()
 {
-    // reading mesh file
+    // reading mesh file //
+    // ----------------  //
     struct meshInfo meshInfoDb;
     FILE *fileIo = fopen("problem1.txt","rt");
     if (fileIo == NULL)
@@ -27,16 +28,31 @@ int main()
     fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[1].id),&(elementDb[1].nodeId[0]),&(elementDb[1].nodeId[1]));
     fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[2].id),&(elementDb[2].nodeId[0]),&(elementDb[2].nodeId[1]));
 
-    fscanf(fileIo,"%s %d %lf",readType,&(boundaryDb[0].id),&(boundaryDb[0].value));
-    fscanf(fileIo,"%s %d %lf",readType,&(boundaryDb[1].id),&(boundaryDb[1].value));
+    fscanf(fileIo,"%s %d %lf",readType,&(boundaryDb[0].nodeId),&(boundaryDb[0].value));
+    fscanf(fileIo,"%s %d %lf",readType,&(boundaryDb[1].nodeId),&(boundaryDb[1].value));
     // end read mesh file
 
-    // assemble element stiffness matrix
-    
+    // assemble related matrix //
+    // ----------------------- //
+    // assemble loadvector from boundary conditions
+    meshInfoDb.nodeNum = 4;
+    matrix loadVector;
+    //initilizeMatrix(&loadVector, meshInfoDb.nodeNum,1);
+    initilizeMatrix(&loadVector, meshInfoDb.nodeNum,1);
+    //assembleLoadVector(meshInfoDb,boundaryDb,&loadVector);(wrong)
 
+    // assemble element matrix
+    matrix elemMatrix[meshInfoDb.elementNum];
+    for (int i = 0; i < meshInfoDb.elementNum; i++)
+    {
+        initilizeMatrix(&(elemMatrix[i]),2,2);
+        assembleElementStiffnessMatrix(elementDb[i],nodeDb,&(elemMatrix[i]));
+    }
 
-
-
+    // assemble global matrix
+    matrix globalMatrix;
+    initilizeMatrix(&globalMatrix,meshInfoDb.nodeNum,meshInfoDb.nodeNum);
+    assembleGlobalStiffnessMatrix(meshInfoDb,elementDb,elemMatrix,&globalMatrix);
     return 1;
 }
 
@@ -235,5 +251,55 @@ int readMeshFile(const char* fileName, struct meshInfo *meshInfoDb, struct node 
         fscanf(fileIo,"%s %d %lf",readType,&(nodeDb->id),&(nodeDb->x));
     }
 
+    return 1;
+}
+
+/**
+ * @brief Solver related function
+ * 
+ */
+
+// Assemble load vector
+int assembleLoadVector(struct meshInfo meshInfoDb,struct boundary boundaryDb[],matrix *loadVector)
+{
+    for (int i = 0; i < meshInfoDb.boundaryNum; i++)
+    {
+        int nodeId = boundaryDb[i].nodeId;
+        loadVector->mat[nodeId-1][0] = boundaryDb[i].value;
+    }
+    return 1;
+}
+
+// Assemble element stiffness matrix
+int assembleElementStiffnessMatrix(struct element elementDb,struct node nodeDb[],matrix *elemMatrix)
+{   
+    // calculate the basic component
+    double xleft = nodeDb[elementDb.nodeId[0]-1].x;
+    double xright = nodeDb[elementDb.nodeId[1]-1].x;
+    double k = 1/(xright-xleft);
+
+    // diagonal
+    elemMatrix->mat[0][0] = k;
+    elemMatrix->mat[1][1] = k;
+    // non-diagonal
+    elemMatrix->mat[0][1] = -k;
+    elemMatrix->mat[1][1] = -k;
+
+    return 1;
+}
+
+// Assemble global stiffness matrix
+int assembleGlobalStiffnessMatrix(struct meshInfo meshInfoDb,struct element elementDb[],matrix elemMatrix[],matrix *globalMatrix)
+{
+    for (int elemId = 0; elemId < meshInfoDb.elementNum; elemId++)
+    {
+        int leftNodePos = elementDb[elemId].nodeId[0]-1;
+        int rightNodePos = elementDb[elemId].nodeId[1]-1;
+        
+        globalMatrix->mat[leftNodePos][leftNodePos] += elemMatrix[elemId].mat[0][0];
+        globalMatrix->mat[rightNodePos][rightNodePos] += elemMatrix[elemId].mat[1][1];
+        globalMatrix->mat[leftNodePos][rightNodePos] += elemMatrix[elemId].mat[0][1];
+        globalMatrix->mat[rightNodePos][leftNodePos] += elemMatrix[elemId].mat[1][0];
+    }
     return 1;
 }
