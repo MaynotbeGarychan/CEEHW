@@ -2,6 +2,7 @@
 #include <malloc.h>
 #include "1DFDM.h"
 #include <string.h>
+
 int main()
 {
     // reading mesh file //
@@ -37,9 +38,8 @@ int main()
     // assemble loadvector from boundary conditions
     meshInfoDb.nodeNum = 4;
     matrix loadVector;
-    //initilizeMatrix(&loadVector, meshInfoDb.nodeNum,1);
     initilizeMatrix(&loadVector, meshInfoDb.nodeNum,1);
-    //assembleLoadVector(meshInfoDb,boundaryDb,&loadVector);(wrong)
+    assembleLoadVector(meshInfoDb,elementDb,nodeDb,&loadVector);
 
     // assemble element matrix
     matrix elemMatrix[meshInfoDb.elementNum];
@@ -52,7 +52,13 @@ int main()
     // assemble global matrix
     matrix globalMatrix;
     initilizeMatrix(&globalMatrix,meshInfoDb.nodeNum,meshInfoDb.nodeNum);
-    assembleGlobalStiffnessMatrix(meshInfoDb,elementDb,elemMatrix,&globalMatrix);
+    assembleGlobalStiffnessMatrix(meshInfoDb,boundaryDb,elementDb,nodeDb,elemMatrix,&globalMatrix);
+
+    // combine loadvector and global stiffness matrix
+    
+
+
+
     return 1;
 }
 
@@ -202,6 +208,54 @@ int backwardSubstitution(matrix *A, matrix* b)
     return 1;
 }
 
+// transpose two line of matrix (by linePos)
+int transposeMatrix(matrix *A, int rowPosOne, int rowPosTwo)
+{
+    if (rowPosOne >= A->numRow || rowPosTwo >= A->numRow )
+    {
+        return 0;
+    }
+
+    matrix tempRowOne;
+    initilizeMatrix(&tempRowOne, 1, A->numCol);
+    getRowOfMatrix(*A, rowPosOne, &tempRowOne);
+    matrix tempRowTwo;
+    initilizeMatrix(&tempRowTwo, 1, A->numCol);
+    getRowOfMatrix(*A, rowPosTwo, &tempRowTwo);
+
+    putRowOfMatrix(tempRowOne,rowPosTwo,A);
+    putRowOfMatrix(tempRowTwo,rowPosOne,A);
+
+    return 1;
+}
+
+// get any row of matrix
+int getRowOfMatrix(matrix A, int rowPos, matrix *row)
+{
+    if (rowPos >= A.numRow || row->numCol != A.numCol)
+    {
+        return 0;
+    }
+    for (int i = 0; i < A.numCol; i++)
+    {
+        row->mat[0][i] = A.mat[rowPos][i];
+    }
+    return 1;
+}
+
+// put any row of matrix
+int putRowOfMatrix(matrix row, int rowPos, matrix *A)
+{
+    if (rowPos >= A->numRow || row.numCol != A->numCol)
+    {
+        return 0;
+    }
+    for (int i = 0; i < A->numCol; i++)
+    {
+        A->mat[rowPos][i] = row.mat[0][i];
+    }
+    return 1;
+}
 
 /**
  * @brief Pre post process related funtions
@@ -260,15 +314,24 @@ int readMeshFile(const char* fileName, struct meshInfo *meshInfoDb, struct node 
  */
 
 // Assemble load vector
-int assembleLoadVector(struct meshInfo meshInfoDb,struct boundary boundaryDb[],matrix *loadVector)
+int assembleLoadVector(struct meshInfo meshInfoDb, struct element elementDb[],
+         struct node nodeDb[], matrix *loadVector)
+/*begin
+*   Target: assmble loadvector without boundary conditions
+*/
 {
-    for (int i = 0; i < meshInfoDb.boundaryNum; i++)
+    initilizeMatrix(loadVector, meshInfoDb.nodeNum, 1);
+    for (int i = 0; i < meshInfoDb.elementNum; i++)
     {
-        int nodeId = boundaryDb[i].nodeId;
-        loadVector->mat[nodeId-1][0] = boundaryDb[i].value;
+        matrix *elemLoadVector;
+        initilizeMatrix(loadVector, 2, 1);
+        double temp = 0.5*(nodeDb[elementDb[i].nodeId[0]-1].x - nodeDb[elementDb[i].nodeId[1]-1].x);
+        loadVector->mat[elementDb[i].nodeId[0]-1][0] += temp;
+        loadVector->mat[elementDb[i].nodeId[1]-1][0] += -temp;
     }
     return 1;
 }
+
 
 // Assemble element stiffness matrix
 int assembleElementStiffnessMatrix(struct element elementDb,struct node nodeDb[],matrix *elemMatrix)
@@ -289,17 +352,64 @@ int assembleElementStiffnessMatrix(struct element elementDb,struct node nodeDb[]
 }
 
 // Assemble global stiffness matrix
-int assembleGlobalStiffnessMatrix(struct meshInfo meshInfoDb,struct element elementDb[],matrix elemMatrix[],matrix *globalMatrix)
+int assembleGlobalStiffnessMatrix(struct meshInfo meshInfoDb,struct boundary boundaryDb[],struct element elementDb[],
+                struct node nodeDb[], matrix elemMatrix[],matrix *globalMatrix)
 {
+    // from element stiffness matrix
     for (int elemId = 0; elemId < meshInfoDb.elementNum; elemId++)
     {
         int leftNodePos = elementDb[elemId].nodeId[0]-1;
         int rightNodePos = elementDb[elemId].nodeId[1]-1;
-        
+
         globalMatrix->mat[leftNodePos][leftNodePos] += elemMatrix[elemId].mat[0][0];
         globalMatrix->mat[rightNodePos][rightNodePos] += elemMatrix[elemId].mat[1][1];
         globalMatrix->mat[leftNodePos][rightNodePos] += elemMatrix[elemId].mat[0][1];
         globalMatrix->mat[rightNodePos][leftNodePos] += elemMatrix[elemId].mat[1][0];
     }
+    
+    // from boundary conditions
+    for (int i = 0; i < meshInfoDb.boundaryNum; i++)
+    {
+        int boundaryNodeId = boundaryDb[i].nodeId;
+        int linkNodeId = findSameElementNode(meshInfoDb,elementDb,boundaryNodeId);
+        double temp = 1/abs(nodeDb[boundaryNodeId-1].x-nodeDb[linkNodeId-1].x);
+        globalMatrix->mat[boundaryNodeId-1][boundaryNodeId-1] = temp;
+        globalMatrix->mat[boundaryNodeId-1][linkNodeId-1] = -temp;
+    }
+    return 1;
+}
+
+int findSameElementNode(struct meshInfo meshInfoDb, struct element elementDb[],int nodeId)
+{
+    for (int i = 0; i < meshInfoDb.elementNum; i++)
+    {
+        int nodeList[2] = elementDb[i].nodeId;
+        if (nodeId == nodeList[0])
+        {
+            return nodeList[1];
+        }
+        else if (nodeId == nodeList[1])
+        {
+            return nodeList[0];
+        }
+        else
+        {
+            return 0;
+        }
+    }
+}
+
+int applyBoundaryConditionAndReordering(struct meshInfo meshInfoDb,struct boundary boundaryDb[],matrix A, matrix b, matrix *system)
+{
+    // reordering
+    for (int i = 0; i < meshInfoDb.boundaryNum; i++)
+    {
+        int nodeId = boundaryDb[i].nodeId;
+        
+    }
+
+
+
+
     return 1;
 }

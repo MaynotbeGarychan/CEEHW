@@ -16,7 +16,7 @@ void fillMatrix33Test(matrix *T);
 int backwardSubstitution(matrix *A, matrix* b);
 int gaussianElimination(matrix *A,matrix *b);
 void fillMatrix31Test(matrix *T);
-
+int transposeMatrix(matrix *A, int rowPosOne, int rowPosTwo);
 /**
  * @brief Database, solver and pre post processing
  * 
@@ -52,6 +52,7 @@ struct meshInfo
 int readMeshHeader(const char* fileName, struct meshInfo *meshInfoDb);
 int readMeshFile(const char* fileName, struct meshInfo *meshInfoDb, struct node *nodeDb);
 
-int assembleLoadVector(struct meshInfo meshInfoDb,struct boundary boundaryDb[],matrix *loadVector);
 int assembleElementStiffnessMatrix(struct element elementDb,struct node nodeDb[],matrix *elemMatrix);
-int assembleGlobalStiffnessMatrix(struct meshInfo meshInfoDb,struct element elementDb[],matrix elemMatrix[],matrix *globalMatrix);
+int assembleGlobalStiffnessMatrix(struct meshInfo meshInfoDb,struct boundary boundaryDb[],struct element elementDb[],
+                struct node nodeDb[], matrix elemMatrix[],matrix *globalMatrix);
+int assembleLoadVector(struct meshInfo meshInfoDb, struct element elementDb[], struct node nodeDb[], matrix *loadVector);
