@@ -8,7 +8,14 @@ typedef struct
     int numRow, numCol;
 }matrix;
 
+typedef struct
+{
+    int **mat;
+    int numRow, numCol;
+}matrixInt;
+
 void allocateMatrix(matrix *T, int numRow, int numCol);
+void allocateMatrixInt(matrixInt *T, int numRow, int numCol);
 void initilizeMatrix(matrix *T, int numRow, int numCol);
 void freeMatrix(matrix *T);
 int gaussForwardElimination(matrix *A, matrix *b);
@@ -20,6 +27,26 @@ int transposeMatrix(matrix *A, int rowPosOne, int rowPosTwo);
 int getRowOfMatrix(matrix A, int rowPos, matrix *row);
 int putRowOfMatrix(matrix row, int rowPos, matrix *A);
 int inverseMatrix(matrix *A);
+void backwardSubtitution(matrix *A);
+void forwardElimination(matrix *A);
+void roundDiagonalComponent(matrix *A);
+void getBlockOfMatrix(matrix A, int beginRowPos, int endRowPos, int beginColPos ,int endColPos, matrix *block);
+double dotProduct(matrix a, matrix b);
+void initializeIdentityMatrix(matrix *A);
+int newCombineMatrixCol(matrix A, matrix B, matrix *C);
+
+/**
+ * @brief math related functions
+ * 
+ */
+typedef struct
+{
+    int *val;
+    int length;
+}arrayInt;
+
+double mathAbs(double a);
+//int allocateArrayInt(int *array, int length);
 
 /**
  * @brief Database, solver and pre post processing
@@ -60,3 +87,8 @@ int assembleElementStiffnessMatrix(struct element elementDb,struct node nodeDb[]
 int assembleGlobalStiffnessMatrix(struct meshInfo meshInfoDb,struct boundary boundaryDb[],struct element elementDb[],
                 struct node nodeDb[], matrix elemMatrix[],matrix *globalMatrix);
 int assembleLoadVector(struct meshInfo meshInfoDb, struct element elementDb[], struct node nodeDb[], matrix *loadVector);
+int solveSystem(matrix LHSMatrix, matrix RHSVector, struct meshInfo meshInfoDb, struct boundary boundaryDb[],
+                struct node nodeDb[],matrix* result);
+int findSameElementNode(struct meshInfo meshInfoDb, struct element elementDb[],int nodeId);
+void reorderNodeList(struct meshInfo meshInfoDb, struct boundary boundaryDb[],
+        struct node nodeDb[], matrixInt *reorderList);

@@ -54,10 +54,9 @@ int main()
     initilizeMatrix(&globalMatrix,meshInfoDb.nodeNum,meshInfoDb.nodeNum);
     assembleGlobalStiffnessMatrix(meshInfoDb,boundaryDb,elementDb,nodeDb,elemMatrix,&globalMatrix);
 
-    // combine loadvector and global stiffness matrix
-    
-
-
+    // solve the system
+    matrix result;
+    solveSystem(globalMatrix,loadVector,meshInfoDb,boundaryDb,nodeDb,&result);
 
     return 1;
 }
@@ -73,6 +72,17 @@ void allocateMatrix(matrix *T, int numRow, int numCol)
     for (int i = 0; i < numRow; i++)
     {
         T->mat[i] = (double *)malloc(numCol*sizeof(double));
+    }
+    T->numCol = numCol;
+    T->numRow = numRow;
+}
+
+void allocateMatrixInt(matrixInt *T, int numRow, int numCol)
+{
+    T->mat = (int **)malloc(numRow*sizeof(int*));
+    for (int i = 0; i < numRow; i++)
+    {
+        T->mat[i] = (int *)malloc(numCol*sizeof(int));
     }
     T->numCol = numCol;
     T->numRow = numRow;
@@ -141,7 +151,7 @@ end*/
         return 0;
     }
     // backward substitution
-    if (!gaussbackwardSubstitution(A,b))
+    if (!gaussBackwardSubstitution(A,b))
     {
         return 0;
     }
@@ -231,14 +241,35 @@ int transposeMatrix(matrix *A, int rowPosOne, int rowPosTwo)
 
 // get any row of matrix
 int getRowOfMatrix(matrix A, int rowPos, matrix *row)
+/*
+*   no need to init the row
+*/
 {
     if (rowPos >= A.numRow || row->numCol != A.numCol)
     {
         return 0;
     }
+    allocateMatrix(row,1,A.numCol);
     for (int i = 0; i < A.numCol; i++)
     {
         row->mat[0][i] = A.mat[rowPos][i];
+    }
+    return 1;
+}
+
+int getColOfMatrix(matrix A, int colPos, matrix *col)
+/*
+*   please allocate, no need to init the col
+*/
+{
+    if (colPos >= A.numCol || col->numRow != A.numRow)
+    {
+        return 0;
+    }
+    allocateMatrix(col,A.numRow,1);
+    for (int i = 0; i < A.numCol; i++)
+    {
+        col->mat[i][0] = A.mat[colPos][i];
     }
     return 1;
 }
@@ -386,6 +417,87 @@ void initializeIdentityMatrix(matrix *A)
     }
 }
 
+int mutipleMatrix(matrix A, matrix B, matrix *C)
+/*
+*   Target: A * B = C(No need to init)
+*/
+{
+    if (A.numCol != B.numRow)
+    {
+        return 0;     
+    }
+    allocateMatrix(C,A.numRow,B.numCol);
+    for (int i = 0; i < C->numRow; i++)
+    {
+        matrix row;
+        getRowOfMatrix(A,i,&row);
+        for (int j = 0; j < C->numCol; j++)
+        {
+            matrix col;
+            getColOfMatrix(B,j,&col);
+            C->mat[i][j] = dotProduct(row,col);
+        }
+    }
+    return 1;
+}
+
+double dotProduct(matrix a, matrix b)
+{
+    if (a.numCol != b.numRow)
+    {
+        return 0;
+    }
+    double val = 0;
+    for (int i = 0; i < a.numCol; i++)
+    {
+        val += a.mat[0][i]*b.mat[i][0];
+    }
+    return val;
+}
+
+int subtractMatrix(matrix A, matrix B, matrix *C)
+{
+    if (A.numRow != B.numRow || A.numCol != B.numCol)
+    {
+        return 0;
+    }
+    allocateMatrix(C,A.numRow,A.numCol);
+    for (int i = 0; i < C->numRow; i++)
+    {
+        for (int j = 0; j < C->numCol; j++)
+        {
+            C->mat[i][j] = A.mat[i][j] - B.mat[i][j];
+        }
+    }
+    return 1;
+}
+
+/**
+ * @brief math related functions
+ * 
+ */
+double mathAbs(double a)
+{
+    if (a>=0)
+    {
+        return a;
+    }
+    else
+    {
+        return -a;
+    }
+}
+/*
+int allocateArrayInt(int *array, int length)
+{
+    array = (int **)malloc(length*sizeof(int*));
+    for (int i = 0; i < length; i++)
+    {
+        array[i] = (int *)malloc(length*sizeof(int));
+    }
+}
+*/
+
 /**
  * @brief Pre post process related funtions
  * 
@@ -452,7 +564,6 @@ int assembleLoadVector(struct meshInfo meshInfoDb, struct element elementDb[],
     initilizeMatrix(loadVector, meshInfoDb.nodeNum, 1);
     for (int i = 0; i < meshInfoDb.elementNum; i++)
     {
-        matrix *elemLoadVector;
         initilizeMatrix(loadVector, 2, 1);
         double temp = 0.5*(nodeDb[elementDb[i].nodeId[0]-1].x - nodeDb[elementDb[i].nodeId[1]-1].x);
         loadVector->mat[elementDb[i].nodeId[0]-1][0] += temp;
@@ -501,7 +612,7 @@ int assembleGlobalStiffnessMatrix(struct meshInfo meshInfoDb,struct boundary bou
     {
         int boundaryNodeId = boundaryDb[i].nodeId;
         int linkNodeId = findSameElementNode(meshInfoDb,elementDb,boundaryNodeId);
-        double temp = 1/abs(nodeDb[boundaryNodeId-1].x-nodeDb[linkNodeId-1].x);
+        double temp = 1/mathAbs(nodeDb[boundaryNodeId-1].x-nodeDb[linkNodeId-1].x);
         globalMatrix->mat[boundaryNodeId-1][boundaryNodeId-1] = temp;
         globalMatrix->mat[boundaryNodeId-1][linkNodeId-1] = -temp;
     }
@@ -512,7 +623,11 @@ int findSameElementNode(struct meshInfo meshInfoDb, struct element elementDb[],i
 {
     for (int i = 0; i < meshInfoDb.elementNum; i++)
     {
-        int nodeList[2] = elementDb[i].nodeId;
+        int nodeList[2];
+        for (int j = 0; j < 2; j++)
+        {
+            nodeList[j] = elementDb[i].nodeId[j];
+        }
         if (nodeId == nodeList[0])
         {
             return nodeList[1];
@@ -526,13 +641,14 @@ int findSameElementNode(struct meshInfo meshInfoDb, struct element elementDb[],i
             return 0;
         }
     }
+    return 0;
 }
 
 int solveSystem(matrix LHSMatrix, matrix RHSVector, struct meshInfo meshInfoDb, struct boundary boundaryDb[],
                 struct node nodeDb[],matrix* result)
 {
     // reorder the nodelist
-    int reorderList[meshInfoDb.nodeNum];
+    matrixInt reorderList;
     reorderNodeList(meshInfoDb,boundaryDb,nodeDb,&reorderList);
 
     // reorder the global matrix and load vector
@@ -542,24 +658,48 @@ int solveSystem(matrix LHSMatrix, matrix RHSVector, struct meshInfo meshInfoDb, 
     allocateMatrix(&reorderRHSVector,RHSVector.numRow,RHSVector.numCol);
     for (int i = 0; i < meshInfoDb.nodeNum; i++)
     {
-        reorderRHSVector.mat[i][0] = RHSVector.mat[reorderList[i]][0];
+        reorderRHSVector.mat[i][0] = RHSVector.mat[reorderList.mat[0][i]][0];
         for (int j = 0; j < LHSMatrix.numCol; j++)
         {
-            reorderLHSMatrix.mat[i][j] = LHSMatrix.mat[reorderList[i]][reorderList[j]];
+            reorderLHSMatrix.mat[i][j] = LHSMatrix.mat[reorderList.mat[0][i]][reorderList.mat[0][j]];
         }
     }
 
+    // cut from matrix
     matrix Kaa;
     matrix Kab;
     matrix fa;
     matrix ub;
+    // Kaa
+    int numInternalNode = meshInfoDb.nodeNum - meshInfoDb.boundaryNum;
+    getBlockOfMatrix(reorderLHSMatrix,0,numInternalNode-1,0,numInternalNode-1,&Kaa);
+    // Kab
+    getBlockOfMatrix(reorderLHSMatrix,0,numInternalNode,numInternalNode,meshInfoDb.nodeNum-1,&Kab);
+    // fa
+    getBlockOfMatrix(reorderRHSVector,0,numInternalNode-1,0,0,&fa);
+    // ub
+    allocateMatrix(&ub,meshInfoDb.boundaryNum,1);
+    for (int i = 0; i < meshInfoDb.boundaryNum; i++)
+    {
+        ub.mat[i][0] = boundaryDb[i].value;
+    }
+    
+    // calculation
+    inverseMatrix(&Kaa);
+    matrix Kabub;
+    mutipleMatrix(Kab,ub,&Kabub);
+    matrix faKabub;
+    subtractMatrix(fa,Kabub,&faKabub);
+    mutipleMatrix(Kaa,faKabub,result);
 
-
+    return 1;
 }
 
 void reorderNodeList(struct meshInfo meshInfoDb, struct boundary boundaryDb[],
-        struct node nodeDb[], int *reorderList[])
+        struct node nodeDb[], matrixInt *reorderList)
 {
+    allocateMatrixInt(reorderList,1,meshInfoDb.nodeNum);
+
     int boundaryNodeList[meshInfoDb.boundaryNum];
     for (int i = 0; i < meshInfoDb.boundaryNum; i++)
     {
@@ -590,13 +730,13 @@ void reorderNodeList(struct meshInfo meshInfoDb, struct boundary boundaryDb[],
         }
         else // for internal Kaa, Kab, fa
         {
-            reorderList[internalIndex] = i;
+            reorderList->mat[0][i] = i;
             internalIndex++;
         }
     }
 
-    for (int i = internalIndex; i < meshInfoDb.nodeNum; i++)
+    for (int i = internalIndex; i < meshInfoDb.nodeNum; i++, reorderList++)
     {
-        reorderList[i] = reorderBouNodeList[i-internalIndex];
+        reorderList->mat[0][i] = reorderBouNodeList[i-internalIndex];
     }
 }
