@@ -136,12 +136,12 @@ end*/
         return 0;
     }
     // forward elimination
-    if (!forwardElimination(A,b))
+    if (!gaussForwardElimination(A,b))
     {
         return 0;
     }
     // backward substitution
-    if (!backwardSubstitution(A,b))
+    if (!gaussbackwardSubstitution(A,b))
     {
         return 0;
     }
@@ -149,7 +149,7 @@ end*/
 }
 
 // Forward elimination
-int forwardElimination(matrix *A, matrix *b)
+int gaussForwardElimination(matrix *A, matrix *b)
 {
     if(A->numRow != b->numRow)
     {
@@ -181,7 +181,7 @@ int forwardElimination(matrix *A, matrix *b)
 }
 
 // backward substitution
-int backwardSubstitution(matrix *A, matrix* b)
+int gaussBackwardSubstitution(matrix *A, matrix* b)
 {
     if(A->numRow != b->numRow)
     {
@@ -255,6 +255,135 @@ int putRowOfMatrix(matrix row, int rowPos, matrix *A)
         A->mat[rowPos][i] = row.mat[0][i];
     }
     return 1;
+}
+
+int inverseMatrix(matrix *A)
+{
+    matrix inverseA;
+    initializeIdentityMatrix(&inverseA);
+    matrix C;
+    if (!newCombineMatrixCol(*A,inverseA,&C))
+    {
+        return 0;
+    }
+    forwardElimination(&C);
+    backwardSubtitution(&C);
+    roundDiagonalComponent(&C);
+    getBlockOfMatrix(C,0,C.numRow-1,A->numCol,2*A->numCol-1,A);
+    return 1;
+}
+
+void getBlockOfMatrix(matrix A, int beginRowPos, int endRowPos, int beginColPos ,int endColPos, matrix *block)
+/*
+*   Target: get a block from a matrix
+*   Input: A, begin, end     Output: block (no need to init)
+*/
+{
+    int blockNumRow = endRowPos-beginColPos+1;
+    int blockNumCol = endColPos-beginColPos+1;
+    allocateMatrix(block, blockNumRow,blockNumCol);
+    for (int i = 0; i < blockNumRow; i++)
+    {
+        for (int j = 0; j < blockNumCol; j++)
+        {
+            block->mat[i][j] = A.mat[beginRowPos+i][beginColPos+j];
+        }
+    }
+}
+
+void roundDiagonalComponent(matrix *A)
+{
+    for (int i = 0; i < A->numRow; i++)
+    {
+        for (int j = A->numRow; j < A->numCol; j++)
+        {
+            A->mat[i][j] = A->mat[i][j]/A->mat[i][j];
+        }
+    }
+}
+
+int newCombineMatrixCol(matrix A, matrix B, matrix *C)
+/*
+*   Target: C = { A | B }
+*   Input: A, B     Output: C (no need to init)
+*/
+{
+    if (A.numRow != B.numRow)
+    {
+        return 0;
+    }
+    // begin to combine
+    allocateMatrix(C,A.numRow,A.numCol+B.numCol);
+    for (int i = 0; i < A.numRow; i++)
+    {
+        for (int j = 0; j < A.numCol; j++)
+        {
+            C->mat[i][j] = A.mat[i][j];
+        }
+        for (int k = 0; k < B.numCol; k++)
+        {
+            C->mat[i][A.numCol+k] = B.mat[i][k];
+        }
+    }
+    return 1;
+}
+
+void forwardElimination(matrix *A)
+{
+    for (int i = 0; i < A->numRow; i++)
+    {
+        for (int j = i+1; j < A->numRow; j++)
+        {
+            if (A->mat[j][i] == 0)
+            {
+                continue;
+            }
+            double ratio = A->mat[j][i]/A->mat[i][i];
+            A->mat[j][i] = 0;
+            for (int k = i+1; k < A->numCol; k++)
+            {
+                A->mat[j][k] = A->mat[j][k] - ratio * A->mat[i][k];
+            }
+        }
+    }
+}
+
+void backwardSubtitution(matrix *A)
+{
+    for (int i = A->numRow - 1; i > 0; i--)
+    {
+        for (int j = i-1; j >= 0; j--)
+        {
+            if (A->mat[j][i] == 0)
+            {
+                continue;
+            }
+            A->mat[j][i] = 0.0;
+            double ratio = A->mat[j][i]/A->mat[i][i];
+            for (int k = A->numRow; k < A->numCol; k++)
+            {
+                A->mat[j][k] = A->mat[j][k] - ratio*A->mat[i][k];
+            }
+        }
+    }
+}
+
+void initializeIdentityMatrix(matrix *A)
+{
+    for (int i = 0; i < A->numRow; i++)
+    {
+        for (int j = 0; j < A->numCol; j++)
+        {
+            if (i==j)
+            {
+                A->mat[i][j] = 1;
+            }
+            else
+            {
+                A->mat[i][j] = 0;
+            }
+        }
+    }
 }
 
 /**
@@ -399,17 +528,75 @@ int findSameElementNode(struct meshInfo meshInfoDb, struct element elementDb[],i
     }
 }
 
-int applyBoundaryConditionAndReordering(struct meshInfo meshInfoDb,struct boundary boundaryDb[],matrix A, matrix b, matrix *system)
+int solveSystem(matrix LHSMatrix, matrix RHSVector, struct meshInfo meshInfoDb, struct boundary boundaryDb[],
+                struct node nodeDb[],matrix* result)
 {
-    // reordering
-    for (int i = 0; i < meshInfoDb.boundaryNum; i++)
+    // reorder the nodelist
+    int reorderList[meshInfoDb.nodeNum];
+    reorderNodeList(meshInfoDb,boundaryDb,nodeDb,&reorderList);
+
+    // reorder the global matrix and load vector
+    matrix reorderLHSMatrix;
+    allocateMatrix(&reorderLHSMatrix,LHSMatrix.numRow,LHSMatrix.numCol);
+    matrix reorderRHSVector;
+    allocateMatrix(&reorderRHSVector,RHSVector.numRow,RHSVector.numCol);
+    for (int i = 0; i < meshInfoDb.nodeNum; i++)
     {
-        int nodeId = boundaryDb[i].nodeId;
-        
+        reorderRHSVector.mat[i][0] = RHSVector.mat[reorderList[i]][0];
+        for (int j = 0; j < LHSMatrix.numCol; j++)
+        {
+            reorderLHSMatrix.mat[i][j] = LHSMatrix.mat[reorderList[i]][reorderList[j]];
+        }
     }
 
+    matrix Kaa;
+    matrix Kab;
+    matrix fa;
+    matrix ub;
 
 
+}
 
-    return 1;
+void reorderNodeList(struct meshInfo meshInfoDb, struct boundary boundaryDb[],
+        struct node nodeDb[], int *reorderList[])
+{
+    int boundaryNodeList[meshInfoDb.boundaryNum];
+    for (int i = 0; i < meshInfoDb.boundaryNum; i++)
+    {
+        boundaryNodeList[i] = boundaryDb[i].nodeId;
+    }
+
+    //int reorderIntNodeList[meshInfoDb.nodeNum-meshInfoDb.boundaryNum];
+    int reorderBouNodeList[meshInfoDb.boundaryNum];
+
+    int internalIndex = 0;
+    int boundaryIndex = 0;
+    for (int i = 0; i < meshInfoDb.nodeNum; i++)
+    {
+        int state = 0;
+        for (int j = 0; j < meshInfoDb.boundaryNum; j++)
+        {
+            if (nodeDb[i].id == boundaryNodeList[j])
+            {
+                state = 1;
+                break;
+            }
+            state = 0;
+        }
+        if (state == 1) // for boundary ub
+        {
+            reorderBouNodeList[boundaryIndex] = i;
+            boundaryIndex++;
+        }
+        else // for internal Kaa, Kab, fa
+        {
+            reorderList[internalIndex] = i;
+            internalIndex++;
+        }
+    }
+
+    for (int i = internalIndex; i < meshInfoDb.nodeNum; i++)
+    {
+        reorderList[i] = reorderBouNodeList[i-internalIndex];
+    }
 }

@@ -11,12 +11,16 @@ typedef struct
 void allocateMatrix(matrix *T, int numRow, int numCol);
 void initilizeMatrix(matrix *T, int numRow, int numCol);
 void freeMatrix(matrix *T);
-int forwardElimination(matrix *A, matrix *b);
+int gaussForwardElimination(matrix *A, matrix *b);
 void fillMatrix33Test(matrix *T);
-int backwardSubstitution(matrix *A, matrix* b);
+int gaussBackwardSubstitution(matrix *A, matrix* b);
 int gaussianElimination(matrix *A,matrix *b);
 void fillMatrix31Test(matrix *T);
 int transposeMatrix(matrix *A, int rowPosOne, int rowPosTwo);
+int getRowOfMatrix(matrix A, int rowPos, matrix *row);
+int putRowOfMatrix(matrix row, int rowPos, matrix *A);
+int inverseMatrix(matrix *A);
+
 /**
  * @brief Database, solver and pre post processing
  * 
