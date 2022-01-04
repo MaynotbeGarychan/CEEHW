@@ -41,12 +41,13 @@ int main()
     initilizeMatrix(&loadVector, meshInfoDb.nodeNum,1);
     assembleLoadVector(meshInfoDb,elementDb,nodeDb,&loadVector);
 
-    // assemble element matrix
+    // assemble element matrix (checked)
     matrix elemMatrix[meshInfoDb.elementNum];
     for (int i = 0; i < meshInfoDb.elementNum; i++)
     {
         initilizeMatrix(&(elemMatrix[i]),2,2);
         assembleElementStiffnessMatrix(elementDb[i],nodeDb,&(elemMatrix[i]));
+        //printMatrix(&(elemMatrix[i]));
     }
 
     // assemble global matrix
@@ -54,10 +55,15 @@ int main()
     initilizeMatrix(&globalMatrix,meshInfoDb.nodeNum,meshInfoDb.nodeNum);
     assembleGlobalStiffnessMatrix(meshInfoDb,boundaryDb,elementDb,nodeDb,elemMatrix,&globalMatrix);
 
-    // solve the system
-    matrix result;
-    solveSystem(globalMatrix,loadVector,meshInfoDb,boundaryDb,nodeDb,&result);
+    // combine global matrix and loadvector to a linear system
+    matrix linearSystem;
+    newCombineMatrixCol(globalMatrix,loadVector,&linearSystem);
 
+    // solve the FEM system
+    //matrix result;
+    //solveSystem(globalMatrix,loadVector,meshInfoDb,boundaryDb,nodeDb,&result);
+    printMatrix(&linearSystem);
+    
     return 1;
 }
 
@@ -96,7 +102,7 @@ void initilizeMatrix(matrix *T, int numRow, int numCol)
     {
         for (int j = 0; j < numCol; j++)
         {
-            T->mat[i][j] = 1.0;
+            T->mat[i][j] = 0.0;
         } 
     }
 }
@@ -109,6 +115,19 @@ void freeMatrix(matrix *T)
         free(T->mat[i]);
     }
     free(T->mat);
+}
+
+// print the matrix
+void printMatrix(matrix *T)
+{
+    for (int i = 0; i < T->numRow; i++)
+    {
+        for (int j = 0; j < T->numCol; j++)
+        {
+            printf("%lf,",T->mat[i][j]);
+        }
+        printf("\n");
+    }
 }
 
 // fill the matrix for test
@@ -132,46 +151,48 @@ void fillMatrix31Test(matrix *T)
 }
 
 // Direct method
-int gaussianElimination(matrix *A,matrix *b)
+int gaussianEliminationFDM(matrix *A)
 /*begin
-    Target: solve Ax = b
+    Target: solve ax = b, A = { a | b }
     Step:
         1. Forward elimination
         2. Backward substitution
     Flag:   1: True  0:False
 end*/
 {
-    if (A->numRow != b->numRow)
-    {
-        return 0;
-    }
     // forward elimination
-    if (!gaussForwardElimination(A,b))
+    if (!forwardElimintationPivot(A))
     {
         return 0;
     }
     // backward substitution
-    if (!gaussBackwardSubstitution(A,b))
+    if (!backwardSubtitution(A))
     {
         return 0;
     }
     return 1;
 }
 
-// Forward elimination
-int gaussForwardElimination(matrix *A, matrix *b)
+// foward elimination with pivot
+int forwardElimintationPivot(matrix *A)
 {
-    if(A->numRow != b->numRow)
-    {
-        return 0;
-    }
-    if (b->numCol != 1)
-    {
-        // current just support load vector
-        return 0;
-    }
     for (int i = 0; i < A->numRow; i++)
     {
+        // if 0, need to be swap
+        if (A->mat[i][i] == 0)
+        {
+            // find the maximum pivot
+            int targetPos = i+1;
+            for (int j = i+2; j < A->numRow-1; j++)
+            {
+                if (A->mat[j][i]>A->mat[targetPos][i])
+                {
+                    targetPos = j;
+                }
+            }
+            swapRowMatrix(A,targetPos,i);
+        }
+        // if non zero, we can eliminte it
         for (int j = i+1; j < A->numRow; j++)
         {
             if (A->mat[j][i] == 0)
@@ -184,39 +205,12 @@ int gaussForwardElimination(matrix *A, matrix *b)
             {
                 A->mat[j][k] = A->mat[j][k] - ratio * A->mat[i][k];
             }
-            b->mat[j][0] = b->mat[j][0] - ratio * b->mat[i][0];
         }
     }
     return 1;
 }
 
-// backward substitution
-int gaussBackwardSubstitution(matrix *A, matrix* b)
-{
-    if(A->numRow != b->numRow)
-    {
-        return 0;
-    }
-    if (b->numCol != 1)
-    {
-        // current just support load vector
-        return 0;
-    }
-    for (int i = A->numRow - 1; i > 0; i--)
-    {
-        for (int j = i-1; j >= 0; j--)
-        {
-            if (A->mat[j][i] == 0)
-            {
-                continue;
-            }
-            double ratio = A->mat[j][i]/A->mat[i][i];
-            A->mat[j][i] = 0.0;
-            b->mat[j][0] = b->mat[j][0]-ratio*b->mat[i][0];
-        }
-    }
-    return 1;
-}
+
 
 // transpose two line of matrix (by linePos)
 int transposeMatrix(matrix *A, int rowPosOne, int rowPosTwo)
@@ -359,8 +353,12 @@ int newCombineMatrixCol(matrix A, matrix B, matrix *C)
     return 1;
 }
 
-void forwardElimination(matrix *A)
+int forwardElimination(matrix *A)
 {
+    if (A->numCol < A->numRow)
+    {
+        return 0;
+    }
     for (int i = 0; i < A->numRow; i++)
     {
         for (int j = i+1; j < A->numRow; j++)
@@ -377,10 +375,15 @@ void forwardElimination(matrix *A)
             }
         }
     }
+    return 1;
 }
 
-void backwardSubtitution(matrix *A)
+int backwardSubtitution(matrix *A)
 {
+    if (A->numCol < A->numRow)
+    {
+        return 0;
+    }
     for (int i = A->numRow - 1; i > 0; i--)
     {
         for (int j = i-1; j >= 0; j--)
@@ -396,6 +399,18 @@ void backwardSubtitution(matrix *A)
                 A->mat[j][k] = A->mat[j][k] - ratio*A->mat[i][k];
             }
         }
+    }
+    return 1;
+}
+
+void swapRowMatrix(matrix *A,int rowOnePos,int rowTwoPos)
+{
+    double temp;
+    for (int i = 0; i < A->numCol; i++)
+    {
+        temp = A->mat[rowOnePos][i];
+        A->mat[rowOnePos][i] = A->mat[rowTwoPos][i];
+        A->mat[rowTwoPos][i] = temp;
     }
 }
 
@@ -558,13 +573,12 @@ int readMeshFile(const char* fileName, struct meshInfo *meshInfoDb, struct node 
 int assembleLoadVector(struct meshInfo meshInfoDb, struct element elementDb[],
          struct node nodeDb[], matrix *loadVector)
 /*begin
-*   Target: assmble loadvector without boundary conditions
+*   Target: assmble loadvector
 */
 {
     initilizeMatrix(loadVector, meshInfoDb.nodeNum, 1);
     for (int i = 0; i < meshInfoDb.elementNum; i++)
     {
-        initilizeMatrix(loadVector, 2, 1);
         double temp = 0.5*(nodeDb[elementDb[i].nodeId[0]-1].x - nodeDb[elementDb[i].nodeId[1]-1].x);
         loadVector->mat[elementDb[i].nodeId[0]-1][0] += temp;
         loadVector->mat[elementDb[i].nodeId[1]-1][0] += -temp;
@@ -586,7 +600,7 @@ int assembleElementStiffnessMatrix(struct element elementDb,struct node nodeDb[]
     elemMatrix->mat[1][1] = k;
     // non-diagonal
     elemMatrix->mat[0][1] = -k;
-    elemMatrix->mat[1][1] = -k;
+    elemMatrix->mat[1][0] = -k;
 
     return 1;
 }
@@ -595,27 +609,27 @@ int assembleElementStiffnessMatrix(struct element elementDb,struct node nodeDb[]
 int assembleGlobalStiffnessMatrix(struct meshInfo meshInfoDb,struct boundary boundaryDb[],struct element elementDb[],
                 struct node nodeDb[], matrix elemMatrix[],matrix *globalMatrix)
 {
-    // from element stiffness matrix
+    // from element stiffness matrix (checked)
     for (int elemId = 0; elemId < meshInfoDb.elementNum; elemId++)
     {
         int leftNodePos = elementDb[elemId].nodeId[0]-1;
         int rightNodePos = elementDb[elemId].nodeId[1]-1;
-
         globalMatrix->mat[leftNodePos][leftNodePos] += elemMatrix[elemId].mat[0][0];
         globalMatrix->mat[rightNodePos][rightNodePos] += elemMatrix[elemId].mat[1][1];
         globalMatrix->mat[leftNodePos][rightNodePos] += elemMatrix[elemId].mat[0][1];
         globalMatrix->mat[rightNodePos][leftNodePos] += elemMatrix[elemId].mat[1][0];
     }
-    
-    // from boundary conditions
+    //printMatrix(globalMatrix);
+    // from boundary conditions (unchecked)
     for (int i = 0; i < meshInfoDb.boundaryNum; i++)
     {
         int boundaryNodeId = boundaryDb[i].nodeId;
         int linkNodeId = findSameElementNode(meshInfoDb,elementDb,boundaryNodeId);
         double temp = 1/mathAbs(nodeDb[boundaryNodeId-1].x-nodeDb[linkNodeId-1].x);
-        globalMatrix->mat[boundaryNodeId-1][boundaryNodeId-1] = temp;
-        globalMatrix->mat[boundaryNodeId-1][linkNodeId-1] = -temp;
+        globalMatrix->mat[boundaryNodeId-1][boundaryNodeId-1] += temp;
+        globalMatrix->mat[boundaryNodeId-1][linkNodeId-1] += -temp;
     }
+    printMatrix(globalMatrix);
     return 1;
 }
 
@@ -644,7 +658,7 @@ int findSameElementNode(struct meshInfo meshInfoDb, struct element elementDb[],i
     return 0;
 }
 
-int solveSystem(matrix LHSMatrix, matrix RHSVector, struct meshInfo meshInfoDb, struct boundary boundaryDb[],
+int solveFEMSystem(matrix LHSMatrix, matrix RHSVector, struct meshInfo meshInfoDb, struct boundary boundaryDb[],
                 struct node nodeDb[],matrix* result)
 {
     // reorder the nodelist
