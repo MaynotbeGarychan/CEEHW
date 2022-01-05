@@ -3,8 +3,8 @@
 #include "1DFDM.h"
 #include <string.h>
 
-//#define ProblemOne;
-#define ProblemTwo
+#define ProblemOne
+//#define ProblemTwo
 
 int main()
 {
@@ -108,16 +108,23 @@ int main()
     // -------------------------------------------- //
     // apply boundary condition to linear system
     applyBoundaryCondtion(&linearSystem,meshInfoDb,boundaryDb);
-
-    // solve 
-    //matrix result;
-    gaussianEliminationFDM(&linearSystem);
+    
+    // make a index vector to track the result index during swap
+    matrixInt resultIndex;
+    allocateMatrixInt(&resultIndex,linearSystem.numRow,1);
+    for (int i = 0; i < resultIndex.numRow; i++)
+    {
+        resultIndex.mat[i][0] = nodeDb[i].id;
+    }
+    
+    // solve the linear system with gauss elemination solver
+    gaussianEliminationFDM(&linearSystem,&resultIndex);
     //printMatrix(&linearSystem);
 
     // print the result
     for (int i = 1; i < linearSystem.numRow-1; i++)
     {
-        printf("x%d = %lf,\n",i+1,linearSystem.mat[i][linearSystem.numCol-1]);
+        printf("x%d = %lf,\n",resultIndex.mat[i][0],linearSystem.mat[i][linearSystem.numCol-1]);
     }
 
     // Output the result //
@@ -127,12 +134,22 @@ int main()
     {
         return 0;
     }
-    for (int i = 1; i < linearSystem.numRow-1; i++)
+    for (int i = 0; i < linearSystem.numRow; i++) // print the value of internal nodes
     {
-        fprintf(fileIo,"x%d = %lf,\n",i+1,linearSystem.mat[i][linearSystem.numCol-1]);
+        int nodeId = resultIndex.mat[i][0];
+        if (linearSystem.mat[i][i] != 0)
+        {
+            fprintf(fileIo,"x%d %lf %lf\n",nodeId,nodeDb[nodeId-1].x,linearSystem.mat[i][linearSystem.numCol-1]);
+        }
     }
-    fclose(OutputIo);
+    for (int i = 0; i < meshInfoDb.boundaryNum; i++) // print the value of boundary nodes
+    {
+        int nodeId =boundaryDb[i].nodeId;
+        fprintf(fileIo,"x%d %lf %lf\n",nodeId,nodeDb[nodeId-1].x,boundaryDb[i].value);
+    }
     
+    fclose(OutputIo);
+
     return 1;
 }
 
@@ -221,7 +238,7 @@ void fillMatrix31Test(matrix *T)
 }
 
 // Direct method
-int gaussianEliminationFDM(matrix *A)
+int gaussianEliminationFDM(matrix *A, matrixInt *indexVec)
 /*begin
     Target: solve ax = b, A = { a | b }
     Step:
@@ -231,7 +248,7 @@ int gaussianEliminationFDM(matrix *A)
 end*/
 {
     // forward elimination
-    if (!forwardElimintationPivot(A))
+    if (!forwardElimintationPivot(A, indexVec))
     {
         return 0;
     }
@@ -251,7 +268,7 @@ end*/
 }
 
 // foward elimination with pivot
-int forwardElimintationPivot(matrix *A)
+int forwardElimintationPivot(matrix *A, matrixInt *indexVec)
 /*begin
 *   Note: the all-zero row should be skipped in the future
 end*/
@@ -271,6 +288,7 @@ end*/
                 }
             }
             swapRowMatrix(A,targetPos,i);
+            swapRowMatrixInt(indexVec,targetPos,i);
         }
         // if non zero, we can eliminte it
         for (int j = i+1; j < A->numRow; j++)
@@ -500,6 +518,17 @@ int backwardSubtitution(matrix *A)
 void swapRowMatrix(matrix *A,int rowOnePos,int rowTwoPos)
 {
     double temp;
+    for (int i = 0; i < A->numCol; i++)
+    {
+        temp = A->mat[rowOnePos][i];
+        A->mat[rowOnePos][i] = A->mat[rowTwoPos][i];
+        A->mat[rowTwoPos][i] = temp;
+    }
+}
+
+void swapRowMatrixInt(matrixInt *A,int rowOnePos,int rowTwoPos)
+{
+    int temp;
     for (int i = 0; i < A->numCol; i++)
     {
         temp = A->mat[rowOnePos][i];

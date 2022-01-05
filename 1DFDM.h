@@ -20,7 +20,7 @@ void initilizeMatrix(matrix *T, int numRow, int numCol);
 void freeMatrix(matrix *T);
 void fillMatrix33Test(matrix *T);
 void printMatrix(matrix *T);
-int gaussianEliminationFDM(matrix *A);
+int gaussianEliminationFDM(matrix *A, matrixInt *indexVec);
 void fillMatrix31Test(matrix *T);
 int transposeMatrix(matrix *A, int rowPosOne, int rowPosTwo);
 int getRowOfMatrix(matrix A, int rowPos, matrix *row);
@@ -33,8 +33,9 @@ void getBlockOfMatrix(matrix A, int beginRowPos, int endRowPos, int beginColPos 
 double dotProduct(matrix a, matrix b);
 void initializeIdentityMatrix(matrix *A);
 int newCombineMatrixCol(matrix A, matrix B, matrix *C);
-int forwardElimintationPivot(matrix *A);
+int forwardElimintationPivot(matrix *A, matrixInt *indexVec);
 void swapRowMatrix(matrix *A,int rowOnePos,int rowTwoPos);
+void swapRowMatrixInt(matrixInt *A,int rowOnePos,int rowTwoPos);
 
 /**
  * @brief math related functions
