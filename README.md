@@ -6,4 +6,11 @@ as well as Supercomputer utilization
 ### Report One : 1DFDM with Gaussian Elimination
 
 Here is the program structure:
+![](https://github.com/MaynotbeGarychan/CEE_hw/blob/main/figures/structureOf1DFDM.JPG)
+
+Problem:
+![](https://github.com/MaynotbeGarychan/CEE_hw/blob/main/figures/mesh2OfProblem1.JPG)
+
+Result:
+![](https://github.com/MaynotbeGarychan/CEE_hw/blob/main/figures/FigureOf1DFDMProblem2.JPG)
 
