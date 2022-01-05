@@ -16,5 +16,3 @@ Problem:
 
 Result:
 ![](https://github.com/MaynotbeGarychan/CEE_hw/blob/main/figures/FigureOf1DFDMProblem2.JPG)
-
-### Report Two : 2DFDM with Gaussian Elimination
