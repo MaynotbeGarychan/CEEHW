@@ -3,8 +3,8 @@
 #include "1DFDM.h"
 #include <string.h>
 
-#define ProblemOne
-//#define ProblemTwo
+//#define ProblemOne
+#define ProblemTwo
 
 int main()
 {

@@ -37,3 +37,4 @@ ax.set_xlabel("x",fontsize=15)
 ax.set_ylabel("u",fontsize=15)
 plt.legend()
 plt.show()
+
