@@ -3,10 +3,14 @@
 #include "1DFDM.h"
 #include <string.h>
 
+//#define ProblemOne;
+#define ProblemTwo
+
 int main()
 {
-    // reading mesh file //
-    // ----------------  //
+    //      reading mesh file     //
+    // -------------------------  //
+#ifdef ProblemOne
     struct meshInfo meshInfoDb;
     FILE *fileIo = fopen("problem1.txt","rt");
     if (fileIo == NULL)
@@ -14,8 +18,9 @@ int main()
         return 0;
     }
     char readType[4];
-    fscanf(fileIo,"%s %d %d %d",readType,&(meshInfoDb.nodeNum),&(meshInfoDb.elementNum),&(meshInfoDb.boundaryNum));
-    
+
+    fscanf(fileIo,"%s %d %d %d %d",readType,&(meshInfoDb.id),&(meshInfoDb.nodeNum),&(meshInfoDb.elementNum),&(meshInfoDb.boundaryNum));
+
     struct node nodeDb[meshInfoDb.nodeNum];
     struct element elementDb[meshInfoDb.elementNum];
     struct boundary boundaryDb[meshInfoDb.boundaryNum];
@@ -31,12 +36,51 @@ int main()
 
     fscanf(fileIo,"%s %d %lf",readType,&(boundaryDb[0].nodeId),&(boundaryDb[0].value));
     fscanf(fileIo,"%s %d %lf",readType,&(boundaryDb[1].nodeId),&(boundaryDb[1].value));
-    // end read mesh file
+    fclose(fileIo);
+#endif
+#ifdef ProblemTwo
+    struct meshInfo meshInfoDb;
+    FILE *fileIo = fopen("problem2.txt","rt");
+    if (fileIo == NULL)
+    {
+        return 0;
+    }
+    char readType[4];
+
+    fscanf(fileIo,"%s %d %d %d %d",readType,&(meshInfoDb.id),&(meshInfoDb.nodeNum),&(meshInfoDb.elementNum),&(meshInfoDb.boundaryNum));
+
+    struct node nodeDb[meshInfoDb.nodeNum];
+    struct element elementDb[meshInfoDb.elementNum];
+    struct boundary boundaryDb[meshInfoDb.boundaryNum];
+    
+    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[0].id),&(nodeDb[0].x));
+    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[1].id),&(nodeDb[1].x));
+    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[2].id),&(nodeDb[2].x));
+    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[3].id),&(nodeDb[3].x));
+    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[4].id),&(nodeDb[4].x));
+    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[5].id),&(nodeDb[5].x));
+    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[6].id),&(nodeDb[6].x));
+    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[7].id),&(nodeDb[7].x));
+    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[8].id),&(nodeDb[8].x));
+    
+    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[0].id),&(elementDb[0].nodeId[0]),&(elementDb[0].nodeId[1]));
+    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[1].id),&(elementDb[1].nodeId[0]),&(elementDb[1].nodeId[1]));
+    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[2].id),&(elementDb[2].nodeId[0]),&(elementDb[2].nodeId[1]));
+    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[3].id),&(elementDb[3].nodeId[0]),&(elementDb[3].nodeId[1]));
+    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[4].id),&(elementDb[4].nodeId[0]),&(elementDb[4].nodeId[1]));
+    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[5].id),&(elementDb[5].nodeId[0]),&(elementDb[5].nodeId[1]));
+    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[6].id),&(elementDb[6].nodeId[0]),&(elementDb[6].nodeId[1]));
+    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[7].id),&(elementDb[7].nodeId[0]),&(elementDb[7].nodeId[1]));
+
+    fscanf(fileIo,"%s %d %lf",readType,&(boundaryDb[0].nodeId),&(boundaryDb[0].value));
+    fscanf(fileIo,"%s %d %lf",readType,&(boundaryDb[1].nodeId),&(boundaryDb[1].value));
+    fclose(fileIo);
+#endif
+
 
     // assemble related matrix //
     // ----------------------- //
     // assemble loadvector from boundary conditions
-    meshInfoDb.nodeNum = 4;
     matrix loadVector;
     initilizeMatrix(&loadVector, meshInfoDb.nodeNum,1);
     assembleLoadVector(meshInfoDb,elementDb,nodeDb,&loadVector);
@@ -59,10 +103,35 @@ int main()
     matrix linearSystem;
     newCombineMatrixCol(globalMatrix,loadVector,&linearSystem);
 
-    // solve the FEM system
+
+    // solve the linear system by Gauss Elimination //
+    // -------------------------------------------- //
+    // apply boundary condition to linear system
+    applyBoundaryCondtion(&linearSystem,meshInfoDb,boundaryDb);
+
+    // solve 
     //matrix result;
-    //solveSystem(globalMatrix,loadVector,meshInfoDb,boundaryDb,nodeDb,&result);
-    printMatrix(&linearSystem);
+    gaussianEliminationFDM(&linearSystem);
+    //printMatrix(&linearSystem);
+
+    // print the result
+    for (int i = 1; i < linearSystem.numRow-1; i++)
+    {
+        printf("x%d = %lf,\n",i+1,linearSystem.mat[i][linearSystem.numCol-1]);
+    }
+
+    // Output the result //
+    // ----------------- //
+    FILE *OutputIo = fopen("output.txt","w");
+    if (OutputIo == NULL)
+    {
+        return 0;
+    }
+    for (int i = 1; i < linearSystem.numRow-1; i++)
+    {
+        fprintf(fileIo,"x%d = %lf,\n",i+1,linearSystem.mat[i][linearSystem.numCol-1]);
+    }
+    fclose(OutputIo);
     
     return 1;
 }
@@ -128,6 +197,7 @@ void printMatrix(matrix *T)
         }
         printf("\n");
     }
+    printf("\n");
 }
 
 // fill the matrix for test
@@ -165,8 +235,15 @@ end*/
     {
         return 0;
     }
+    //printMatrix(A);
     // backward substitution
     if (!backwardSubtitution(A))
+    {
+        return 0;
+    }
+    //printMatrix(A);
+    // rounde the diagonal component
+    if (!roundDiagonalComponent(A))
     {
         return 0;
     }
@@ -175,6 +252,9 @@ end*/
 
 // foward elimination with pivot
 int forwardElimintationPivot(matrix *A)
+/*begin
+*   Note: the all-zero row should be skipped in the future
+end*/
 {
     for (int i = 0; i < A->numRow; i++)
     {
@@ -182,10 +262,10 @@ int forwardElimintationPivot(matrix *A)
         if (A->mat[i][i] == 0)
         {
             // find the maximum pivot
-            int targetPos = i+1;
-            for (int j = i+2; j < A->numRow-1; j++)
+            int targetPos = i;
+            for (int j = i+1; j < A->numRow-1; j++)
             {
-                if (A->mat[j][i]>A->mat[targetPos][i])
+                if (mathAbs(A->mat[j][i]) > mathAbs(A->mat[targetPos][i]))
                 {
                     targetPos = j;
                 }
@@ -316,15 +396,25 @@ void getBlockOfMatrix(matrix A, int beginRowPos, int endRowPos, int beginColPos 
     }
 }
 
-void roundDiagonalComponent(matrix *A)
+int roundDiagonalComponent(matrix *A)
 {
+    if (A->numRow>A->numCol)
+    {
+        return 0;
+    }
     for (int i = 0; i < A->numRow; i++)
     {
+        if (A->mat[i][i] == 1 || A->mat[i][i] == 0)
+        {
+            continue;
+        }
         for (int j = A->numRow; j < A->numCol; j++)
         {
-            A->mat[i][j] = A->mat[i][j]/A->mat[i][j];
+            A->mat[i][j] = A->mat[i][j]/A->mat[i][i];
         }
+        A->mat[i][i] = 1.0;
     }
+    return 1;
 }
 
 int newCombineMatrixCol(matrix A, matrix B, matrix *C)
@@ -386,14 +476,18 @@ int backwardSubtitution(matrix *A)
     }
     for (int i = A->numRow - 1; i > 0; i--)
     {
+        if (A->mat[i][i] == 0)
+        {
+            continue;
+        }
         for (int j = i-1; j >= 0; j--)
         {
             if (A->mat[j][i] == 0)
             {
                 continue;
             }
-            A->mat[j][i] = 0.0;
             double ratio = A->mat[j][i]/A->mat[i][i];
+            A->mat[j][i] = 0.0;
             for (int k = A->numRow; k < A->numCol; k++)
             {
                 A->mat[j][k] = A->mat[j][k] - ratio*A->mat[i][k];
@@ -519,24 +613,18 @@ int allocateArrayInt(int *array, int length)
  */
 
 // read header of txt
-int readMeshHeader(const char* fileName, struct meshInfo *meshInfoDb)
+int readMeshHeader(FILE *fileIo, struct meshInfo *meshInfoDb)
 /*begin
     Target: Read the basic information of meshes
     Flag:   1: True  0:False
 end*/
 {
-    FILE *fileIo = fopen(fileName,"rt");
-    if (fileIo == NULL)
-    {
-        return 0;
-    }
     printf("Begin to read the input file\n");
 
     // meshinfo
     char readType[4];
     fscanf(fileIo,"%s %d %d %d",readType,&(meshInfoDb->nodeNum),&(meshInfoDb->elementNum),&(meshInfoDb->boundaryNum));
     
-    fclose(fileIo);
     return 1;
 }
 
@@ -569,7 +657,7 @@ int readMeshFile(const char* fileName, struct meshInfo *meshInfoDb, struct node 
  * 
  */
 
-// Assemble load vector
+// Assemble load vector (checked)
 int assembleLoadVector(struct meshInfo meshInfoDb, struct element elementDb[],
          struct node nodeDb[], matrix *loadVector)
 /*begin
@@ -581,8 +669,9 @@ int assembleLoadVector(struct meshInfo meshInfoDb, struct element elementDb[],
     {
         double temp = 0.5*(nodeDb[elementDb[i].nodeId[0]-1].x - nodeDb[elementDb[i].nodeId[1]-1].x);
         loadVector->mat[elementDb[i].nodeId[0]-1][0] += temp;
-        loadVector->mat[elementDb[i].nodeId[1]-1][0] += -temp;
+        loadVector->mat[elementDb[i].nodeId[1]-1][0] += temp;
     }
+    //printMatrix(loadVector);
     return 1;
 }
 
@@ -605,11 +694,11 @@ int assembleElementStiffnessMatrix(struct element elementDb,struct node nodeDb[]
     return 1;
 }
 
-// Assemble global stiffness matrix
+// Assemble global stiffness matrix (checked)
 int assembleGlobalStiffnessMatrix(struct meshInfo meshInfoDb,struct boundary boundaryDb[],struct element elementDb[],
                 struct node nodeDb[], matrix elemMatrix[],matrix *globalMatrix)
 {
-    // from element stiffness matrix (checked)
+    // from element stiffness matrix
     for (int elemId = 0; elemId < meshInfoDb.elementNum; elemId++)
     {
         int leftNodePos = elementDb[elemId].nodeId[0]-1;
@@ -620,16 +709,16 @@ int assembleGlobalStiffnessMatrix(struct meshInfo meshInfoDb,struct boundary bou
         globalMatrix->mat[rightNodePos][leftNodePos] += elemMatrix[elemId].mat[1][0];
     }
     //printMatrix(globalMatrix);
-    // from boundary conditions (unchecked)
+    // from boundary conditions
     for (int i = 0; i < meshInfoDb.boundaryNum; i++)
     {
         int boundaryNodeId = boundaryDb[i].nodeId;
         int linkNodeId = findSameElementNode(meshInfoDb,elementDb,boundaryNodeId);
         double temp = 1/mathAbs(nodeDb[boundaryNodeId-1].x-nodeDb[linkNodeId-1].x);
-        globalMatrix->mat[boundaryNodeId-1][boundaryNodeId-1] += temp;
-        globalMatrix->mat[boundaryNodeId-1][linkNodeId-1] += -temp;
+        globalMatrix->mat[boundaryNodeId-1][boundaryNodeId-1] += -temp;
+        globalMatrix->mat[boundaryNodeId-1][linkNodeId-1] += temp;
     }
-    printMatrix(globalMatrix);
+    //printMatrix(globalMatrix);
     return 1;
 }
 
@@ -649,10 +738,6 @@ int findSameElementNode(struct meshInfo meshInfoDb, struct element elementDb[],i
         else if (nodeId == nodeList[1])
         {
             return nodeList[0];
-        }
-        else
-        {
-            return 0;
         }
     }
     return 0;
@@ -752,5 +837,20 @@ void reorderNodeList(struct meshInfo meshInfoDb, struct boundary boundaryDb[],
     for (int i = internalIndex; i < meshInfoDb.nodeNum; i++, reorderList++)
     {
         reorderList->mat[0][i] = reorderBouNodeList[i-internalIndex];
+    }
+}
+
+void applyBoundaryCondtion(matrix *linearSystem, struct meshInfo meshInfoDb,struct boundary boundaryDb[])
+{
+    for (int i = 0; i < meshInfoDb.boundaryNum; i++)
+    {
+        double val = boundaryDb[i].value;
+        int pos = boundaryDb[i].nodeId-1;
+        int lvPos = linearSystem->numCol-1;
+        for (int j = 0; j < linearSystem->numRow; j++)
+        {
+            linearSystem->mat[j][lvPos] -= linearSystem->mat[j][pos]*val;
+            linearSystem->mat[j][pos] = 0.0;
+        }
     }
 }

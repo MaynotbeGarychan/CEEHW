@@ -28,7 +28,7 @@ int putRowOfMatrix(matrix row, int rowPos, matrix *A);
 int inverseMatrix(matrix *A);
 int backwardSubtitution(matrix *A);
 int forwardElimination(matrix *A);
-void roundDiagonalComponent(matrix *A);
+int roundDiagonalComponent(matrix *A);
 void getBlockOfMatrix(matrix A, int beginRowPos, int endRowPos, int beginColPos ,int endColPos, matrix *block);
 double dotProduct(matrix a, matrix b);
 void initializeIdentityMatrix(matrix *A);
@@ -76,12 +76,13 @@ struct boundary
 
 struct meshInfo
 {
+    int id;
     int nodeNum;
     int elementNum;
     int boundaryNum;
 };
 
-int readMeshHeader(const char* fileName, struct meshInfo *meshInfoDb);
+int readMeshHeader(FILE *fileIo, struct meshInfo *meshInfoDb);
 int readMeshFile(const char* fileName, struct meshInfo *meshInfoDb, struct node *nodeDb);
 
 int assembleElementStiffnessMatrix(struct element elementDb,struct node nodeDb[],matrix *elemMatrix);
@@ -93,3 +94,4 @@ int solveFEMSystem(matrix LHSMatrix, matrix RHSVector, struct meshInfo meshInfoD
 int findSameElementNode(struct meshInfo meshInfoDb, struct element elementDb[],int nodeId);
 void reorderNodeList(struct meshInfo meshInfoDb, struct boundary boundaryDb[],
         struct node nodeDb[], matrixInt *reorderList);
+void applyBoundaryCondtion(matrix *linearSystem, struct meshInfo meshInfoDb,struct boundary boundaryDb[]);

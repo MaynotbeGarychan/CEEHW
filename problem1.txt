@@ -1,4 +1,4 @@
-mesh 4 3 2
+mesh 1 4 3 2
 node 1 0
 node 2 0.25
 node 3 0.5
