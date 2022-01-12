@@ -488,10 +488,14 @@ double funcElemMatrix(matrix tranInvJ, matrix dfaidr, int m, int n)
     double dr1dy = tranInvJ.mat[1][0];
     double dr2dy = tranInvJ.mat[1][1];
 
-    double retVal = (dr1dx*dr1dx+dr1dy*dr1dy)*dfaidr.mat[m][0]*dfaidr.mat[n][0] + 
-        (dr1dx*dr2dx+dr1dy*dr2dy)*dfaidr.mat[m][0]*dfaidr.mat[n][1] +
-        (dr1dx*dr1dx+dr1dy*dr1dy)*dfaidr.mat[m][1]*dfaidr.mat[n][0] + 
-        (dr2dx*dr2dx+dr2dy*dr2dy)*dfaidr.mat[m][1]*dfaidr.mat[n][1];
+    double x1sady1s = tranInvJ.mat[0][0]*tranInvJ.mat[0][0]+tranInvJ.mat[0][1]*tranInvJ.mat[0][1];
+    double x1x2ady1y2 = tranInvJ.mat[0][0]*tranInvJ.mat[0][1]+tranInvJ.mat[1][0]*tranInvJ.mat[1][1];
+    double y1sady2s = tranInvJ.mat[1][0]*tranInvJ.mat[1][0]+tranInvJ.mat[1][1]*tranInvJ.mat[1][1];
+
+    double retVal = x1sady1s*dfaidr.mat[m][0]*dfaidr.mat[n][0]+
+        x1x2ady1y2*(dfaidr.mat[m][0]*dfaidr.mat[n][1]+dfaidr.mat[m][1]*dfaidr.mat[n][0])+
+        y1sady2s*dfaidr.mat[m][1]*dfaidr.mat[n][1];
+
     return retVal;
 }
 
