@@ -21,7 +21,7 @@ void freeMatrix(matrix *T);
 void printMatrix(matrix *T);
 double calculateDetMatrix22(matrix T);
 int inverseMatrix(matrix *A);
-void initializeIdentityMatrix(matrix *A);
+void initializeIdentityMatrix(matrix *A, int numRow);
 int newCombineMatrixCol(matrix A, matrix B, matrix *C);
 int forwardElimination(matrix *A);
 int backwardSubtitution(matrix *A);

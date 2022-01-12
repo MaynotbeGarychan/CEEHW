@@ -86,9 +86,10 @@ int main()
     printMatrix(&appliedSystemMatrix);
 
     // solve
-    //matrix idvec;
-    //allocateMatrix(&idvec,dof,1);
-    //gaussianEliminationFEM(&appliedSystemMatrix,&idvec);
+    matrixInt idvec;
+    allocateMatrixInt(&idvec,dof,1);
+    gaussianEliminationFEM(&appliedSystemMatrix,&idvec);
+    printMatrix(&appliedSystemMatrix);
 
     return 1;
 }
@@ -162,7 +163,7 @@ void printMatrix(matrix *T)
 int inverseMatrix(matrix *A)
 {
     matrix inverseA;
-    initializeIdentityMatrix(&inverseA);
+    initializeIdentityMatrix(&inverseA,A->numRow);
     matrix C;
     if (!newCombineMatrixCol(*A,inverseA,&C))
     {
@@ -171,7 +172,7 @@ int inverseMatrix(matrix *A)
     forwardElimination(&C);
     backwardSubtitution(&C);
     roundDiagonalComponent(&C);
-    getBlockOfMatrix(C,0,C.numRow-1,A->numCol,2*A->numCol-1,A);
+    getBlockOfMatrix(C,0,C.numRow-1,A->numCol,C.numCol-1,A);
     return 1;
 }
 
@@ -182,7 +183,7 @@ void getBlockOfMatrix(matrix A, int beginRowPos, int endRowPos, int beginColPos 
 *   Input: A, begin, end     Output: block (no need to init)
 */
 {
-    int blockNumRow = endRowPos-beginColPos+1;
+    int blockNumRow = endRowPos-beginRowPos+1;
     int blockNumCol = endColPos-beginColPos+1;
     allocateMatrix(block, blockNumRow,blockNumCol);
     for (int i = 0; i < blockNumRow; i++)
@@ -300,8 +301,9 @@ int newCombineMatrixCol(matrix A, matrix B, matrix *C)
 }
 
 // get an identity matrix
-void initializeIdentityMatrix(matrix *A)
+void initializeIdentityMatrix(matrix *A, int numRow)
 {
+    allocateMatrix(A,numRow,numRow);
     for (int i = 0; i < A->numRow; i++)
     {
         for (int j = 0; j < A->numCol; j++)
@@ -456,7 +458,6 @@ void assembleElementStiffnessMatrix(struct element elementDb,struct node nodeDb[
     assembleTransMatrix(elementDb,nodeDb,&transMatrix);
     // its related value
     double detJ = calculateDetMatrix22(transMatrix);
-    printMatrix(&transMatrix);
     inverseMatrix(&transMatrix);
     matrix transInvtransMat;
     transposeMatrix(transMatrix,&transInvtransMat);
