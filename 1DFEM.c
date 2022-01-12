@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <malloc.h>
-#include "1DFDM.h"
+#include "1DFEM.h"
 #include <string.h>
 
 #define ProblemOne
@@ -12,7 +12,7 @@ int main()
     // -------------------------  //
 #ifdef ProblemOne
     struct meshInfo meshInfoDb;
-    FILE *fileIo = fopen("problem1.txt","rt");
+    FILE *fileIo = fopen("report1Mesh1.txt","rt");
     if (fileIo == NULL)
     {
         return 0;
@@ -40,7 +40,7 @@ int main()
 #endif
 #ifdef ProblemTwo
     struct meshInfo meshInfoDb;
-    FILE *fileIo = fopen("problem2.txt","rt");
+    FILE *fileIo = fopen("report1Mesh2.txt","rt");
     if (fileIo == NULL)
     {
         return 0;
@@ -118,7 +118,7 @@ int main()
     }
     
     // solve the linear system with gauss elemination solver
-    gaussianEliminationFDM(&linearSystem,&resultIndex);
+    gaussianEliminationFEM(&linearSystem,&resultIndex);
     //printMatrix(&linearSystem);
 
     // print the result
@@ -238,7 +238,7 @@ void fillMatrix31Test(matrix *T)
 }
 
 // Direct method
-int gaussianEliminationFDM(matrix *A, matrixInt *indexVec)
+int gaussianEliminationFEM(matrix *A, matrixInt *indexVec)
 /*begin
     Target: solve ax = b, A = { a | b }
     Step:
@@ -309,9 +309,8 @@ end*/
 }
 
 
-
 // transpose two line of matrix (by linePos)
-int transposeMatrix(matrix *A, int rowPosOne, int rowPosTwo)
+int transposeMatrixLine(matrix *A, int rowPosOne, int rowPosTwo)
 {
     if (rowPosOne >= A->numRow || rowPosTwo >= A->numRow )
     {

@@ -1,0 +1,15 @@
+mesh 1 6 4 4
+node 1 0 0
+node 2 1 0
+node 3 0 1
+node 4 1 1
+node 5 0 2
+node 6 1 2
+elem 1 1 2 4
+elem 2 1 4 3
+elem 3 3 4 6
+elem 4 3 6 5
+boun 1 0
+boun 2 0
+boun 5 1
+boun 6 1
