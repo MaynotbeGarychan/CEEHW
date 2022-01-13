@@ -1,2 +1,2 @@
 # CEE_hw
-FDM, Delaunay triangulation, Supercomputer utilization
+FEM, Delaunay triangulation, Supercomputer utilization

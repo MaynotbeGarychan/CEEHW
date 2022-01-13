@@ -3,14 +3,10 @@
 #include "1DFEM.h"
 #include <string.h>
 
-#define ProblemOne
-//#define ProblemTwo
-
 int main()
 {
     //      reading mesh file     //
     // -------------------------  //
-#ifdef ProblemOne
     struct meshInfo meshInfoDb;
     FILE *fileIo = fopen("report1Mesh1.txt","rt");
     if (fileIo == NULL)
@@ -21,61 +17,24 @@ int main()
 
     fscanf(fileIo,"%s %d %d %d %d",readType,&(meshInfoDb.id),&(meshInfoDb.nodeNum),&(meshInfoDb.elementNum),&(meshInfoDb.boundaryNum));
 
-    struct node nodeDb[meshInfoDb.nodeNum];
-    struct element elementDb[meshInfoDb.elementNum];
-    struct boundary boundaryDb[meshInfoDb.boundaryNum];
+    struct node nodeDb[20];
+    struct element elementDb[20];
+    struct boundary boundaryDb[20];
     
-    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[0].id),&(nodeDb[0].x));
-    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[1].id),&(nodeDb[1].x));
-    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[2].id),&(nodeDb[2].x));
-    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[3].id),&(nodeDb[3].x));
-    
-    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[0].id),&(elementDb[0].nodeId[0]),&(elementDb[0].nodeId[1]));
-    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[1].id),&(elementDb[1].nodeId[0]),&(elementDb[1].nodeId[1]));
-    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[2].id),&(elementDb[2].nodeId[0]),&(elementDb[2].nodeId[1]));
-
-    fscanf(fileIo,"%s %d %lf",readType,&(boundaryDb[0].nodeId),&(boundaryDb[0].value));
-    fscanf(fileIo,"%s %d %lf",readType,&(boundaryDb[1].nodeId),&(boundaryDb[1].value));
-    fclose(fileIo);
-#endif
-#ifdef ProblemTwo
-    struct meshInfo meshInfoDb;
-    FILE *fileIo = fopen("report1Mesh2.txt","rt");
-    if (fileIo == NULL)
+    for (int i = 0; i < meshInfoDb.nodeNum; i++)
     {
-        return 0;
+        fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[i].id),&(nodeDb[i].x));
     }
-    char readType[4];
-
-    fscanf(fileIo,"%s %d %d %d %d",readType,&(meshInfoDb.id),&(meshInfoDb.nodeNum),&(meshInfoDb.elementNum),&(meshInfoDb.boundaryNum));
-
-    struct node nodeDb[meshInfoDb.nodeNum];
-    struct element elementDb[meshInfoDb.elementNum];
-    struct boundary boundaryDb[meshInfoDb.boundaryNum];
-    
-    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[0].id),&(nodeDb[0].x));
-    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[1].id),&(nodeDb[1].x));
-    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[2].id),&(nodeDb[2].x));
-    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[3].id),&(nodeDb[3].x));
-    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[4].id),&(nodeDb[4].x));
-    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[5].id),&(nodeDb[5].x));
-    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[6].id),&(nodeDb[6].x));
-    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[7].id),&(nodeDb[7].x));
-    fscanf(fileIo,"%s %d %lf",readType,&(nodeDb[8].id),&(nodeDb[8].x));
-    
-    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[0].id),&(elementDb[0].nodeId[0]),&(elementDb[0].nodeId[1]));
-    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[1].id),&(elementDb[1].nodeId[0]),&(elementDb[1].nodeId[1]));
-    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[2].id),&(elementDb[2].nodeId[0]),&(elementDb[2].nodeId[1]));
-    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[3].id),&(elementDb[3].nodeId[0]),&(elementDb[3].nodeId[1]));
-    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[4].id),&(elementDb[4].nodeId[0]),&(elementDb[4].nodeId[1]));
-    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[5].id),&(elementDb[5].nodeId[0]),&(elementDb[5].nodeId[1]));
-    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[6].id),&(elementDb[6].nodeId[0]),&(elementDb[6].nodeId[1]));
-    fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[7].id),&(elementDb[7].nodeId[0]),&(elementDb[7].nodeId[1]));
-
-    fscanf(fileIo,"%s %d %lf",readType,&(boundaryDb[0].nodeId),&(boundaryDb[0].value));
-    fscanf(fileIo,"%s %d %lf",readType,&(boundaryDb[1].nodeId),&(boundaryDb[1].value));
+    for (int i = 0; i < meshInfoDb.elementNum; i++)
+    {
+        fscanf(fileIo,"%s %d %d %d",readType,&(elementDb[i].id),&(elementDb[i].nodeId[0]),&(elementDb[i].nodeId[1]));
+    }
+    // read boundary information
+    for (int i = 0; i < meshInfoDb.boundaryNum; i++)
+    {
+        fscanf(fileIo,"%s %d %lf",readType,&(boundaryDb[i].nodeId),&(boundaryDb[i].value));
+    }
     fclose(fileIo);
-#endif
 
 
     // assemble related matrix //
@@ -86,7 +45,7 @@ int main()
     assembleLoadVector(meshInfoDb,elementDb,nodeDb,&loadVector);
 
     // assemble element matrix (checked)
-    matrix elemMatrix[meshInfoDb.elementNum];
+    matrix elemMatrix[20];
     for (int i = 0; i < meshInfoDb.elementNum; i++)
     {
         initilizeMatrix(&(elemMatrix[i]),2,2);
@@ -827,14 +786,14 @@ void reorderNodeList(struct meshInfo meshInfoDb, struct boundary boundaryDb[],
 {
     allocateMatrixInt(reorderList,1,meshInfoDb.nodeNum);
 
-    int boundaryNodeList[meshInfoDb.boundaryNum];
+    int boundaryNodeList[20];
     for (int i = 0; i < meshInfoDb.boundaryNum; i++)
     {
         boundaryNodeList[i] = boundaryDb[i].nodeId;
     }
 
     //int reorderIntNodeList[meshInfoDb.nodeNum-meshInfoDb.boundaryNum];
-    int reorderBouNodeList[meshInfoDb.boundaryNum];
+    int reorderBouNodeList[20];
 
     int internalIndex = 0;
     int boundaryIndex = 0;
