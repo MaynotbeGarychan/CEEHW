@@ -33,6 +33,13 @@ int forwardElimintationPivot(matrix *A, matrixInt *indexVec);
 void swapRowMatrix(matrix *A,int rowOnePos,int rowTwoPos);
 void swapRowMatrixInt(matrixInt *A,int rowOnePos,int rowTwoPos);
 void copyMatrix(matrix inputMat,matrix *outMat);
+int addtoMatrix(matrix inMat, matrix *outMat);
+int addMatrix(matrix inMat1, matrix inMat2, matrix *outMat);
+int minustoMatrix(matrix inMat, matrix *outMat);
+int minusMatrix(matrix inMat1, matrix inMat2, matrix *outMat);
+double dotProductVec(matrix vec1,matrix vec2);
+int innerProduct(matrix inMat1, matrix inMat2, matrix *outMat);
+double normVector(matrix vec);
 
 /**
  * @brief Database, solver and pre post processing
@@ -78,5 +85,4 @@ void applyBoundaryCondtion(matrix inputMat,int unkownNodeIdVec[], struct meshInf
  * @brief math related functions
  * 
  */
-double mathAbs(double a);
 int search(int val, int vec[], int vecLen);

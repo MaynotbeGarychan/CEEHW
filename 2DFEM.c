@@ -2,13 +2,14 @@
 #include <malloc.h>
 #include "2DFEM.h"
 #include <string.h>
+#include <math.h>
 
 int main()
 {
     //      reading mesh file     //
     // -------------------------  //
     struct meshInfo meshInfoDb;
-    FILE *fileIo = fopen("report2Mesh2.txt","rt");
+    FILE *fileIo = fopen("report2Mesh1.txt","rt");
     if (fileIo == NULL)
     {
         return 0;
@@ -424,7 +425,7 @@ end*/
             int targetPos = i;
             for (int j = i+1; j < A->numRow-1; j++)
             {
-                if (mathAbs(A->mat[j][i]) > mathAbs(A->mat[targetPos][i]))
+                if (abs(A->mat[j][i]) > abs(A->mat[targetPos][i]))
                 {
                     targetPos = j;
                 }
@@ -470,6 +471,123 @@ void swapRowMatrixInt(matrixInt *A,int rowOnePos,int rowTwoPos)
         A->mat[rowOnePos][i] = A->mat[rowTwoPos][i];
         A->mat[rowTwoPos][i] = temp;
     }
+}
+
+int addtoMatrix(matrix inMat, matrix *outMat)
+{
+    if (inMat.numRow != outMat->numRow || inMat.numCol == outMat->numCol)
+    {
+        return 0;
+    }
+    for (int i = 0; i < outMat->numRow; i++)
+    {
+        for (int j = 0; j < outMat->numCol; j++)
+        {
+            outMat->mat[i][j] += inMat.mat[i][j];
+        }
+    }
+    return 1;
+}
+
+int addMatrix(matrix inMat1, matrix inMat2, matrix *outMat)
+{
+    if (inMat1.numRow != inMat2.numRow || inMat1.numCol == inMat2.numCol)
+    {
+        return 0;
+    }
+    allocateMatrix(outMat,inMat1.numRow,inMat1.numCol);
+    for (int i = 0; i < outMat->numRow; i++)
+    {
+        for (int j = 0; j < outMat->numCol; j++)
+        {
+            outMat->mat[i][j] = inMat1.mat[i][j] + inMat2.mat[i][j];
+        }
+    }
+    return 1;
+}
+
+int minustoMatrix(matrix inMat, matrix *outMat)
+{
+    if (inMat.numRow != outMat->numRow || inMat.numCol == outMat->numCol)
+    {
+        return 0;
+    }
+    for (int i = 0; i < outMat->numRow; i++)
+    {
+        for (int j = 0; j < outMat->numCol; j++)
+        {
+            outMat->mat[i][j] -= inMat.mat[i][j];
+        }
+    }
+    return 1;
+}
+
+int minusMatrix(matrix inMat1, matrix inMat2, matrix *outMat)
+/*begin
+*   outMat = inMat1 - inMat2
+end*/
+{
+    if (inMat1.numRow != inMat2.numRow || inMat1.numCol == inMat2.numCol)
+    {
+        return 0;
+    }
+    allocateMatrix(outMat,inMat1.numRow,inMat1.numCol);
+    for (int i = 0; i < outMat->numRow; i++)
+    {
+        for (int j = 0; j < outMat->numCol; j++)
+        {
+            outMat->mat[i][j] = inMat1.mat[i][j] - inMat2.mat[i][j];
+        }
+    }
+    return 1;
+}
+
+int innerProduct(matrix inMat1, matrix inMat2, matrix *outMat)
+{
+    if (inMat1.numCol != inMat2.numRow)
+    {
+        return 0;
+    }
+    initilizeMatrix(outMat,inMat1.numRow,inMat2.numCol);
+    for (int i = 0; i < outMat->numRow; i++)
+    {
+        for (int j = 0; j < outMat->numCol; j++)
+        {
+            for (int k = 0; k < inMat1.numCol; k++)
+            {
+                outMat->mat[i][j] += inMat1.mat[i][k]*inMat2.mat[k][j];
+            }
+        }
+    }
+    return 1;
+}
+
+double dotProductVec(matrix vec1,matrix vec2)
+{
+    if (vec1.numCol != 1 || vec2.numCol !=1)
+    {
+        return 0;
+    }
+    if (vec1.numRow != vec2.numRow)
+    {
+        return 0;
+    }
+    double val = 0;
+    for (int i = 0; i < vec1.numRow; i++)
+    {
+        val += vec1.mat[i][0]*vec2.mat[i][0];
+    }
+    return val;
+}
+
+double normVector(matrix vec)
+{
+    double val = 0;
+    for (int i = 0; i < vec.numRow; i++)
+    {
+        val += vec.mat[i][0]*vec.mat[i][0];
+    }
+    return sqrt(val);
 }
 
 /**
@@ -619,18 +737,6 @@ void applyBoundaryCondtion(matrix inputMat,int unkownNodeIdVec[], struct meshInf
  * @brief math related functions
  * 
  */
-double mathAbs(double a)
-{
-    if (a>=0)
-    {
-        return a;
-    }
-    else
-    {
-        return -a;
-    }
-}
-
 int search(int val, int vec[], int vecLen)
 {
     for (int i = 0; i < vecLen; i++)
