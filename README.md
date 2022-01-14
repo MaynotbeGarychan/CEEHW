@@ -19,11 +19,11 @@ Result:
 
 ### Report Two : 2DFDM with Gaussian Elimination
 ### Solving 2D Possion equation
-![](https://github.com/MaynotbeGarychan/CEE_hw/blob/reportTwo_1DFEM/figures/Problem2JPG.JPG)
+![](https://github.com/MaynotbeGarychan/CEE_hw/tree/main/figures/Problem2JPG.JPG)
 
 ### Program structure
-![](https://github.com/MaynotbeGarychan/CEE_hw/blob/reportTwo_1DFEM/figures/structureOf2DFEM.JPG)
+![](https://github.com/MaynotbeGarychan/CEE_hw/tree/main/figures/structureOf2DFEM.JPG)
 
 ### Performances of different meshes
-![](https://github.com/MaynotbeGarychan/CEE_hw/blob/reportTwo_1DFEM/figures/Figure1Of2DFEMReport2.JPG)
+![](https://github.com/MaynotbeGarychan/CEE_hw/tree/main/figures/Figure1Of2DFEMReport2.JPG)
 
