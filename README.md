@@ -17,6 +17,7 @@ Problem:
 
 Result:
 ![](https://github.com/MaynotbeGarychan/CEE_hw/blob/main/figures/FigureOf1DFDMProblem2.JPG)
+<<<<<<< HEAD
 
 ### Report Two : 2DFDM with Gaussian Elimination
 =======
@@ -32,3 +33,5 @@ FEM, Delaunay triangulation, Supercomputer utilization
 ### Performances of different meshes
 ![](https://github.com/MaynotbeGarychan/CEE_hw/blob/reportTwo_1DFEM/figures/Figure1Of2DFEMReport2.JPG)
 >>>>>>> 2DFEMGaussEli
+=======
+>>>>>>> c743f85ee373314365f081e387208e32cb0d196e
