@@ -80,6 +80,7 @@ void assembleGlobalStiffnessMatrix(struct meshInfo meshInfoDb,struct element ele
 int deleteBoundaryRows(struct meshInfo meshInfoDb, struct boundary boundaryDb[], matrix inputMat, matrixInt idVec,
                     matrix *outMat, matrixInt *unknownIdVec);
 void applyBoundaryCondtion(matrix inputMat,int unkownNodeIdVec[], struct meshInfo meshInfoDb,struct boundary boundaryDb[], matrix *outMat);
+void assembleLoadVector(struct meshInfo meshInfoDb, struct element elementDb[], double RHSvalue, matrix *loadVector);
 
 /**
  * @brief math related functions

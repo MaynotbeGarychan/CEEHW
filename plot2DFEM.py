@@ -1,8 +1,9 @@
 import math
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
-import os
+
+# =====================================
+#    analytical
+# =====================================
 #calculate analytical result
 def funcSum(x,y):
     retVal = 0
@@ -14,8 +15,6 @@ def analytical(x,y):
     u = (4/math.pi)*funcSum(x,y)
     return u
 
-fig = plt.figure()
-ax = fig.gca(projection='3d')
 # analytical data
 x_analytical_set = np.linspace(0,1,100)
 y_analytical_set = np.linspace(0,2,100)
@@ -24,16 +23,9 @@ for x in x_analytical_set:
     for y in y_analytical_set:
         z_analytical_set.append(analytical(x,y))
 
-fig = plt.figure()
-ax = plt.axes(projection='3d')
-X,Y= np.meshgrid(x_analytical_set,y_analytical_set)
-Z = np.ones([100,100])
-for i in range(100):
-    for j in range(100):
-        Z[i][j] = analytical(x_analytical_set[i],y_analytical_set[j])
-#ax.plot_wireframe(X,Y,Z)
-
-#numerical
+# =====================================
+#    numerical
+# =====================================
 filedir = "./output.txt"
 
 nodeid_numerical = []
@@ -49,21 +41,44 @@ with open(filedir,"r+") as outputIo:
         x_numerical.append(float(infoVec[1]))
         y_numerical.append(float(infoVec[2]))
         z_numerical.append(float(infoVec[3]))
-        ax.scatter(float(infoVec[1]),float(infoVec[2]),float(infoVec[3]),color='r')
     #outputIo.close()
 
+# =====================================
+#    plot the result
+# =====================================
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+def heatmap(x_list,y_list,z_list):
+    data = pd.DataFrame(data={'x':x_list, 'y':y_list, 'z':z_list})
+    data = data.pivot(index='x', columns='y', values='z')
+    sns.heatmap(data)
+
+def threeDscatter(ax,x_list,y_list,z_list):
+    for i in range(len(x_list)):
+        ax.scatter(x_list[i], y_list[i], z_list[i], color='r')
+
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+ax = plt.axes(projection='3d')
+threeDscatter(ax,x_numerical,y_numerical,z_numerical)
 ax.set_title('numerical')
 ax.set_xlabel('x')
 ax.set_ylabel('y')
 ax.set_zlabel('u')
 plt.show()
 
+heatmap(x_numerical,y_numerical,z_numerical)
+
+plt.show()
 
 """
     output to excel
 """
 # collect the value
-
 
 import xlwt
 workbook = xlwt.Workbook(encoding = 'ascii')

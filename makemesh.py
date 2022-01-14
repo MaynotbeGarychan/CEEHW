@@ -1,6 +1,6 @@
 import numpy as np
 
-mesh_dir = r"report2Mesh2.txt"
+mesh_dir = r"report2Mesh3.txt"
 """
     specify the node
 """
@@ -38,6 +38,7 @@ with open(mesh_dir,"w+") as txt:
             elemid = elemid + 1
 
     # boundary
+    written_nodes_id = [] # specify a list that you would not duplicate boundary conditions
     boundaryid = 1
     for i in range(xcoor_num):
         txt.write(f"boun {int(nodeidMat[0][i])} 0\n")
@@ -46,7 +47,28 @@ with open(mesh_dir,"w+") as txt:
         txt.write(f"boun {int(nodeidMat[ycoor_num-1][i])} 1\n")
         boundaryid = boundaryid + 1
 
+#    for i in range(ycoor_num):
+#        if nodeidMat[i][0] not in written_nodes_id:
+#            txt.write(f"boun {int(nodeidMat[i][0])} {pow(ycoor_list[i],2)}\n")
+#            written_nodes_id.append(nodeidMat[i][0])
+#            boundaryid = boundaryid + 1
+#    for i in range(xcoor_num):
+#        if nodeidMat[0][i] not in written_nodes_id:
+#            txt.write(f"boun {int(nodeidMat[0][i])} {pow(xcoor_list[i],2)}\n")
+#            written_nodes_id.append(nodeidMat[0][i])
+#            boundaryid = boundaryid + 1
+#    for i in range(ycoor_num):
+#        if nodeidMat[i][1] not in written_nodes_id:
+#            txt.write(f"boun {int(nodeidMat[i][1])} {1+pow(ycoor_list[i],2)}\n")
+#            written_nodes_id.append(nodeidMat[i][1])
+#            boundaryid = boundaryid + 1
+#    for i in range(xcoor_num):
+#        if nodeidMat[2][i] not in written_nodes_id:
+#            txt.write(f"boun {int(nodeidMat[2][i])} {4+pow(xcoor_list[i],2)}\n")
+#            written_nodes_id.append(nodeidMat[2][i])
+#            boundaryid = boundaryid + 1
     txt.close()
+
 
     # write header info
     elem_num = elemid-1

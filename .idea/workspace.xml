@@ -17,7 +17,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
-  <component name="RunManager" selected="Python.plot2DFEM">
+  <component name="RunManager" selected="Python.makemesh">
     <configuration name="makemesh" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="reportOneSrc" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -76,8 +76,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.plot2DFEM" />
         <item itemvalue="Python.makemesh" />
+        <item itemvalue="Python.plot2DFEM" />
         <item itemvalue="Python tests.Python tests in plot2DFEM.py" />
       </list>
     </recent_temporary>

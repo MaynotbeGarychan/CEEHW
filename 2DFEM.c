@@ -4,12 +4,15 @@
 #include <string.h>
 #include <math.h>
 
+//#define OptionProblem
+
 int main()
 {
     //      reading mesh file     //
     // -------------------------  //
     struct meshInfo meshInfoDb;
-    FILE *fileIo = fopen("report2Mesh1.txt","rt");
+    // please specify the input file here
+    FILE *fileIo = fopen("report2Mesh2.txt","rt");
     if (fileIo == NULL)
     {
         return 0;
@@ -71,9 +74,13 @@ int main()
     initilizeMatrix(&globalMatrix,meshInfoDb.nodeNum,meshInfoDb.nodeNum);
     assembleGlobalStiffnessMatrix(meshInfoDb,elementDb,elemMatrix,&globalMatrix);
     printMatrix(&globalMatrix);
-    // make a system
+    // assemble loadvector
     matrix loadVector;
     initilizeMatrix(&loadVector,meshInfoDb.nodeNum,1);
+#ifdef OptionProblem
+    assembleLoadVector(meshInfoDb,elementDb,6,&loadVector);
+#endif
+    // make a system
     matrix systemMatrix;
     newCombineMatrixCol(globalMatrix,loadVector,&systemMatrix);
     printMatrix(&systemMatrix);
@@ -732,6 +739,19 @@ void applyBoundaryCondtion(matrix inputMat,int unkownNodeIdVec[], struct meshInf
         }
     }
 }
+
+void assembleLoadVector(struct meshInfo meshInfoDb, struct element elementDb[], double RHSvalue, matrix *loadVector)
+{
+    double val = -RHSvalue/6;
+    initilizeMatrix(loadVector,meshInfoDb.nodeNum,1);
+    for (int i = 0; i < meshInfoDb.elementNum; i++)
+    {
+        loadVector->mat[elementDb[i].nodeId[0]-1][0] += val;
+        loadVector->mat[elementDb[i].nodeId[1]-1][0] += val;
+        loadVector->mat[elementDb[i].nodeId[2]-1][0] += val;
+    }
+}
+
 
 /**
  * @brief math related functions
