@@ -5,7 +5,7 @@ as well as Supercomputer utilization
 
 find the code in the specific branch :)
 
-### Report One : 1DFDM with Gaussian Elimination
+### Report One : 1DFEM with Gaussian Elimination
 
 Here is the program structure:
 ![](https://github.com/MaynotbeGarychan/CEE_hw/blob/main/figures/structureOf1DFDM.JPG)
@@ -17,7 +17,7 @@ Problem:
 Result:
 ![](https://github.com/MaynotbeGarychan/CEE_hw/blob/main/figures/FigureOf1DFDMProblem1.JPG)
 
-### Report Two : 2DFDM with Gaussian Elimination
+### Report Two : 2DFEM with Gaussian Elimination
 ### Solving 2D Possion equation
 ![](https://github.com/MaynotbeGarychan/CEE_hw/blob/main/figures/Problem2JPG.JPG)
 
