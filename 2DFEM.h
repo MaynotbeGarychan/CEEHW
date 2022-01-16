@@ -18,7 +18,7 @@ void allocateMatrix(matrix *T, int numRow, int numCol);
 void allocateMatrixInt(matrixInt *T, int numRow, int numCol);
 void initilizeMatrix(matrix *T, int numRow, int numCol);
 void freeMatrix(matrix *T);
-void printMatrix(matrix *T);
+void printMatrix(const matrix *T);
 double calculateDetMatrix22(matrix T);
 int inverseMatrix(matrix *A);
 void initializeIdentityMatrix(matrix *A, int numRow);
@@ -40,6 +40,7 @@ int minusMatrix(matrix inMat1, matrix inMat2, matrix *outMat);
 double dotProductVec(matrix vec1,matrix vec2);
 int innerProduct(matrix inMat1, matrix inMat2, matrix *outMat);
 double normVector(matrix vec);
+void conjugateSolveMatrix(const matrix systemMatrix, matrix *result);
 
 /**
  * @brief Database, solver and pre post processing

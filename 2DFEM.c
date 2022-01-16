@@ -5,9 +5,11 @@
 #include <math.h>
 
 //#define OptionProblem
+#define testCG
 
 int main()
 {
+#ifndef testCG
     //      reading mesh file     //
     // -------------------------  //
     struct meshInfo meshInfoDb;
@@ -125,6 +127,29 @@ int main()
         fprintf(fileIo,"x%d %lf %lf %lf\n",nodeId,nodeDb[nodeId-1].x,nodeDb[nodeId-1].y,boundaryDb[i].value);
     }
     fclose(OutputIo);
+#endif
+    matrix testMat;
+    allocateMatrix(&testMat,3,4);
+    testMat.mat[0][0] = 1;
+    testMat.mat[0][1] = 2;
+    testMat.mat[0][2] = 3;
+    testMat.mat[0][3] = 0;
+
+    testMat.mat[1][0] = 0;
+    testMat.mat[1][1] = 1;
+    testMat.mat[1][2] = 3;
+    testMat.mat[1][3] = 1;
+
+    testMat.mat[2][0] = 0;
+    testMat.mat[2][1] = 0;
+    testMat.mat[2][2] = 4;
+    testMat.mat[2][3] = 1;
+
+    matrix result;
+    allocateMatrix(&result,3,1);
+
+    conjugateSolveMatrix(testMat,&result);
+
 
     return 1;
 }
@@ -181,7 +206,7 @@ void freeMatrix(matrix *T)
 }
 
 // print the matrix
-void printMatrix(matrix *T)
+void printMatrix(const matrix *T)
 {
     for (int i = 0; i < T->numRow; i++)
     {
@@ -530,15 +555,16 @@ int minustoMatrix(matrix inMat, matrix *outMat)
 }
 
 int minusMatrix(matrix inMat1, matrix inMat2, matrix *outMat)
-/*begin
-*   outMat = inMat1 - inMat2
-end*/
+/*
+*   Target: outMat = inMat1 - inMat2
+*   Note: you have to allocate the memory for outMat firstly
+*/
 {
     if (inMat1.numRow != inMat2.numRow || inMat1.numCol == inMat2.numCol)
     {
         return 0;
     }
-    allocateMatrix(outMat,inMat1.numRow,inMat1.numCol);
+    //allocateMatrix(outMat,inMat1.numRow,inMat1.numCol);
     for (int i = 0; i < outMat->numRow; i++)
     {
         for (int j = 0; j < outMat->numCol; j++)
@@ -550,12 +576,17 @@ end*/
 }
 
 int innerProduct(matrix inMat1, matrix inMat2, matrix *outMat)
+/*
+*   Target: Calculate the inner product of two matrix,
+*           Their size should be accurate
+*   Note: allocate for outMat before using this function.
+*/
 {
     if (inMat1.numCol != inMat2.numRow)
     {
         return 0;
     }
-    initilizeMatrix(outMat,inMat1.numRow,inMat2.numCol);
+    //initilizeMatrix(outMat,inMat1.numRow,inMat2.numCol);
     for (int i = 0; i < outMat->numRow; i++)
     {
         for (int j = 0; j < outMat->numCol; j++)
@@ -571,20 +602,65 @@ int innerProduct(matrix inMat1, matrix inMat2, matrix *outMat)
 
 double dotProductVec(matrix vec1,matrix vec2)
 {
-    if (vec1.numCol != 1 || vec2.numCol !=1)
-    {
-        return 0;
-    }
-    if (vec1.numRow != vec2.numRow)
-    {
-        return 0;
-    }
     double val = 0;
-    for (int i = 0; i < vec1.numRow; i++)
+    // col * col
+    if (vec1.numCol == 1 && vec2.numCol ==1)
     {
-        val += vec1.mat[i][0]*vec2.mat[i][0];
+        if (vec1.numRow != vec2.numRow)
+        {
+            printf("dimension of dot Product vector is wrong!");
+            return 0;
+        }
+        for (int i = 0; i < vec1.numRow; i++)
+        {
+            val += vec1.mat[i][0]*vec2.mat[i][0];
+        }
+        return val;
     }
-    return val;
+    // row * row
+    if (vec1.numRow == 1 && vec2.numRow ==1)
+    {
+        if (vec1.numCol != vec2.numCol)
+        {
+            printf("dimension of dot Product vector is wrong!");
+            return 0;
+        }
+        for (int i = 0; i < vec1.numCol; i++)
+        {
+            val += vec1.mat[0][i]*vec2.mat[0][i];
+        }
+        return val;
+    }
+    // col * row
+    if (vec1.numCol == 1 && vec2.numRow == 1)
+    {
+        if (vec1.numRow != vec2.numCol)
+        {
+            printf("dimension of dot Product vector is wrong!");
+            return 0;
+        }
+        for (int i = 0; i < vec1.numRow; i++)
+        {
+            val += vec1.mat[i][0]*vec2.mat[0][i];
+        }
+        return val;
+    }
+    // row * col
+    if (vec1.numRow == 1 && vec2.numCol == 1)
+    {
+        if (vec1.numCol != vec2.numRow)
+        {
+            printf("dimension of dot Product vector is wrong!");
+            return 0;
+        }
+        for (int i = 0; i < vec1.numCol; i++)
+        {
+            val += vec1.mat[0][i]*vec2.mat[i][0];
+        }
+        return val;
+    }
+    printf("dimension of dot Product vector is wrong!");
+    return 0;
 }
 
 double normVector(matrix vec)
@@ -595,6 +671,114 @@ double normVector(matrix vec)
         val += vec.mat[i][0]*vec.mat[i][0];
     }
     return sqrt(val);
+}
+
+void scaleMatrix(matrix inMat, double factor, matrix *outMat)
+/*
+*   Target: factor*inMat = outMat, 
+*            Scale all the component of inMat,
+*            and make a new outMat
+*    Note: you have to init outMat before scaling
+*/
+{
+    allocateMatrix(outMat,inMat.numRow,inMat.numCol);
+    for (int i = 0; i < outMat->numRow; i++)
+    {
+        for (int j = 0; j < outMat->numCol; j++)
+        {
+            outMat->mat[i][j] = inMat.mat[i][j]*factor;
+        }
+    }
+}
+
+void conjugateSolveMatrix(const matrix systemMatrix, matrix *result)
+/*
+*   Target: Conjuate iteration to solve matrix
+*   Note: init the result vector before using it.
+*/
+{
+    // prepare the matrix and vector
+    matrix A;
+    matrix b;
+    getBlockOfMatrix(systemMatrix,0,systemMatrix.numRow-1,
+        0,systemMatrix.numCol-2,&A);
+    getBlockOfMatrix(systemMatrix,0,systemMatrix.numRow-1,systemMatrix.numCol-2,
+        systemMatrix.numCol-1,&b);
+
+    // initial guess: x <= x0
+    matrix x;
+    initilizeMatrix(&x,systemMatrix.numRow,1);
+    x.mat[0][0] = 1.0;
+    
+    // initial residual: r <= b-Ax
+    matrix residual;
+    initilizeMatrix(&residual,systemMatrix.numRow,1);
+    matrix Ax;
+    allocateMatrix(&Ax,A.numRow,x.numCol);
+    innerProduct(A,x,&Ax);
+    minusMatrix(b,Ax,&residual);
+
+    // give the residual to p vec: p <= residual
+    matrix p;
+    getBlockOfMatrix(residual,0,residual.numRow-1,0,0,&p);
+
+    // before iter
+    double alpha = 0.0;
+    double beta = 0.0;
+    matrix Ap;
+    allocateMatrix(&Ap,A.numRow,p.numCol);
+    double pAp, residualAp;
+    matrix alphap, betap, alphaAp;
+    allocateMatrix(&alphap,p.numRow,p.numCol);
+    allocateMatrix(&betap,p.numRow,p.numCol);
+    allocateMatrix(&alphaAp,Ap.numRow,Ap.numCol);
+
+    double normOfb = normVector(b);
+    double normofResidual;
+    double tolerance = 1e-3;
+    int maxIterNum = 100;
+    double ratio = 1.0;
+    for(int iter = 0; iter <= maxIterNum; iter++)
+    {
+        // calculate alpha
+        innerProduct(A,p,&Ap);
+        pAp = dotProductVec(p,Ap);
+        alpha = dotProductVec(p,residual)/pAp;
+
+        // calculate x
+        scaleMatrix(p,alpha,&alphap);
+        addtoMatrix(alphap,&x);
+        
+        // calculate residual
+        scaleMatrix(Ap,alpha,&alphaAp);
+        minustoMatrix(alphaAp,&residual);
+        // for residual norm
+        normofResidual = normVector(residual);
+        ratio = normofResidual/normOfb;
+        if (ratio < tolerance)
+        {
+            break;
+        }
+
+        // calculate beta
+        residualAp = dotProductVec(residual,Ap);
+        beta = residualAp/pAp;
+
+        // calculate p
+        scaleMatrix(p,beta,&betap);
+        minustoMatrix(betap,&residual);
+    }
+    if (normofResidual > tolerance)
+    {
+        printf("conjugate method exceed the limit of iteration!");
+    }
+    // give the x to the result
+    for (int i = 0; i < x.numRow; i++)
+    {
+        result->mat[i][0] = x.mat[i][0];
+    }
+    printf("the result after CG iteration is:");
+    printMatrix(result);
 }
 
 /**
