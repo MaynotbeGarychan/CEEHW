@@ -507,8 +507,9 @@ void swapRowMatrixInt(matrixInt *A,int rowOnePos,int rowTwoPos)
 
 int addtoMatrix(matrix inMat, matrix *outMat)
 {
-    if (inMat.numRow != outMat->numRow || inMat.numCol == outMat->numCol)
+    if (inMat.numRow != outMat->numRow || inMat.numCol != outMat->numCol)
     {
+        printf("addtoMatrix: size of matrix is wrong");
         return 0;
     }
     for (int i = 0; i < outMat->numRow; i++)
@@ -523,8 +524,9 @@ int addtoMatrix(matrix inMat, matrix *outMat)
 
 int addMatrix(matrix inMat1, matrix inMat2, matrix *outMat)
 {
-    if (inMat1.numRow != inMat2.numRow || inMat1.numCol == inMat2.numCol)
+    if (inMat1.numRow != inMat2.numRow || inMat1.numCol != inMat2.numCol)
     {
+        printf("addtoMatrix: size of matrix is wrong");
         return 0;
     }
     allocateMatrix(outMat,inMat1.numRow,inMat1.numCol);
@@ -540,8 +542,9 @@ int addMatrix(matrix inMat1, matrix inMat2, matrix *outMat)
 
 int minustoMatrix(matrix inMat, matrix *outMat)
 {
-    if (inMat.numRow != outMat->numRow || inMat.numCol == outMat->numCol)
+    if (inMat.numRow != outMat->numRow || inMat.numCol != outMat->numCol)
     {
+        printf("minustoMatrix: size of matrix is wrong");
         return 0;
     }
     for (int i = 0; i < outMat->numRow; i++)
@@ -560,7 +563,7 @@ int minusMatrix(matrix inMat1, matrix inMat2, matrix *outMat)
 *   Note: you have to allocate the memory for outMat firstly
 */
 {
-    if (inMat1.numRow != inMat2.numRow || inMat1.numCol == inMat2.numCol)
+    if (inMat1.numRow != inMat2.numRow || inMat1.numCol != inMat2.numCol)
     {
         return 0;
     }
@@ -702,13 +705,15 @@ void conjugateSolveMatrix(const matrix systemMatrix, matrix *result)
     matrix b;
     getBlockOfMatrix(systemMatrix,0,systemMatrix.numRow-1,
         0,systemMatrix.numCol-2,&A);
-    getBlockOfMatrix(systemMatrix,0,systemMatrix.numRow-1,systemMatrix.numCol-2,
+    getBlockOfMatrix(systemMatrix,0,systemMatrix.numRow-1,systemMatrix.numCol-1,
         systemMatrix.numCol-1,&b);
 
     // initial guess: x <= x0
     matrix x;
     initilizeMatrix(&x,systemMatrix.numRow,1);
     x.mat[0][0] = 1.0;
+    x.mat[1][0] = 0.5;
+    x.mat[2][0] = 0.3;
     
     // initial residual: r <= b-Ax
     matrix residual;
