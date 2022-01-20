@@ -3,6 +3,12 @@
 #include "1DFEM.h"
 #include <string.h>
 
+<<<<<<< HEAD:1DFDM.c
+//#define ProblemOne
+#define ProblemTwo
+
+=======
+>>>>>>> 2DFEMGaussEli:1DFEM.c
 int main()
 {
     //      reading mesh file     //
