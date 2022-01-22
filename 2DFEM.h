@@ -32,7 +32,6 @@ int gaussianEliminationFEM(matrix *A, matrixInt *indexVec);
 int forwardElimintationPivot(matrix *A, matrixInt *indexVec);
 void swapRowMatrix(matrix *A,int rowOnePos,int rowTwoPos);
 void swapRowMatrixInt(matrixInt *A,int rowOnePos,int rowTwoPos);
-void copyMatrix(matrix inputMat,matrix *outMat);
 int addtoMatrix(matrix inMat, matrix *outMat);
 int addMatrix(matrix inMat1, matrix inMat2, matrix *outMat);
 int minustoMatrix(matrix inMat, matrix *outMat);
@@ -40,7 +39,10 @@ int minusMatrix(matrix inMat1, matrix inMat2, matrix *outMat);
 double dotProductVec(matrix vec1,matrix vec2);
 int innerProduct(matrix inMat1, matrix inMat2, matrix *outMat);
 double normVector(matrix vec);
-void conjugateSolveMatrix(const matrix systemMatrix, matrix *result);
+void conjugateSolveMatrix(const matrix systemMatrix, double tolerance, matrix *result);
+void scaleMatrix(matrix inMat, double factor, matrix *outMat);
+void createTestMatrixForCG(matrix* testMat);
+int copyMatrix(matrix inMat, matrix* outMat);
 
 /**
  * @brief Database, solver and pre post processing

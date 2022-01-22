@@ -129,26 +129,32 @@ int main()
     fclose(OutputIo);
 #endif
     matrix testMat;
-    allocateMatrix(&testMat,3,4);
-    testMat.mat[0][0] = 1;
-    testMat.mat[0][1] = 2;
-    testMat.mat[0][2] = 3;
-    testMat.mat[0][3] = 0;
+    allocateMatrix(&testMat,5,6);
+    createTestMatrixForCG(&testMat);
+    printMatrix(&testMat);
 
-    testMat.mat[1][0] = 0;
-    testMat.mat[1][1] = 1;
-    testMat.mat[1][2] = 3;
-    testMat.mat[1][3] = 1;
+    // gauss
+    matrixInt idvec;
+    allocateMatrixInt(&idvec,5,1);
+    for (int i = 0; i < 5; i++)
+    {
+        idvec.mat[i][0] = i + 1;
+    }
+    gaussianEliminationFEM(&testMat,&idvec);
+    //printMatrix(&testMat);
+    for (int i = 0; i < testMat.numRow; i++)
+    {
+        printf("x%d: %lf\n",idvec.mat[i][0],testMat.mat[i][testMat.numCol-1]);
+    }
 
-    testMat.mat[2][0] = 0;
-    testMat.mat[2][1] = 0;
-    testMat.mat[2][2] = 4;
-    testMat.mat[2][3] = 1;
-
+    // iterative
+    createTestMatrixForCG(&testMat);
+    printMatrix(&testMat);
     matrix result;
-    allocateMatrix(&result,3,1);
-
-    conjugateSolveMatrix(testMat,&result);
+    allocateMatrix(&result,5,1);
+    printf("input matrix is\n");
+    printMatrix(&testMat);
+    conjugateSolveMatrix(testMat,1e-2,&result);
 
 
     return 1;
@@ -393,19 +399,6 @@ void transposeMatrix(matrix inputMat, matrix *outMat)
     }
 }
 
-// copy matrix
-void copyMatrix(matrix inputMat,matrix *outMat)
-{
-    allocateMatrix(outMat,inputMat.numRow,inputMat.numCol);
-    for (int i = 0; i < outMat->numRow; i++)
-    {
-        for (int j = 0; j < outMat->numCol; j++)
-        {
-            outMat->mat[i][j] = inputMat.mat[i][j];
-        }
-    }
-}
-
 // calculate the det of 22 matrix
 double calculateDetMatrix22(matrix T)
 {
@@ -526,10 +519,9 @@ int addMatrix(matrix inMat1, matrix inMat2, matrix *outMat)
 {
     if (inMat1.numRow != inMat2.numRow || inMat1.numCol != inMat2.numCol)
     {
-        printf("addtoMatrix: size of matrix is wrong");
+        printf("addMatrix: size of matrix is wrong");
         return 0;
     }
-    allocateMatrix(outMat,inMat1.numRow,inMat1.numCol);
     for (int i = 0; i < outMat->numRow; i++)
     {
         for (int j = 0; j < outMat->numCol; j++)
@@ -567,7 +559,6 @@ int minusMatrix(matrix inMat1, matrix inMat2, matrix *outMat)
     {
         return 0;
     }
-    //allocateMatrix(outMat,inMat1.numRow,inMat1.numCol);
     for (int i = 0; i < outMat->numRow; i++)
     {
         for (int j = 0; j < outMat->numCol; j++)
@@ -589,7 +580,6 @@ int innerProduct(matrix inMat1, matrix inMat2, matrix *outMat)
     {
         return 0;
     }
-    //initilizeMatrix(outMat,inMat1.numRow,inMat2.numCol);
     for (int i = 0; i < outMat->numRow; i++)
     {
         for (int j = 0; j < outMat->numCol; j++)
@@ -669,9 +659,19 @@ double dotProductVec(matrix vec1,matrix vec2)
 double normVector(matrix vec)
 {
     double val = 0;
-    for (int i = 0; i < vec.numRow; i++)
+    if (vec.numRow == 1)
     {
-        val += vec.mat[i][0]*vec.mat[i][0];
+        for (int i = 0; i < vec.numCol; i++)
+        {
+            val += vec.mat[0][i]*vec.mat[0][i];
+        }
+    }
+    else if (vec.numCol == 1)
+    {
+        for (int i = 0; i < vec.numRow; i++)
+        {
+            val += vec.mat[i][0]*vec.mat[i][0];
+        }
     }
     return sqrt(val);
 }
@@ -681,10 +681,9 @@ void scaleMatrix(matrix inMat, double factor, matrix *outMat)
 *   Target: factor*inMat = outMat, 
 *            Scale all the component of inMat,
 *            and make a new outMat
-*    Note: you have to init outMat before scaling
+*    Note: you need to init outMat before scaling
 */
 {
-    allocateMatrix(outMat,inMat.numRow,inMat.numCol);
     for (int i = 0; i < outMat->numRow; i++)
     {
         for (int j = 0; j < outMat->numCol; j++)
@@ -694,12 +693,31 @@ void scaleMatrix(matrix inMat, double factor, matrix *outMat)
     }
 }
 
-void conjugateSolveMatrix(const matrix systemMatrix, matrix *result)
+int copyMatrix(matrix inMat, matrix* outMat)
+{
+    if (inMat.numCol != outMat->numCol || inMat.numRow != outMat->numRow)
+    {
+        printf("void copyMatrix: size of matrix is wrong!");
+        return 0;
+    }
+    for (int i = 0; i < inMat.numRow; i++)
+    {
+        for (int j = 0; j < inMat.numCol; j++)
+        {
+            outMat->mat[i][j] = inMat.mat[i][j];
+        }
+    }
+    return 1;
+}
+
+void conjugateSolveMatrix(const matrix systemMatrix, double tolerance, matrix *result)
 /*
 *   Target: Conjuate iteration to solve matrix
 *   Note: init the result vector before using it.
 */
 {
+    //                Initilization              //
+    // ========================================  //
     // prepare the matrix and vector
     matrix A;
     matrix b;
@@ -707,73 +725,76 @@ void conjugateSolveMatrix(const matrix systemMatrix, matrix *result)
         0,systemMatrix.numCol-2,&A);
     getBlockOfMatrix(systemMatrix,0,systemMatrix.numRow-1,systemMatrix.numCol-1,
         systemMatrix.numCol-1,&b);
+    int dof = systemMatrix.numRow;
 
     // initial guess: x <= x0
-    matrix x;
-    initilizeMatrix(&x,systemMatrix.numRow,1);
-    x.mat[0][0] = 1.0;
-    x.mat[1][0] = 0.5;
-    x.mat[2][0] = 0.3;
-    
-    // initial residual: r <= b-Ax
-    matrix residual;
-    initilizeMatrix(&residual,systemMatrix.numRow,1);
+    matrix x, x0;
+    allocateMatrix(&x,dof,1);
+    allocateMatrix(&x0,dof,1);
+    x0.mat[0][0] = 1.4;
+    x0.mat[1][0] = -9;
+    x0.mat[2][0] = 23;
+    x0.mat[3][0] = 4;
+    x0.mat[4][0] = 1.9;
+    copyMatrix(x0,&x);
+    freeMatrix(&x0);
+
+    // calculation the initial residual
     matrix Ax;
-    allocateMatrix(&Ax,A.numRow,x.numCol);
+    allocateMatrix(&Ax,dof,1);
     innerProduct(A,x,&Ax);
+    matrix residual;
+    allocateMatrix(&residual,dof,1);
     minusMatrix(b,Ax,&residual);
+    freeMatrix(&Ax);
 
-    // give the residual to p vec: p <= residual
+    // copy the residual to the search direction(p)
     matrix p;
-    getBlockOfMatrix(residual,0,residual.numRow-1,0,0,&p);
+    allocateMatrix(&p,dof,1);
+    copyMatrix(residual,&p);
 
-    // before iter
-    double alpha = 0.0;
-    double beta = 0.0;
+    //                Iteration                  //
+    // ========================================  //
+    double alpha, beta, ratio;
     matrix Ap;
-    allocateMatrix(&Ap,A.numRow,p.numCol);
-    double pAp, residualAp;
-    matrix alphap, betap, alphaAp;
-    allocateMatrix(&alphap,p.numRow,p.numCol);
-    allocateMatrix(&betap,p.numRow,p.numCol);
-    allocateMatrix(&alphaAp,Ap.numRow,Ap.numCol);
+    allocateMatrix(&Ap,dof,1);
 
-    double normOfb = normVector(b);
-    double normofResidual;
-    double tolerance = 1e-3;
-    int maxIterNum = 100;
-    double ratio = 1.0;
-    for(int iter = 0; iter <= maxIterNum; iter++)
+    matrix temp, oldResidual;
+    allocateMatrix(&temp,dof,1);
+    allocateMatrix(&oldResidual,dof,1);
+
+    for (int i = 0; i < 100; i++)
     {
         // calculate alpha
         innerProduct(A,p,&Ap);
-        pAp = dotProductVec(p,Ap);
-        alpha = dotProductVec(p,residual)/pAp;
+        alpha = dotProductVec(residual,residual)/dotProductVec(p,Ap);
+        //alpha = dotProductVec(p,residual)/dotProductVec(p,Ap);
+        // calculate new x
+        scaleMatrix(p,alpha,&temp);
+        addtoMatrix(temp,&x);
+        // calculate new residual
+        scaleMatrix(Ap,alpha,&temp);
+        copyMatrix(residual,&oldResidual);
+        minustoMatrix(temp,&residual);
 
-        // calculate x
-        scaleMatrix(p,alpha,&alphap);
-        addtoMatrix(alphap,&x);
-        
-        // calculate residual
-        scaleMatrix(Ap,alpha,&alphaAp);
-        minustoMatrix(alphaAp,&residual);
-        // for residual norm
-        normofResidual = normVector(residual);
-        ratio = normofResidual/normOfb;
+        // check convergence
+        ratio = normVector(residual)/normVector(b);
         if (ratio < tolerance)
         {
             break;
         }
-
+        
         // calculate beta
-        residualAp = dotProductVec(residual,Ap);
-        beta = residualAp/pAp;
-
-        // calculate p
-        scaleMatrix(p,beta,&betap);
-        minustoMatrix(betap,&residual);
+        beta = dotProductVec(residual,residual)/dotProductVec(oldResidual,oldResidual);
+        //beta = dotProductVec(residual,Ap)/dotProductVec(p,Ap);
+        scaleMatrix(p,beta,&temp);
+        addMatrix(residual,temp,&p);
     }
-    if (normofResidual > tolerance)
+    
+    //                   Output                  //
+    // ========================================  //
+    /*
+    if (normVector(residual) > tolerance)
     {
         printf("conjugate method exceed the limit of iteration!");
     }
@@ -782,9 +803,36 @@ void conjugateSolveMatrix(const matrix systemMatrix, matrix *result)
     {
         result->mat[i][0] = x.mat[i][0];
     }
-    printf("the result after CG iteration is:");
+    printf("the result after CG iteration is:\n");
     printMatrix(result);
+    */
 }
+
+// this is a function platform to create a matrix to test the CG
+void createTestMatrixForCG(matrix* testMat)
+{
+    // diagonal 
+    for (int i = 0; i < testMat->numRow; i++)
+    {
+        testMat->mat[i][i] = i+1;
+    }
+    // non diagonal part
+    for (int i = 0; i < testMat->numRow; i++)
+    {
+        for (int j = i+1; j < testMat->numRow; j++)
+        {
+            testMat->mat[i][j] = i+1;
+            testMat->mat[j][i] = i+1;
+        }
+    }
+    // bvec
+    testMat->mat[0][testMat->numCol-1] = 1;
+    testMat->mat[1][testMat->numCol-1] = 25;
+    testMat->mat[2][testMat->numCol-1] = 31;
+    testMat->mat[3][testMat->numCol-1] = -4;
+    testMat->mat[4][testMat->numCol-1] = 5;
+}
+
 
 /**
  * @brief fem calculation related funtion
