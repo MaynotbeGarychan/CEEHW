@@ -767,8 +767,8 @@ void conjugateSolveMatrix(const matrix systemMatrix, double tolerance, matrix *r
     {
         // calculate alpha
         innerProduct(A,p,&Ap);
-        alpha = dotProductVec(residual,residual)/dotProductVec(p,Ap);
-        //alpha = dotProductVec(p,residual)/dotProductVec(p,Ap);
+        //alpha = dotProductVec(residual,residual)/dotProductVec(p,Ap);
+        alpha = dotProductVec(p,residual)/dotProductVec(p,Ap);
         // calculate new x
         scaleMatrix(p,alpha,&temp);
         addtoMatrix(temp,&x);
@@ -785,18 +785,17 @@ void conjugateSolveMatrix(const matrix systemMatrix, double tolerance, matrix *r
         }
         
         // calculate beta
-        beta = dotProductVec(residual,residual)/dotProductVec(oldResidual,oldResidual);
-        //beta = dotProductVec(residual,Ap)/dotProductVec(p,Ap);
+        //beta = dotProductVec(residual,residual)/dotProductVec(oldResidual,oldResidual);
+        beta = dotProductVec(residual,Ap)/dotProductVec(p,Ap);
         scaleMatrix(p,beta,&temp);
-        addMatrix(residual,temp,&p);
+        minusMatrix(residual,temp,&p);
     }
     
     //                   Output                  //
     // ========================================  //
-    /*
     if (normVector(residual) > tolerance)
     {
-        printf("conjugate method exceed the limit of iteration!");
+        printf("conjugate method exceed the limit of iteration!\n");
     }
     // give the x to the result
     for (int i = 0; i < x.numRow; i++)
@@ -805,7 +804,6 @@ void conjugateSolveMatrix(const matrix systemMatrix, double tolerance, matrix *r
     }
     printf("the result after CG iteration is:\n");
     printMatrix(result);
-    */
 }
 
 // this is a function platform to create a matrix to test the CG
