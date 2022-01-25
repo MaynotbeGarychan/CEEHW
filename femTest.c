@@ -7,45 +7,53 @@
 #include "mesh.h"
 #include "matrix.h"
 #include "solver.h"
+#include "Io.h"
+
+#define testIo
 
 
 int femTest()
 {
-    //      reading mesh file     //
-    // -------------------------  //
+#ifndef testIo
+    char* meshFile = "report2Mesh2.txt";
     struct meshInfo meshInfoDb;
-    // please specify the input file here
+    struct node nodeDb[100];
+    struct element elementDb[100];
+    struct boundary boundaryDb[100];
+    readMesh(meshFile, &meshInfoDb, &nodeDb, &elementDb, &boundaryDb);
+#endif
+
+    // ----------------------------------------------------------  //
+    //                      reading mesh file                      //
+    // ----------------------------------------------------------  //
     FILE* fileIo = fopen("report2Mesh2.txt", "rt");
     if (fileIo == NULL)
     {
         return 0;
     }
-    char readType[4];
-    // reading overall information for mesh 
-    fscanf(fileIo, "%s %d %d %d %d", readType, &(meshInfoDb.id), &(meshInfoDb.nodeNum), &(meshInfoDb.elementNum), &(meshInfoDb.boundaryNum));
-
+    struct meshInfo meshInfoDb;
+    readMeshInfo(fileIo, &meshInfoDb);
     struct node nodeDb[1000];
-    struct element elementDb[1000];
-    struct boundary boundaryDb[1000];
-    // read nodes information
     for (int i = 0; i < meshInfoDb.nodeNum; i++)
     {
-        fscanf(fileIo, "%s %d %lf %lf", readType, &(nodeDb[i].id), &(nodeDb[i].x), &(nodeDb[i].y));
+        readNode(fileIo, &nodeDb[i]);
     }
-    // read element information
+    struct element elementDb[1000];
     for (int i = 0; i < meshInfoDb.elementNum; i++)
     {
-        fscanf(fileIo, "%s %d %d %d %d", readType, &(elementDb[i].id), &(elementDb[i].nodeId[0]), &(elementDb[i].nodeId[1]), &(elementDb[i].nodeId[2]));
+        readElem(fileIo, &elementDb[i]);
     }
-    // read boundary information
+    struct boundary boundaryDb[1000];
     for (int i = 0; i < meshInfoDb.boundaryNum; i++)
     {
-        fscanf(fileIo, "%s %d %lf", readType, &(boundaryDb[i].nodeId), &(boundaryDb[i].value));
+        readBoundary(fileIo, &boundaryDb[i]);
     }
     fclose(fileIo);
 
-    // translate the information //
-    // ------------------------- //
+
+    // ----------------------------------------------------------  //
+    //                     Translate the info                      //
+    // ----------------------------------------------------------  //
     int bounNodeIdVec[1000];
     for (int i = 0; i < meshInfoDb.boundaryNum; i++)
     {
@@ -63,8 +71,9 @@ int femTest()
         }
     }
 
-    // assemble related matrix //
-    // ----------------------- //
+    // ----------------------------------------------------------  //
+    //                  Assemble related matrix                    //
+    // ----------------------------------------------------------  //
     // assemble element matrix
     matrix elemMatrix[1000];
     for (int i = 0; i < meshInfoDb.elementNum; i++)
@@ -77,6 +86,10 @@ int femTest()
     initilizeMatrix(&globalMatrix, meshInfoDb.nodeNum, meshInfoDb.nodeNum);
     assembleGlobalStiffnessMatrix(meshInfoDb, elementDb, elemMatrix, &globalMatrix);
     printMatrix(&globalMatrix);
+    for (int i = 0; i < meshInfoDb.elementNum; i++)
+    {
+        freeMatrix(&(elemMatrix[i]));
+    }
     // assemble loadvector
     matrix loadVector;
     initilizeMatrix(&loadVector, meshInfoDb.nodeNum, 1);
@@ -87,9 +100,13 @@ int femTest()
     matrix systemMatrix;
     newCombineMatrixCol(globalMatrix, loadVector, &systemMatrix);
     printMatrix(&systemMatrix);
+    freeMatrix(&globalMatrix);
+    freeMatrix(&loadVector);
 
-    // begin to solve the matrix //
-    // ------------------------- //
+
+    // ----------------------------------------------------------  //
+    //                  Solve the matrix system                    //
+    // ----------------------------------------------------------  //
     // delect unused rows
     matrixInt idvec;
     allocateMatrixInt(&idvec, meshInfoDb.nodeNum, 1);
@@ -107,11 +124,28 @@ int femTest()
     applyBoundaryCondtion(unknownSystemMatrix, unknownNodeVec, meshInfoDb, boundaryDb, &appliedSystemMatrix);
     printMatrix(&appliedSystemMatrix);
     // solve
-    gaussianEliminationFEM(&appliedSystemMatrix, &unknownIdVec);
-    printMatrix(&appliedSystemMatrix);
+    matrix result;
+    allocateMatrix(&result, appliedSystemMatrix.numRow, 1);
+    enum Solver
+    {
+        GAUSS, CG
+    };
+    int solverMethod = GAUSS;
+    switch (solverMethod)
+    {
+    case GAUSS:
+        gaussianEliminationFEM(&appliedSystemMatrix, &unknownIdVec, &result);
+        printMatrix(&appliedSystemMatrix);
+    case CG:
+        conjugateSolveMatrix(appliedSystemMatrix, 1e-3, &result);
+    default:
+        break;
+    }
 
-    // Output the result //
-    // ----------------- //
+    // ----------------------------------------------------------  //
+    //                      Output the result                      //
+    // ----------------------------------------------------------  //
+    
     FILE* OutputIo = fopen("output.txt", "w");
     if (OutputIo == NULL)
     {
@@ -128,6 +162,7 @@ int femTest()
         fprintf(fileIo, "x%d %lf %lf %lf\n", nodeId, nodeDb[nodeId - 1].x, nodeDb[nodeId - 1].y, boundaryDb[i].value);
     }
     fclose(OutputIo);
+    
 
     return 1;
 }

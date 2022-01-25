@@ -20,17 +20,13 @@ int matrixTest()
     {
         idvec.mat[i][0] = i + 1;
     }
-    gaussianEliminationFEM(&testMat, &idvec);
-    //printMatrix(&testMat);
-    for (int i = 0; i < testMat.numRow; i++)
-    {
-        printf("x%d: %lf\n", idvec.mat[i][0], testMat.mat[i][testMat.numCol - 1]);
-    }
+    matrix result;
+    allocateMatrix(&result, testMat.numRow, 1);
+    gaussianEliminationFEM(&testMat, &idvec,&result);
 
     // iterative
     createTestMatrixForCG(&testMat);
     printMatrix(&testMat);
-    matrix result;
     allocateMatrix(&result, 5, 1);
     printf("input matrix is\n");
     printMatrix(&testMat);

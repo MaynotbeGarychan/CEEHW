@@ -11,9 +11,9 @@ int main(void)
 {
 	enum mode
 	{
-		FEM_TEST_MODE,MATRIX_TEST_MODE,MESH_TEST_MODE
+		FEM_MAIN_MODE,FEM_TEST_MODE,MATRIX_TEST_MODE,MESH_TEST_MODE
 	};
-    int testMode = FEM_TEST_MODE;
+    int testMode = MESH_TEST_MODE;
 
 	switch (testMode)
 	{
@@ -22,8 +22,11 @@ int main(void)
 		break;
 	case MATRIX_TEST_MODE:
 		matrixTest();
+		break;
 	case MESH_TEST_MODE:
 		meshDelauneyTest();
+		break;
+	default:
 		break;
 	}
 

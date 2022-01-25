@@ -138,6 +138,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Io.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="matrix.c" />
     <ClCompile Include="matrixTest.c" />
@@ -147,6 +148,7 @@
     <ClCompile Include="femTest.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Io.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="solver.h" />

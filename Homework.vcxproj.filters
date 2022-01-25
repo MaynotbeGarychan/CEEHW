@@ -36,6 +36,9 @@
     <ClCompile Include="meshTest.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Io.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="matrix.h">
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="test.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Io.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

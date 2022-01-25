@@ -5,7 +5,6 @@
 #include <string.h>
 #include <math.h>
 
-
 void allocateMatrix(matrix* T, int numRow, int numCol)
 {
     T->mat = (double**)malloc(numRow * sizeof(double*));
@@ -247,7 +246,7 @@ double calculateDetMatrix22(matrix T)
 }
 
 // Direct method
-int gaussianEliminationFEM(matrix* A, matrixInt* indexVec)
+int gaussianEliminationFEM(matrix* A, matrixInt* indexVec, matrix *result)
 /*begin
     Target: solve ax = b, A = { a | b }
     Step:
@@ -272,6 +271,12 @@ end*/
     if (!roundDiagonalComponent(A))
     {
         return 0;
+    }
+    // get the result to the result vec
+    int resultPos = A->numCol - 1;
+    for (int i = 0; i < A->numRow; i++)
+    {
+        result->mat[i][0] = A->mat[i][resultPos];
     }
     return 1;
 }

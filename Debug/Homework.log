@@ -1,11 +1,17 @@
-﻿  main.c
-  matrix.c
-C:\Users\Gary\Desktop\CEE2021\reportOneSrc\matrix.c(293,37): warning C4244: 'function': conversion from 'double' to 'int', possible loss of data
-C:\Users\Gary\Desktop\CEE2021\reportOneSrc\matrix.c(293,65): warning C4244: 'function': conversion from 'double' to 'int', possible loss of data
-  matrixTest.c
+﻿  Io.c
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\Io.c(39,18): warning C4090: 'function': different 'const' qualifiers
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\Io.c(39,20): warning C4477: 'fscanf' : format string '%s' requires an argument of type 'char *', but variadic argument 1 has type 'char **'
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\Io.c(46,18): warning C4090: 'function': different 'const' qualifiers
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\Io.c(46,20): warning C4477: 'fscanf' : format string '%s' requires an argument of type 'char *', but variadic argument 1 has type 'char **'
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\Io.c(52,18): warning C4090: 'function': different 'const' qualifiers
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\Io.c(52,20): warning C4477: 'fscanf' : format string '%s' requires an argument of type 'char *', but variadic argument 1 has type 'char **'
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\Io.c(58,18): warning C4090: 'function': different 'const' qualifiers
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\Io.c(58,20): warning C4477: 'fscanf' : format string '%s' requires an argument of type 'char *', but variadic argument 1 has type 'char **'
+  femTest.c
   mesh.c
   meshTest.c
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\meshTest.c(49,45): warning C4047: 'function': 'node *' differs in levels of indirection from 'node (*)[100]'
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\meshTest.c(49,45): warning C4024: 'circleNode': different types for formal and actual parameter 3
   solver.c
-  femTest.c
   Generating Code...
   Homework.vcxproj -> C:\Users\Gary\Desktop\CEE2021\reportOneSrc\Debug\Homework.exe
