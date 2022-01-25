@@ -35,3 +35,5 @@ double calDistance(double x1, double y1, double x2, double y2);
 int circleNode(int nodeId, struct element elem, struct node nodeDb[]);
 int existInList(int index, int list[], int length);
 int existinElemDb(int id, struct element elemDb[], int elemNum);
+double calPolarAngle(double cartesianX, double cartesianY, double heartX, double heartY);
+void orderPolygonNodeListByValRef(int* nodeList[], double valList[], int length);

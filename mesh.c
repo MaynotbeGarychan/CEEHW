@@ -83,3 +83,36 @@ int existinElemDb(int id, struct element elemDb[], int elemNum)
 	}
 	return 0;
 }
+
+double calPolarAngle(double cartesianX, double cartesianY, double heartX, double heartY)
+{
+	double refX = cartesianX - heartX;
+	double refY = cartesianY - heartY;
+
+	double radius = calDistance(cartesianX, cartesianY, heartX, heartY);
+
+	if (radius == 0)
+	{
+		printf("calPolarAngle : the point is just the heart, please enter other point!");
+		return 0;
+	}
+
+	double angle;
+	if (refY >= 0)
+	{
+		angle = acos(refX / radius);
+	}
+	else
+	{
+		angle = -acos(refX / radius);
+	}
+	return angle;
+}
+
+void orderPolygonNodeListByValRef(int *nodeList[], double valList[], int length)
+{
+	for (int i = 0; i < length; i++)
+	{
+		printf("%lf", nodeList[i]);
+	}
+}
