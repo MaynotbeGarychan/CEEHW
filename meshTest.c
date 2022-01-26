@@ -29,18 +29,14 @@ int meshDelauneyTest(void)
 	addNode(10, -0.5, 1.5, &nodeDb[9]);
 
 	// decompose rectangle by two triangle and add them to the triangle list
-	int elemNum = 4;
-	int tempNodeList1[3] = { 1,7,8 };
-	int tempNodeList2[3] = { 1,8,9 };
-	int tempNodeList3[3] = { 1,9,10 };
-	int tempNodeList4[3] = { 1,10,7 };
+	int elemNum = 2;
+	int tempNodeList1[3] = { 7,8,10 };
+	int tempNodeList2[3] = { 8,9,10 };
 	addElem(1, tempNodeList1, &elemDb[0]);
 	addElem(2, tempNodeList2, &elemDb[1]);
-	addElem(3, tempNodeList3, &elemDb[2]);
-	addElem(4, tempNodeList4, &elemDb[3]);
 
 	// For each addutional node
-	for (int nodeId = 2; nodeId <= 6; nodeId++)
+	for (int nodeId = 1; nodeId <= 6; nodeId++)
 	{
 		// check whether the node inside the element
 		int elemCircleList[5];
@@ -73,15 +69,14 @@ int meshDelauneyTest(void)
 							polygonNodeNum++;
 						}
 					}
-					elemDb[j] = elemDb[j + 1];
-				}
-				// delete , re-arrange the node list
-				else if (elemDb[j].id > deleElemId)
-				{
-					elemDb[j] = elemDb[j + 1];
+					for (int g = j; g < elemNum - 1; g++)
+					{
+						elemDb[g] = elemDb[g + 1];
+					}
+					elemNum--;
+					break;
 				}
 			}
-			elemNum--;
 		}
 
 		// make new element
@@ -115,12 +110,12 @@ int meshDelauneyTest(void)
 			for (int j = 0; j < polygonNodeNum; j++)
 			{
 				double refAngle = polygonNodeAngle[j];
-				if (angle < refAngle)
+				if (angle > refAngle)
 				{
 					nodeRank++;
 				}
 			}
-			reorderPolygonNodeList[i] = nodeRank;
+			reorderPolygonNodeList[nodeRank-1] = id;
 		}
 		// also give the begin val to the end of reorder node list to make the final element
 		reorderPolygonNodeList[polygonNodeNum] = reorderPolygonNodeList[0];
@@ -147,13 +142,26 @@ int meshDelauneyTest(void)
 		{
 			if (existInList(elemDb[i].nodeId[j], boundNodeList, 4))
 			{
-				for (int k = i; k < elemNum; k++)
+				for (int k = i; k < elemNum - 1; k++)
 				{
 					elemDb[k] = elemDb[k + 1];
 				}
 				elemNum--;
+				i = 0;
 				break;
 			}
+		}
+	}
+	for (int j = 0; j < 3; j++)
+	{
+		if (existInList(elemDb[0].nodeId[j], boundNodeList, 4))
+		{
+			for (int k = 0; k < elemNum - 1; k++)
+			{
+				elemDb[k] = elemDb[k + 1];
+			}
+			elemNum--;
+			break;
 		}
 	}
 
