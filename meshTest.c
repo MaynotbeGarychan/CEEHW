@@ -18,7 +18,7 @@ int meshDelauneyTest(void)
 	fclose(inputIo);
 
 	// create an empty list to store triangle elements
-	struct element elemDb[100];
+	struct element elemDb[100] = {0};
 
 	// set rectangle which include all nodes
 	//     -0.5 -0.5 1.5 1.5
@@ -39,8 +39,8 @@ int meshDelauneyTest(void)
 	for (int nodeId = 1; nodeId <= 6; nodeId++)
 	{
 		// check whether the node inside the element
-		int elemCircleList[5];
-		int elemCircleNum = 0;
+		int elemCircleList[5] = {0};
+ 		int elemCircleNum = 0;
 		for (int i = 0; i < elemNum; i++)
 		{
 			if (circleNode(nodeId, elemDb[i], &nodeDb))
@@ -51,12 +51,12 @@ int meshDelauneyTest(void)
 		}
 
 		// merge: delete, append all node list
-		int polygonNodeList[20];
+		int polygonNodeList[20] = { 0 };
 		int polygonNodeNum = 0;
 		for (int i = 0; i < elemCircleNum; i++)
 		{
 			int deleElemId = elemCircleList[i];
-			for (int j = 0; j < elemNum - 1; j++)
+			for (int j = 0; j < elemNum; j++)
 			{
 				// this is the dele Elem append their nodes
 				if (elemDb[j].id == deleElemId)
@@ -69,7 +69,7 @@ int meshDelauneyTest(void)
 							polygonNodeNum++;
 						}
 					}
-					for (int g = j; g < elemNum - 1; g++)
+					for (int g = j; g < elemNum; g++)
 					{
 						elemDb[g] = elemDb[g + 1];
 					}
@@ -93,7 +93,7 @@ int meshDelauneyTest(void)
 		heartY = heartY / polygonNodeNum;
 		
 		// calculate the angle of each polygon node
-		double polygonNodeAngle[20];
+		double polygonNodeAngle[20] = { 0 };
 		for (int i = 0; i < polygonNodeNum; i++)
 		{
 			polygonNodeAngle[i] = calPolarAngle(nodeDb[polygonNodeList[i] - 1].x, nodeDb[polygonNodeList[i] - 1].y,
@@ -101,7 +101,7 @@ int meshDelauneyTest(void)
 		}
 
 		// reorder the polygon node by a ref
-		int reorderPolygonNodeList[20];
+		int reorderPolygonNodeList[20] = {0};
 		for (int i = 0; i < polygonNodeNum; i++)
 		{
 			int id = polygonNodeList[i];
@@ -109,10 +109,13 @@ int meshDelauneyTest(void)
 			int nodeRank = 1;
 			for (int j = 0; j < polygonNodeNum; j++)
 			{
-				double refAngle = polygonNodeAngle[j];
-				if (angle > refAngle)
+				if (i != j)
 				{
-					nodeRank++;
+					double refAngle = polygonNodeAngle[j];
+					if (angle > refAngle)
+					{
+						nodeRank++;
+					}
 				}
 			}
 			reorderPolygonNodeList[nodeRank-1] = id;
@@ -147,7 +150,7 @@ int meshDelauneyTest(void)
 					elemDb[k] = elemDb[k + 1];
 				}
 				elemNum--;
-				i = 0;
+				i = 0; // if exise, after deket, restart the check
 				break;
 			}
 		}

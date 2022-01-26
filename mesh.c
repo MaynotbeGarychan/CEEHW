@@ -1,5 +1,6 @@
 #pragma once
 #include "mesh.h"
+#define _USE_MATH_DEFINES
 #include <math.h>
 
 void addNode(int nodeId, double x, double y, struct node *nodeDb)
@@ -150,7 +151,7 @@ double calPolarAngle(double cartesianX, double cartesianY, double heartX, double
 	}
 	else
 	{
-		angle = -acos(refX / radius);
+		angle = 2 * M_PI - acos(refX / radius);
 	}
 	return angle;
 }
