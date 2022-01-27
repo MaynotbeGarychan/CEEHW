@@ -1,3 +1,9 @@
+/*
+*		Related functions, operations for FEM analysis
+*       Header file: solver.h
+*		Author: CHEN Jiawei, the University of Tokyo
+*		Date:	2022/01/26
+*/
 #pragma once
 #include "solver.h"
 #include "matrix.h"

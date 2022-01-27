@@ -1,3 +1,10 @@
+/*
+*		Matrix operation, matrix solver for FEM analysis
+*       Header file: matrix.h
+*		Author: CHEN Jiawei, the University of Tokyo
+*		Date:	2022/01/26
+*/
+
 #pragma once
 #include "matrix.h"
 #include <malloc.h>
@@ -38,6 +45,18 @@ void initilizeMatrix(matrix* T, int numRow, int numCol)
             T->mat[i][j] = 0.0;
         }
     }
+}
+
+// zeros the value in matrix
+void ZeroMatrix(matrix* T)
+{
+	for (int i = 0; i < T->numRow; i++)
+	{
+		for (int j = 0; j < T->numCol; j++)
+		{
+			T->mat[i][j] = 0.0;
+		}
+	}
 }
 
 // free the matrix
@@ -278,6 +297,8 @@ end*/
     {
         result->mat[i][0] = A->mat[i][resultPos];
     }
+	printf("result by Gaussian Pivot Elimination is\n");
+	printMatrix(result);
     return 1;
 }
 
@@ -561,7 +582,7 @@ void conjugateSolveMatrix(const matrix systemMatrix, double tolerance, matrix* r
 *   Note: init the result vector before using it.
 */
 {
-    //                Initilization              //
+    //                Initialization              //
     // ========================================  //
     // prepare the matrix and vector
     matrix A;
@@ -574,71 +595,84 @@ void conjugateSolveMatrix(const matrix systemMatrix, double tolerance, matrix* r
 
     // initial guess: x <= x0
     matrix x, x0;
-    allocateMatrix(&x, dof, 1);
-    allocateMatrix(&x0, dof, 1);
-    x0.mat[0][0] = 1.4;
-    x0.mat[1][0] = -9;
-    x0.mat[2][0] = 23;
-    x0.mat[3][0] = 4;
-    x0.mat[4][0] = 1.9;
+    initilizeMatrix(&x, dof, 1);
+    initilizeMatrix(&x0, dof, 1);
     copyMatrix(x0, &x);
     freeMatrix(&x0);
 
     // calculation the initial residual
     matrix Ax;
-    allocateMatrix(&Ax, dof, 1);
+    initilizeMatrix(&Ax, dof, 1);
     innerProduct(A, x, &Ax);
     matrix residual;
-    allocateMatrix(&residual, dof, 1);
+    initilizeMatrix(&residual, dof, 1);
+    printMatrix(&b);
+    printMatrix(&Ax);
     minusMatrix(b, Ax, &residual);
+    printMatrix(&residual);
     freeMatrix(&Ax);
 
     // copy the residual to the search direction(p)
     matrix p;
-    allocateMatrix(&p, dof, 1);
+    initilizeMatrix(&p, dof, 1);
     copyMatrix(residual, &p);
 
     //                Iteration                  //
     // ========================================  //
     double alpha, beta, ratio;
+    matrix newX, newResidual;
+    initilizeMatrix(&newX, dof, 1);
+    initilizeMatrix(&newResidual, dof, 1);
+
     matrix Ap;
-    allocateMatrix(&Ap, dof, 1);
+    initilizeMatrix(&Ap, dof, 1);
 
     matrix temp, oldResidual;
-    allocateMatrix(&temp, dof, 1);
-    allocateMatrix(&oldResidual, dof, 1);
+    initilizeMatrix(&temp, dof, 1);
+    initilizeMatrix(&oldResidual, dof, 1);
 
-    for (int i = 0; i < 100; i++)
+    int iteration = 0;
+    int maxIterNum = 100;
+    for (int i = 0; i < maxIterNum; i++)
     {
         // calculate alpha
         innerProduct(A, p, &Ap);
-        //alpha = dotProductVec(residual,residual)/dotProductVec(p,Ap);
-        alpha = dotProductVec(p, residual) / dotProductVec(p, Ap);
+        alpha = dotProductVec(residual, residual) / dotProductVec(p, Ap);
         // calculate new x
         scaleMatrix(p, alpha, &temp);
-        addtoMatrix(temp, &x);
+        addMatrix(x, temp, &newX);
+        ZeroMatrix(&temp);
         // calculate new residual
-        scaleMatrix(Ap, alpha, &temp);
-        copyMatrix(residual, &oldResidual);
-        minustoMatrix(temp, &residual);
+        innerProduct(A, newX, &temp);
+        minusMatrix(b, temp, &newResidual);
+        ZeroMatrix(&temp);
 
         // check convergence
-        ratio = normVector(residual) / normVector(b);
+        ratio = normVector(newResidual) / normVector(b);
         if (ratio < tolerance)
         {
+            iteration++;
+			copyMatrix(x, &newX);
+			copyMatrix(residual, &newResidual);
+            printf("CG is converged, Yes!\n");
+            printf("CG: iteration num is %d\n", iteration);
             break;
         }
 
         // calculate beta
-        //beta = dotProductVec(residual,residual)/dotProductVec(oldResidual,oldResidual);
-        beta = dotProductVec(residual, Ap) / dotProductVec(p, Ap);
+        beta = dotProductVec(newResidual, newResidual) / dotProductVec(residual, residual);
         scaleMatrix(p, beta, &temp);
-        minusMatrix(residual, temp, &p);
+        addMatrix(newResidual, temp, &p);
+        ZeroMatrix(&temp);
+        // go to new iteration
+        copyMatrix(newX, &x);
+        copyMatrix(newResidual, &residual);
+        iteration++;
     }
 
     //                   Output                  //
     // ========================================  //
-    if (normVector(residual) > tolerance)
+    if (iteration > maxIterNum)
     {
         printf("conjugate method exceed the limit of iteration!\n");
     }
@@ -657,7 +691,7 @@ void createTestMatrixForCG(matrix* testMat)
     // diagonal 
     for (int i = 0; i < testMat->numRow; i++)
     {
-        testMat->mat[i][i] = i + 1;
+        testMat->mat[i][i] = 10;
     }
     // non diagonal part
     for (int i = 0; i < testMat->numRow; i++)

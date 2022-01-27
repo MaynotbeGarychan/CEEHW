@@ -1,0 +1,4 @@
+boud 1 0
+boud 2 0
+boud 3 1.0
+boud 4 0

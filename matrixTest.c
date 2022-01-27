@@ -1,3 +1,9 @@
+/*
+*		Test platform for matrix operation, matrix solver
+*       Header file: test.h
+*		Author: CHEN Jiawei, the University of Tokyo
+*		Date:	2022/01/26
+*/
 #pragma once
 #include <stdio.h>
 #include <malloc.h>
@@ -11,7 +17,8 @@ int matrixTest()
     matrix testMat;
     allocateMatrix(&testMat, 5, 6);
     createTestMatrixForCG(&testMat);
-    printMatrix(&testMat);
+	printf("input matrix is\n");
+	printMatrix(&testMat);
 
     // gauss
     matrixInt idvec;
@@ -26,12 +33,10 @@ int matrixTest()
 
     // iterative
     createTestMatrixForCG(&testMat);
-    printMatrix(&testMat);
-    allocateMatrix(&result, 5, 1);
     printf("input matrix is\n");
     printMatrix(&testMat);
+    allocateMatrix(&result, 5, 1);
     conjugateSolveMatrix(testMat, 1e-2, &result);
-
 
     return 1;
 }

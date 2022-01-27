@@ -36,3 +36,7 @@ int circleNode(int nodeId, struct element elem, struct node nodeDb[]);
 int existInList(int index, int list[], int length);
 int existinElemDb(int id, struct element elemDb[], int elemNum);
 double calPolarAngle(double cartesianX, double cartesianY, double heartX, double heartY);
+double maxNodeXCoor(struct node NodeDb[], int nodeNum);
+double maxNodeYCoor(struct node NodeDb[], int nodeNum);
+double minNodeXCoor(struct node NodeDb[], int nodeNum);
+double minNodeYCoor(struct node NodeDb[], int nodeNum);

@@ -1,3 +1,8 @@
+/*
+*		Main program of the solution, to link with each module
+*		Author: CHEN Jiawei, the University of Tokyo
+*		Date:	2022/01/26
+*/
 #pragma once
 #include <stdio.h>
 #include <malloc.h>
@@ -6,14 +11,13 @@
 
 #include "test.h"
 
-
 int main(void)
 {
 	enum mode
 	{
 		FEM_MAIN_MODE,FEM_TEST_MODE,MATRIX_TEST_MODE,MESH_TEST_MODE
 	};
-    int testMode = MESH_TEST_MODE;
+    int testMode = FEM_TEST_MODE;
 
 	switch (testMode)
 	{

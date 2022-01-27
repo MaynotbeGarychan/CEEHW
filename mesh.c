@@ -1,3 +1,9 @@
+/*
+*		Function, operation for Meshing, 2D Delauney triangulation
+*       Header file: mesh.h
+*		Author: CHEN Jiawei, the University of Tokyo
+*		Date:	2022/01/26
+*/
 #pragma once
 #include "mesh.h"
 #define _USE_MATH_DEFINES
@@ -156,3 +162,54 @@ double calPolarAngle(double cartesianX, double cartesianY, double heartX, double
 	return angle;
 }
 
+double maxNodeXCoor(struct node NodeDb[], int nodeNum)
+{
+	int val = NodeDb[0].x;
+	for (int i = 1; i < nodeNum; i++)
+	{
+		if (val < NodeDb[i].x)
+		{
+			val = NodeDb[i].x;
+		}
+	}
+	return val;
+}
+
+double maxNodeYCoor(struct node NodeDb[], int nodeNum)
+{
+	int val = NodeDb[0].y;
+	for (int i = 1; i < nodeNum; i++)
+	{
+		if (val < NodeDb[i].y)
+		{
+			val = NodeDb[i].y;
+		}
+	}
+	return val;
+}
+
+double minNodeXCoor(struct node NodeDb[], int nodeNum)
+{
+	int val = NodeDb[0].x;
+	for (int i = 1; i < nodeNum; i++)
+	{
+		if (val > NodeDb[i].x)
+		{
+			val = NodeDb[i].x;
+		}
+	}
+	return val;
+}
+
+double minNodeYCoor(struct node NodeDb[], int nodeNum)
+{
+	int val = NodeDb[0].y;
+	for (int i = 1; i < nodeNum; i++)
+	{
+		if (val > NodeDb[i].y)
+		{
+			val = NodeDb[i].y;
+		}
+	}
+	return val;
+}

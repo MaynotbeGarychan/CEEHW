@@ -41,3 +41,4 @@ void conjugateSolveMatrix(const matrix systemMatrix, double tolerance, matrix* r
 void scaleMatrix(matrix inMat, double factor, matrix* outMat);
 void createTestMatrixForCG(matrix* testMat);
 int copyMatrix(matrix inMat, matrix* outMat);
+void ZeroMatrix(matrix* T);

@@ -1,12 +1,17 @@
+mesh 1 6 6 4
 node 1 0.000000 0.000000
 node 2 1.000000 0.000000
 node 3 1.000000 1.000000
 node 4 0.000000 1.000000
 node 5 0.300000 0.800000
 node 6 0.700000 0.200000
-elem 7 5 3 4
-elem 10 5 4 1
-elem 11 6 3 5
-elem 12 6 5 1
-elem 13 6 1 2
-elem 14 6 2 3
+elem 1 5 3 4
+elem 2 5 4 1
+elem 3 6 3 5
+elem 4 6 5 1
+elem 5 6 1 2
+elem 6 6 2 3
+boud 1 0
+boud 2 0
+boud 3 1.0
+boud 4 0

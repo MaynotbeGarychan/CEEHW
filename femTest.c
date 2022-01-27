@@ -1,3 +1,9 @@
+/*
+*		Main program for Finite Element Analysis
+*       Header file: test.h
+*		Author: CHEN Jiawei, the University of Tokyo
+*		Date:	2022/01/26
+*/
 #pragma once
 #include <stdio.h>
 #include <malloc.h>
@@ -9,24 +15,15 @@
 #include "solver.h"
 #include "Io.h"
 
-#define testIo
 
 
 int femTest()
 {
-#ifndef testIo
-    char* meshFile = "report2Mesh2.txt";
-    struct meshInfo meshInfoDb;
-    struct node nodeDb[100];
-    struct element elementDb[100];
-    struct boundary boundaryDb[100];
-    readMesh(meshFile, &meshInfoDb, &nodeDb, &elementDb, &boundaryDb);
-#endif
 
     // ----------------------------------------------------------  //
     //                      reading mesh file                      //
     // ----------------------------------------------------------  //
-    FILE* fileIo = fopen("report2Mesh2.txt", "rt");
+    FILE* fileIo = fopen("report3Mesh2.txt", "rt");
     if (fileIo == NULL)
     {
         return 0;
@@ -130,14 +127,16 @@ int femTest()
     {
         GAUSS, CG
     };
-    int solverMethod = GAUSS;
+    int solverMethod = CG;
     switch (solverMethod)
     {
     case GAUSS:
         gaussianEliminationFEM(&appliedSystemMatrix, &unknownIdVec, &result);
         printMatrix(&appliedSystemMatrix);
+        break;
     case CG:
-        conjugateSolveMatrix(appliedSystemMatrix, 1e-3, &result);
+        conjugateSolveMatrix(appliedSystemMatrix, 1e-4, &result);
+        break;
     default:
         break;
     }
@@ -145,16 +144,16 @@ int femTest()
     // ----------------------------------------------------------  //
     //                      Output the result                      //
     // ----------------------------------------------------------  //
-    
-    FILE* OutputIo = fopen("output.txt", "w");
+
+    FILE* OutputIo = fopen("output2CG.txt", "w");
     if (OutputIo == NULL)
     {
         return 0;
     }
-    for (int i = 0; i < appliedSystemMatrix.numRow; i++)
+    for (int i = 0; i < unknownIdVec.numRow; i++)
     {
         int nodeId = unknownIdVec.mat[i][0];
-        fprintf(fileIo, "x%d %lf %lf %lf\n", nodeId, nodeDb[nodeId - 1].x, nodeDb[nodeId - 1].y, appliedSystemMatrix.mat[i][appliedSystemMatrix.numCol - 1]);
+        fprintf(fileIo, "x%d %lf %lf %lf\n", nodeId, nodeDb[nodeId - 1].x, nodeDb[nodeId - 1].y, result.mat[i][0]);
     }
     for (int i = 0; i < meshInfoDb.boundaryNum; i++)
     {

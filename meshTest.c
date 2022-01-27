@@ -1,47 +1,68 @@
+/*
+*		2D Delauney triangulation to make mesh for FEM analysis
+*       Header file: test.h
+*		Author: CHEN Jiawei, the University of Tokyo 
+*		Date:	2022/01/26
+*/
 #pragma once
 #include "mesh.h"
 #include "Io.h"
 
 int meshDelauneyTest(void)
 {
-	// set coordinates of nodes
-	struct node nodeDb[100];
-	FILE* inputIo = fopen("report3NodeSids.txt", "rt");
+	// ----------------------------------------------------------  //
+	//     reading seeds file, translate information               //
+	// ----------------------------------------------------------  //
+
+	struct node nodeDb[200] = {0};
+	struct meshInfo meshInfoDb = { 0,0,0,0 };
+	FILE* inputIo = fopen("report3NodeSeeds2.txt", "rt");
 	if (inputIo == NULL)
 	{
 		return 0;
 	}
-	for (int i = 0; i < 6; i++)
+	readMeshInfo(inputIo, &meshInfoDb);
+	for (int i = 0; i < meshInfoDb.nodeNum; i++)
 	{
 		readNode(inputIo, &nodeDb[i]);
 	}
 	fclose(inputIo);
+	double maxNodeX = maxNodeXCoor(nodeDb, meshInfoDb.nodeNum);
+	double minNodeX = minNodeXCoor(nodeDb, meshInfoDb.nodeNum);
+	double maxNodeY = maxNodeYCoor(nodeDb, meshInfoDb.nodeNum);
+	double minNodeY = minNodeYCoor(nodeDb, meshInfoDb.nodeNum);
+
+	// ----------------------------------------------------------  //
+	//     Begin to do Delaney Triangulation		               //
+	// ----------------------------------------------------------  //
 
 	// create an empty list to store triangle elements
-	struct element elemDb[100] = {0};
+	struct element elemDb[1000] = {0};
 
 	// set rectangle which include all nodes
 	//     -0.5 -0.5 1.5 1.5
-	int boundNodeList[4] = { 7,8,9,10 };
-	addNode(7, -0.5, -0.5, &nodeDb[6]);
-	addNode(8, 1.5, -0.5, &nodeDb[7]);
-	addNode(9, 1.5, 1.5, &nodeDb[8]);
-	addNode(10, -0.5, 1.5, &nodeDb[9]);
+	double xBound = (maxNodeX - minNodeX) * 0.2;
+	double yBound = (maxNodeY - minNodeY) * 0.2;
+	int boundNodeList[4] = { meshInfoDb.nodeNum + 1,meshInfoDb.nodeNum + 2,meshInfoDb.nodeNum + 3,meshInfoDb.nodeNum + 4 };
+	addNode(boundNodeList[0], minNodeX - xBound, minNodeY - yBound, &nodeDb[boundNodeList[0] - 1]);
+	addNode(boundNodeList[1], maxNodeX + xBound, minNodeY - yBound, &nodeDb[boundNodeList[1] - 1]);
+	addNode(boundNodeList[2], maxNodeX + xBound, maxNodeY + yBound, &nodeDb[boundNodeList[2] - 1]);
+	addNode(boundNodeList[3], minNodeX - xBound, maxNodeY + yBound, &nodeDb[boundNodeList[3] - 1]);
 
 	// decompose rectangle by two triangle and add them to the triangle list
-	int elemNum = 2;
-	int tempNodeList1[3] = { 7,8,10 };
-	int tempNodeList2[3] = { 8,9,10 };
+	meshInfoDb.elementNum = 2;
+	int tempNodeList1[3] = { boundNodeList[0],boundNodeList[1],boundNodeList[3] };
+	int tempNodeList2[3] = { boundNodeList[1],boundNodeList[2],boundNodeList[3] };
 	addElem(1, tempNodeList1, &elemDb[0]);
 	addElem(2, tempNodeList2, &elemDb[1]);
 
 	// For each addutional node
-	for (int nodeId = 1; nodeId <= 6; nodeId++)
+	for (int nodeId = 1; nodeId <= meshInfoDb.nodeNum; nodeId++)
 	{
 		// check whether the node inside the element
 		int elemCircleList[5] = {0};
  		int elemCircleNum = 0;
-		for (int i = 0; i < elemNum; i++)
+		for (int i = 0; i < meshInfoDb.elementNum; i++)
 		{
 			if (circleNode(nodeId, elemDb[i], &nodeDb))
 			{
@@ -51,12 +72,12 @@ int meshDelauneyTest(void)
 		}
 
 		// merge: delete, append all node list
-		int polygonNodeList[20] = { 0 };
+		int polygonNodeList[100] = { 0 };
 		int polygonNodeNum = 0;
 		for (int i = 0; i < elemCircleNum; i++)
 		{
 			int deleElemId = elemCircleList[i];
-			for (int j = 0; j < elemNum; j++)
+			for (int j = 0; j < meshInfoDb.elementNum; j++)
 			{
 				// this is the dele Elem append their nodes
 				if (elemDb[j].id == deleElemId)
@@ -69,39 +90,27 @@ int meshDelauneyTest(void)
 							polygonNodeNum++;
 						}
 					}
-					for (int g = j; g < elemNum; g++)
+					for (int g = j; g < meshInfoDb.elementNum; g++)
 					{
 						elemDb[g] = elemDb[g + 1];
 					}
-					elemNum--;
+					meshInfoDb.elementNum--;
 					break;
 				}
 			}
 		}
 
 		// make new element
-		// reorder polygon node index
-		// calculate the heart of the node list
-		double heartX = 0;
-		double heartY = 0;
-		for (int i = 0; i < polygonNodeNum; i++)
-		{
-			heartX += nodeDb[polygonNodeList[i] - 1].x;
-			heartY += nodeDb[polygonNodeList[i] - 1].y;
-		}
-		heartX = heartX / polygonNodeNum;
-		heartY = heartY / polygonNodeNum;
-		
 		// calculate the angle of each polygon node
-		double polygonNodeAngle[20] = { 0 };
+		double polygonNodeAngle[100] = { 0 };
 		for (int i = 0; i < polygonNodeNum; i++)
 		{
 			polygonNodeAngle[i] = calPolarAngle(nodeDb[polygonNodeList[i] - 1].x, nodeDb[polygonNodeList[i] - 1].y,
-				heartX, heartY);
+				nodeDb[nodeId-1].x, nodeDb[nodeId-1].y);
 		}
 
 		// reorder the polygon node by a ref
-		int reorderPolygonNodeList[20] = {0};
+		int reorderPolygonNodeList[100] = {0};
 		for (int i = 0; i < polygonNodeNum; i++)
 		{
 			int id = polygonNodeList[i];
@@ -128,10 +137,10 @@ int meshDelauneyTest(void)
 			int nodeList[3] = { nodeId , reorderPolygonNodeList[i], reorderPolygonNodeList[i + 1] };
 			for (int j = 1; j < 100; j++)
 			{
-				if (existinElemDb(j,elemDb,elemNum) == 0)
+				if (existinElemDb(j,elemDb,meshInfoDb.elementNum) == 0)
 				{
-					addElem(j, nodeList, &elemDb[elemNum]);
-					elemNum++;
+					addElem(j, nodeList, &elemDb[meshInfoDb.elementNum]);
+					meshInfoDb.elementNum++;
 					break;
 				}
 			}
@@ -139,17 +148,17 @@ int meshDelauneyTest(void)
 	}
 
 	// delete the bound element
-	for (int i = 0; i < elemNum; i++)
+	for (int i = 0; i < meshInfoDb.elementNum; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
 			if (existInList(elemDb[i].nodeId[j], boundNodeList, 4))
 			{
-				for (int k = i; k < elemNum - 1; k++)
+				for (int k = i; k < meshInfoDb.elementNum - 1; k++)
 				{
 					elemDb[k] = elemDb[k + 1];
 				}
-				elemNum--;
+				meshInfoDb.elementNum--;
 				i = 0; // if exise, after deket, restart the check
 				break;
 			}
@@ -159,29 +168,34 @@ int meshDelauneyTest(void)
 	{
 		if (existInList(elemDb[0].nodeId[j], boundNodeList, 4))
 		{
-			for (int k = 0; k < elemNum - 1; k++)
+			for (int k = 0; k < meshInfoDb.elementNum - 1; k++)
 			{
 				elemDb[k] = elemDb[k + 1];
 			}
-			elemNum--;
+			meshInfoDb.elementNum--;
 			break;
 		}
 	}
 
 
-	// output 
-	FILE* outputIo = fopen("meshDealau.txt", "w");
+	// --------------------------------  //
+	//     output the mesh to txt	     //
+	// --------------------------------  //
+
+	FILE* outputIo = fopen("report3Mesh2.txt", "w");
 	if (outputIo == NULL)
 	{
 		return 0;
 	}
-	for (int i = 0; i < 6; i++)
+	fprintf(outputIo, "mesh %d %d %d\n", meshInfoDb.id, meshInfoDb.nodeNum, meshInfoDb.elementNum);
+	for (int i = 0; i < meshInfoDb.nodeNum; i++)
 	{
 		fprintf(outputIo, "node %d %lf %lf\n", nodeDb[i].id, nodeDb[i].x, nodeDb[i].y);
 	}
-	for (int i = 0; i < elemNum; i++)
+	for (int i = 0; i < meshInfoDb.elementNum; i++)
 	{
-		fprintf(outputIo, "elem %d %d %d %d\n", elemDb[i].id, elemDb[i].nodeId[0], elemDb[i].nodeId[1], elemDb[i].nodeId[2]);
+		//fprintf(outputIo, "elem %d %d %d %d\n", elemDb[i].id, elemDb[i].nodeId[0], elemDb[i].nodeId[1], elemDb[i].nodeId[2]);
+		fprintf(outputIo, "elem %d %d %d %d\n", i+1, elemDb[i].nodeId[0], elemDb[i].nodeId[1], elemDb[i].nodeId[2]);
 	}
 	fclose(outputIo);
 
