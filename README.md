@@ -11,13 +11,13 @@ Here are the features of this repo:
 
 ### PDE problem:
 - The routine to solve the FEM problem:
-![](.\figures\structureOf2DFEM.PNG)
+![](./figures/structureOf2DFEM.PNG)
 
 - Case One - 2D Poisson:
-![](.\figures\CaseOne2DPoisson.PNG)
+![](./figures/CaseOne2DPoisson.PNG)
 
 - Case Two - 1D Wave:
-![](.\figures\CaseTwo1DWave.PNG)
+![](./figures/CaseTwo1DWave.PNG)
 
 - Case Three - 1D Wave Dynamic, absorbing boundary condition with time integration scheme:
   (To be implemented)
