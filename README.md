@@ -2,6 +2,8 @@
 Author: CHEN Jiawei, 2nd year master student at the University of Tokyo
 
 ### Features
+This is a repo to manage the HW of one of my attended courses.
+Here are the features of this repo: 
 - PDE problem: 1D Wave, 2D Poisson, Newmark beta time integration scheme, Absorbing boundary condition(to be implemented).
 - Matrix solver: Gauss pivot elimination algorithm, Conjugate gradient algorithm, matrix basic operation.
 - Mesh generation: 2D Delaunay triangulation.
