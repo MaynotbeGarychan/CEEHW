@@ -63,9 +63,11 @@ solver for the 2D Poisson problem.
 ### 2D Delaunay triangulation:
 Delaunay triangulation is a common but popular mesh generation algorithm for triangle
 element. 2D mesh generator for triangle element is supported in this repo now.
+This figure from my report helps you understand the route of Delaunay triangulation:
+![](./figures/DelaunayTriRoute.jpg)
 If you want to use it, please change the mode of the solution in the main.c by:
 ```buildoutcfg
-int testMode = FEM_TEST_MODE;
+int testMode = MESH_TEST_MODE;
 ```
 Then it will go to the main function for mesh generator:
 ```buildoutcfg
