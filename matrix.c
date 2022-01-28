@@ -265,7 +265,7 @@ double calculateDetMatrix22(matrix T)
 }
 
 // Direct method
-int gaussianEliminationFEM(matrix* A, matrixInt* indexVec, matrix *result)
+int gaussianEliminationSolveMatrix(matrix* A, matrixInt* indexVec, matrix *result)
 /*begin
     Target: solve ax = b, A = { a | b }
     Step:
