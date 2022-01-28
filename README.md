@@ -12,10 +12,13 @@ Here are the features of this repo:
 ### PDE problem:
 - The routine to solve the FEM problem:
 ![](.\figures\structureOf2DFEM.JPG)
+
 - Case One - 2D Poisson:
 ![](.\figures\CaseOne2DPoisson.JPG)
+
 - Case Two - 1D Wave:
 ![](.\figures\CaseTwo1DWave.JPG)
+
 - Case Three - 1D Wave Dynamic, absorbing boundary condition with time integration scheme:
   (To be implemented)
 
@@ -56,6 +59,7 @@ Also, some basic matrix operations were built in this repo.
 Here is the comparison of analytical results, numerical results from Gauss elimination solver and conjugate gradient 
 solver for the 2D Poisson problem.
 ![](./figures/ComparisonAnalyticalNumerical.JPG)
+
 ### 2D Delaunay triangulation:
 Delaunay triangulation is a common but popular mesh generation algorithm for triangle
 element. 2D mesh generator for triangle element is supported in this repo now.
@@ -108,5 +112,7 @@ elem 6 6 2 3
 ```
 - Case One - A very simple 2D mesh:
 ![](./figures/MeshCaseOne.JPG)
+
 - Case Two - 2D mesh in 1x1 area:
 ![](./figures/MeshCaseTwo.JPG)
+
