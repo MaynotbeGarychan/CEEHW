@@ -1,0 +1,7 @@
+mesh 1 6 0 0
+node 1 0 0
+node 2 1.0 0
+node 3 1.0 1.0
+node 4 0 1.0
+node 5 0.3 0.8
+node 6 0.7 0.2
