@@ -9,14 +9,14 @@ Author: CHEN Jiawei, 2nd year master student at the University of Tokyo
 
 ### PDE problem:
 - The routine to solve the FEM problem:
-
   <img src="C:\Users\Gary\Desktop\CEE2021\reportOneSrc\figures\structureOf2DFEM.JPG"/>
+  ![](C:\Users\Gary\Desktop\CEE2021\reportOneSrc\figures\structureOf2DFEM.JPG)
 - Case One - 2D Poisson:
   <img src="C:\Users\Gary\Desktop\CEE2021\reportOneSrc\figures\CaseOne2DPoisson.JPG"/>
-
+  ![](C:\Users\Gary\Desktop\CEE2021\reportOneSrc\figures\CaseOne2DPoisson.JPG)
 - Case Two - 1D Wave:
   <img src="C:\Users\Gary\Desktop\CEE2021\reportOneSrc\figures\CaseTwo1DWave.JPG"/>
-
+  ![](C:\Users\Gary\Desktop\CEE2021\reportOneSrc\figures\CaseTwo1DWave.JPG)
 - Case Three - 1D Wave Dynamic, absorbing boundary condition with time integration scheme:
   (To be implemented)
 
