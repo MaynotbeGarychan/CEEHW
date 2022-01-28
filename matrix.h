@@ -26,7 +26,7 @@ int backwardSubtitution(matrix* A);
 int roundDiagonalComponent(matrix* A);
 void getBlockOfMatrix(matrix A, int beginRowPos, int endRowPos, int beginColPos, int endColPos, matrix* block);
 void transposeMatrix(matrix inputMat, matrix* outMat);
-int gaussianEliminationFEM(matrix* A, matrixInt* indexVec, matrix* result);
+int gaussianEliminationSolveMatrix(matrix* A, matrixInt* indexVec, matrix* result);
 int forwardElimintationPivot(matrix* A, matrixInt* indexVec);
 void swapRowMatrix(matrix* A, int rowOnePos, int rowTwoPos);
 void swapRowMatrixInt(matrixInt* A, int rowOnePos, int rowTwoPos);

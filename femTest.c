@@ -131,7 +131,7 @@ int femTest()
     switch (solverMethod)
     {
     case GAUSS:
-        gaussianEliminationFEM(&appliedSystemMatrix, &unknownIdVec, &result);
+        gaussianEliminationSolveMatrix(&appliedSystemMatrix, &unknownIdVec, &result);
         printMatrix(&appliedSystemMatrix);
         break;
     case CG:
