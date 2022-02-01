@@ -2,6 +2,18 @@
 #include "matrix.h"
 #include "mesh.h"
 
+enum problem
+{
+	WAVE_PRO, POIS_PRO
+};
+
+typedef struct
+{
+	int dimension;
+	int solveProblem;
+	int appliedAbsorbingBoundary; // 0: no, 1: yes
+}analysis;
+
 void assembleTransMatrix(struct element elementDb, struct node nodeDb[], matrix* transMatrix);
 double funcElemMatrix(matrix tranInvJ, matrix dfaidr, int m, int n);
 void assembleElementStiffnessMatrix(struct element elementDb, struct node nodeDb[], matrix* elemMatrix);

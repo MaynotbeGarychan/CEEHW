@@ -1,5 +1,5 @@
 /*
-*		Main program for Finite Element Analysis
+*		Test Platform for Finite Element Analysis
 *       Header file: test.h
 *		Author: CHEN Jiawei, the University of Tokyo
 *		Date:	2022/01/26
@@ -17,13 +17,13 @@
 
 
 
-int femTest()
+int femTest(Io ioInfo)
 {
 
     // ----------------------------------------------------------  //
     //                      reading mesh file                      //
     // ----------------------------------------------------------  //
-    FILE* fileIo = fopen("report3Mesh2.txt", "rt");
+    FILE* fileIo = fopen(ioInfo.inputDir, "rt");
     if (fileIo == NULL)
     {
         return 0;
@@ -145,7 +145,7 @@ int femTest()
     //                      Output the result                      //
     // ----------------------------------------------------------  //
 
-    FILE* OutputIo = fopen("output2CG.txt", "w");
+    FILE* OutputIo = fopen(ioInfo.outputDir, "w");
     if (OutputIo == NULL)
     {
         return 0;

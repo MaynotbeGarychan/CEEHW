@@ -1,5 +1,10 @@
 #pragma once
 #include <stdio.h>
+#include "mesh.h"
+
+#define MAX_NUM_ELEM 100
+#define MAX_NUM_NODE 200
+#define MAX_NUM_BOUD 100
 
 struct node
 {
@@ -28,6 +33,14 @@ struct meshInfo
     int elementNum;
     int boundaryNum;
 };
+
+typedef struct
+{
+	struct meshInfo meshInfoDb;
+	struct element elementDb[MAX_NUM_ELEM];
+	struct node nodeDb[MAX_NUM_NODE];
+    struct boundary boundaryDb[MAX_NUM_BOUD];
+}mesh;
 
 void addNode(int nodeId, double x, double y, struct node* nodeDb);
 void addElem(int elemid, int nodeList[3], struct element* elemDb);

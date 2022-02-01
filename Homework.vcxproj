@@ -138,12 +138,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="femMain.c" />
     <ClCompile Include="Io.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="matrix.c" />
     <ClCompile Include="matrixTest.c" />
     <ClCompile Include="mesh.c" />
-    <ClCompile Include="meshTest.c" />
+    <ClCompile Include="DelaunayTriangulation.c" />
+    <ClCompile Include="Poisson2DFEM.c" />
     <ClCompile Include="solver.c" />
     <ClCompile Include="femTest.c" />
   </ItemGroup>

@@ -33,10 +33,16 @@
     <ClCompile Include="femTest.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="meshTest.c">
+    <ClCompile Include="DelaunayTriangulation.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Io.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Poisson2DFEM.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="femMain.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

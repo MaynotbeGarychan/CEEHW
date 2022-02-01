@@ -8,7 +8,7 @@
 #include "mesh.h"
 #include "Io.h"
 
-int meshDelauneyTest(void)
+int meshDelauneyTest(Io ioInfo)
 {
 	// ----------------------------------------------------------  //
 	//     reading seeds file, translate information               //
@@ -16,7 +16,7 @@ int meshDelauneyTest(void)
 
 	struct node nodeDb[200] = {0};
 	struct meshInfo meshInfoDb = { 0,0,0,0 };
-	FILE* inputIo = fopen("report3NodeSeeds2.txt", "rt");
+	FILE* inputIo = fopen(ioInfo.inputDir, "rt");
 	if (inputIo == NULL)
 	{
 		return 0;
@@ -182,7 +182,7 @@ int meshDelauneyTest(void)
 	//     output the mesh to txt	     //
 	// --------------------------------  //
 
-	FILE* outputIo = fopen("report3Mesh2.txt", "w");
+	FILE* outputIo = fopen(ioInfo.outputDir, "w");
 	if (outputIo == NULL)
 	{
 		return 0;

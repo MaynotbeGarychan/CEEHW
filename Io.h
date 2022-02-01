@@ -1,6 +1,12 @@
 #pragma once
 #include "mesh.h"
 
+typedef struct
+{
+	char* inputDir;
+	char* outputDir;
+}Io;
+
 int readMesh(const char* fileName,
     struct meshInfo* meshInfoDb, struct element* elementDb[], struct node* nodeDb[], struct boundary* boundaryDb[]);
 

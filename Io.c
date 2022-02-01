@@ -7,6 +7,22 @@
 #pragma once
 #include "Io.h"
 #include "mesh.h"
+#include "solver.h"
+
+int readTxt(Io ioInfo, mesh *meshDb, analysis *analysisInfo)
+{
+	FILE* fileIo = fopen(ioInfo.inputDir, "rt");
+	if (fileIo == NULL)
+	{
+		return 0;
+	}
+
+    // 
+    meshDb->meshInfoDb.id = 0;
+
+	fclose(fileIo);
+	return 1;
+}
 
 int readMesh(const char *fileName,
     struct meshInfo *meshInfoDb, struct element *elementDb[] ,struct node *nodeDb[],struct boundary *boundaryDb[])
