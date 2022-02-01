@@ -29,7 +29,7 @@ int matrixTest()
     }
     matrix result;
     allocateMatrix(&result, testMat.numRow, 1);
-    gaussianEliminationFEM(&testMat, &idvec,&result);
+    gaussianEliminationSolveMatrix(&testMat, &idvec,&result);
 
     // iterative
     createTestMatrixForCG(&testMat);

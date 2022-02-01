@@ -1,2 +1,6 @@
-﻿  main.c
+﻿  matrix.c
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\matrix.c(319,37): warning C4244: 'function': conversion from 'double' to 'int', possible loss of data
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\matrix.c(319,65): warning C4244: 'function': conversion from 'double' to 'int', possible loss of data
+  matrixTest.c
+  Generating Code...
   Homework.vcxproj -> C:\Users\Gary\Desktop\CEE2021\reportOneSrc\Debug\Homework.exe
