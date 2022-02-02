@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		printf("Current mode unsupported!");
+		printf("Unsupported mode now!");
 		return 1;
 	}
 

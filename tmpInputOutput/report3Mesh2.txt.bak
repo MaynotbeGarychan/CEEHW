@@ -191,6 +191,6 @@ statboud 78 0.625
 statboud 79 0.75
 statboud 80 0.875
 statboud 81 1.0
-analysis probName pois
-analysis solvName cgis
+analysis pois
+analysis cgis
 analysis timeInte 1 0.0 20.0 1.0 0.25

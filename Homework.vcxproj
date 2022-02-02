@@ -148,13 +148,16 @@
     <ClCompile Include="Poisson2DFEM.c" />
     <ClCompile Include="solver.c" />
     <ClCompile Include="femTest.c" />
+    <ClCompile Include="translator.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Io.h" />
+    <ClInclude Include="macro.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="solver.h" />
     <ClInclude Include="test.h" />
+    <ClInclude Include="translator.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

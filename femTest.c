@@ -33,7 +33,7 @@ int femTest(Io ioInfo)
     struct node nodeDb[1000];
     for (int i = 0; i < meshInfoDb.nodeNum; i++)
     {
-        readNode(fileIo, &nodeDb[i]);
+        readNode2D(fileIo, &nodeDb[i]);
     }
     struct element elementDb[1000];
     for (int i = 0; i < meshInfoDb.elementNum; i++)

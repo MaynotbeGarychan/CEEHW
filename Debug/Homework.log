@@ -1,10 +1,14 @@
-﻿  Io.c
-C:\Users\Administrator\Desktop\CEEHW\Io.c(61,18): warning C4090: “函数”: 不同的“const”限定符
-C:\Users\Administrator\Desktop\CEEHW\Io.c(61,20): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 1 拥有了类型“char **”
-C:\Users\Administrator\Desktop\CEEHW\Io.c(68,18): warning C4090: “函数”: 不同的“const”限定符
-C:\Users\Administrator\Desktop\CEEHW\Io.c(68,20): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 1 拥有了类型“char **”
-C:\Users\Administrator\Desktop\CEEHW\Io.c(74,18): warning C4090: “函数”: 不同的“const”限定符
-C:\Users\Administrator\Desktop\CEEHW\Io.c(74,20): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 1 拥有了类型“char **”
-C:\Users\Administrator\Desktop\CEEHW\Io.c(80,18): warning C4090: “函数”: 不同的“const”限定符
-C:\Users\Administrator\Desktop\CEEHW\Io.c(80,20): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 1 拥有了类型“char **”
+﻿  translator.c
+C:\Users\Administrator\Desktop\CEEHW\translator.c(21,63): warning C4047: “函数”:“int **”与“int [100]”的间接级别不同
+C:\Users\Administrator\Desktop\CEEHW\translator.c(21,43): warning C4024: “getBoundaryNodeList”: 形参和实参 2 的类型不同
+C:\Users\Administrator\Desktop\CEEHW\translator.c(22,63): warning C4047: “函数”:“const int **”与“int [100]”的间接级别不同
+C:\Users\Administrator\Desktop\CEEHW\translator.c(22,43): warning C4024: “getInternalNodeList”: 形参和实参 2 的类型不同
+C:\Users\Administrator\Desktop\CEEHW\translator.c(22,97): warning C4047: “函数”:“int **”与“int [200]”的间接级别不同
+C:\Users\Administrator\Desktop\CEEHW\translator.c(22,77): warning C4024: “getInternalNodeList”: 形参和实参 3 的类型不同
+C:\Users\Administrator\Desktop\CEEHW\translator.c(33,46): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+C:\Users\Administrator\Desktop\CEEHW\translator.c(42,58): warning C4047: “=”:“int *”与“const int”的间接级别不同
+C:\Users\Administrator\Desktop\CEEHW\translator.c(46,59): warning C4047: “=”:“int *”与“const int”的间接级别不同
+C:\Users\Administrator\Desktop\CEEHW\translator.c(56,51): warning C4047: “函数”:“int *”与“const int **”的间接级别不同
+C:\Users\Administrator\Desktop\CEEHW\translator.c(56,35): warning C4024: “search”: 形参和实参 2 的类型不同
+C:\Users\Administrator\Desktop\CEEHW\translator.c(58,53): warning C4047: “=”:“int *”与“const int”的间接级别不同
   Homework.vcxproj -> C:\Users\Administrator\Desktop\CEEHW\Debug\Homework.exe

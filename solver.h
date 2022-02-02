@@ -1,17 +1,45 @@
 #pragma once
 #include "matrix.h"
 #include "mesh.h"
+#include "macro.h"
 
 enum problem
 {
-	WAVE_PRO, POIS_PRO
+	WAVE_PRO = 1, POIS_PRO
+};
+
+enum matrixSolver
+{
+	GAUSSPIVOT_SOLVER = 1,CG_SOLVER
+};
+
+struct matrixSolverParam
+{
+	int matrixSolverType;
+	double tolerance; // only used for cg
+};
+
+struct timeIntegrationParam
+{
+	double beta;
+	double startTime;
+	double endTime;
+	double stepLength;
+	int stepNum;
 };
 
 typedef struct
 {
 	int dimension;
 	int solveProblem;
+	int dof;
+	struct matrixSolverParam solverParam;
 	int appliedAbsorbingBoundary; // 0: no, 1: yes
+	int boundaryNodeIdList[MAX_NUM_BOUD];
+	int internalNodeIdList[MAX_NUM_NODE];
+
+	int usedTimeInteScheme; // 0: no, 1: yes
+	struct timeIntegrationParam timeInteParam;
 }analysis;
 
 void assembleTransMatrix(struct element elementDb, struct node nodeDb[], matrix* transMatrix);

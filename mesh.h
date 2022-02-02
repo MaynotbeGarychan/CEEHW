@@ -1,10 +1,13 @@
+/************************************************************
+FileName: mesh.h
+Author: Chen
+Date: 2022/02/02
+Description: header file of the mesh.c
+***********************************************************/
 #pragma once
 #include <stdio.h>
 #include "mesh.h"
-
-#define MAX_NUM_ELEM 100
-#define MAX_NUM_NODE 200
-#define MAX_NUM_BOUD 100
+#include "macro.h"
 
 struct node
 {
@@ -14,24 +17,46 @@ struct node
     //double z;
 };
 
+enum elementType 
+{
+    LINE_ELEM = 1, TRI_ELEM
+};
+
 struct element
 {
     int id;
     int nodeId[3];
 };
 
-struct boundary
-{
-    int nodeId;
-    double value;
-};
-
 struct meshInfo
 {
     int id;
+    int dimension;
+    int elemType;
     int nodeNum;
     int elementNum;
     int boundaryNum;
+};
+
+struct boundary
+{
+	int nodeId;
+	double value;
+};
+
+struct boundaryDynamic
+{
+    int nodeId;
+    double time;
+    double value;
+};
+
+struct boundaryInfo
+{
+    int id;
+    int totalBoundaryNum;
+    int staticBoundaryNum;
+    int dynamicBoundaryNum;
 };
 
 typedef struct
@@ -39,7 +64,9 @@ typedef struct
 	struct meshInfo meshInfoDb;
 	struct element elementDb[MAX_NUM_ELEM];
 	struct node nodeDb[MAX_NUM_NODE];
-    struct boundary boundaryDb[MAX_NUM_BOUD];
+    struct boundaryInfo boundaryInfoDb;
+    struct boundary staticBoundaryDb[MAX_NUM_BOUD];
+    struct boundaryDynamic dynamicBoundaryDb[MAX_NUM_BOUD];
 }mesh;
 
 void addNode(int nodeId, double x, double y, struct node* nodeDb);

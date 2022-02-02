@@ -24,7 +24,7 @@ int meshDelauneyTest(Io ioInfo)
 	readMeshInfo(inputIo, &meshInfoDb);
 	for (int i = 0; i < meshInfoDb.nodeNum; i++)
 	{
-		readNode(inputIo, &nodeDb[i]);
+		readNode2D(inputIo, &nodeDb[i]);
 	}
 	fclose(inputIo);
 	double maxNodeX = maxNodeXCoor(nodeDb, meshInfoDb.nodeNum);

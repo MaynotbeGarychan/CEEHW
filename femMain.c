@@ -1,9 +1,10 @@
-/*
-*		Main program for Finite Element Analysis
-*       Header file: test.h
-*		Author: CHEN Jiawei, the University of Tokyo
-*		Date:	2022/01/26
-*/
+/************************************************************
+FileName: femMain.c
+Author: Chen
+Date: 2022/02/02
+Description: main program of the fem analysis, 
+			 the whole route was assemble in this src file
+***********************************************************/
 #pragma once
 #include <stdio.h>
 #include <malloc.h>
@@ -15,6 +16,7 @@
 #include "solver.h"
 #include "Io.h"
 #include "test.h"
+#include "translator.h"
 
 int femMain(Io ioInfo)
 {
@@ -24,7 +26,7 @@ int femMain(Io ioInfo)
 	readTxt(ioInfo, &meshDb, &analysisInfo);
 
 	// translate information, set mesh info and solver param
-
+	translator(&meshDb, &analysisInfo);
 
 	// select the specific problem
 
