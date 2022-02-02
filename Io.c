@@ -18,7 +18,7 @@ int readTxt(Io ioInfo, mesh *meshDb, analysis *analysisInfo)
 	}
 
     /*	read the basic information for mesh
-    *  Format: mesh id dimension elemType nodeNum elemNum BoundaryNum 
+    *  Format: mesh id dimension elemTypeStr nodeNum elemNum BoundaryNum 
     */
     readMeshInfo(fileIo, &meshDb->meshInfoDb);
 
@@ -82,17 +82,18 @@ int readTxt(Io ioInfo, mesh *meshDb, analysis *analysisInfo)
     /*	read the analysis information
     *  Format: analysis problemName usedTimeIntegration
     */
-	readAnalysisLine(fileIo, analysisInfo);
-
 	/*	read the analysis solver information
 	*  Format: analysis solverName
 	*/
-	readAnalysisLine(fileIo, analysisInfo);
-
 	/*	read the analysis time integration information
-	*  Format: analysis solverName
+	*  Format: analysis timeInte usedTimeInteScheme start end stepLen beta
 	*/
-	readAnalysisLine(fileIo, analysisInfo);
+	int analysisLineNum = 0;
+	readAnalysisHead(fileIo, &analysisLineNum);
+	for (int i = 0; i < analysisLineNum; i++)
+	{
+		readAnalysisLine(fileIo, analysisInfo);
+	}
 
 	fclose(fileIo);
 	return 1;
@@ -101,8 +102,27 @@ int readTxt(Io ioInfo, mesh *meshDb, analysis *analysisInfo)
 void readMeshInfo(const FILE* fileIo, struct meshInfo* meshInfoDb)
 {
     char* readType[4];
-    fscanf(fileIo, "%s %d %d %d %d %d %d\n", readType, &(meshInfoDb->id), &(meshInfoDb->dimension), &(meshInfoDb->elemType),
+	char* elemTypeStr[4];
+    fscanf(fileIo, "%s %d %d %s %d %d %d\n", readType, &(meshInfoDb->id), &(meshInfoDb->dimension), elemTypeStr,
         &(meshInfoDb->nodeNum), &(meshInfoDb->elementNum), &(meshInfoDb->boundaryNum));
+	meshInfoDb->elemType = mapElemTypeStrToInt(elemTypeStr);
+}
+
+int mapElemTypeStrToInt(char* solveProbStr[4])
+{
+	if (strcmp(solveProbStr, "line") == 0)
+	{
+		return LINE_ELEM;
+	}
+	else if (strcmp(solveProbStr, "tria") == 0)
+	{
+		return TRI_ELEM;
+	}
+	else
+	{
+		printf("Unsupported solver now!");
+	}
+	return -1;
 }
 
 void readNode1D(const FILE* fileIo, struct node* node)
@@ -157,6 +177,12 @@ void readDynamicBoundary(const FILE* fileIo, struct boundaryDynamic* boundary)
 {
 	char* readType[8];
 	fscanf(fileIo, "%s %d %lf %lf\n", readType, &(boundary->nodeId), &boundary->time, &(boundary->value));
+}
+
+void readAnalysisHead(const FILE* fileIo, int *analysisNum)
+{
+	char* readType[8];
+	fscanf(fileIo, "%s %d\n ", readType, analysisNum);
 }
 
 void readAnalysisLine(const FILE* fileIo, analysis* analysisInfo)

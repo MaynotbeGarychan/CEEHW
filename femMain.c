@@ -17,6 +17,8 @@ Description: main program of the fem analysis,
 #include "Io.h"
 #include "test.h"
 #include "translator.h"
+#include "model.h"
+#include "femMain.h"
 
 int femMain(Io ioInfo)
 {
@@ -28,14 +30,12 @@ int femMain(Io ioInfo)
 	// translate information, set mesh info and solver param
 	translator(&meshDb, &analysisInfo);
 
-	// select the specific problem
-
-
-
 	// for example, if we want to use newmark beta, we can set its step, 
 	// but if it's simple fem problem, we can set the step is 1
 	// assemble stiffness matrix
-
+	matrix linearSystem;
+	initilizeMatrix(&linearSystem, meshDb.meshInfoDb.nodeNum, meshDb.meshInfoDb.nodeNum + 1);
+	assemble1DWaveStatic(meshDb, analysisInfo, &linearSystem);
 
 	// call matrix solver
 

@@ -36,6 +36,7 @@ struct meshInfo
     int nodeNum;
     int elementNum;
     int boundaryNum;
+    int elemNodeNum;
 };
 
 struct boundary

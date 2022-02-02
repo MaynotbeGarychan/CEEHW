@@ -25,3 +25,5 @@ void readBoundaryInfo(const FILE* fileIo, struct boundaryInfo* boundaryInfoDb);
 int mapSolverStrToInt(char* solveProbStr[4]);
 int mapProbStrToInt(char* solveProbStr[4]);
 void readAnalysisLine(const FILE* fileIo, analysis* analysisInfo);
+int mapElemTypeStrToInt(char* solveProbStr[4]);
+void readAnalysisHead(const FILE* fileIo, int* analysisNum);

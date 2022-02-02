@@ -1,0 +1,24 @@
+mesh 1 1 line 9 8 2
+node 1 0
+node 2 0.3
+node 3 0.125
+node 4 0.55
+node 5 0.45
+node 6 0.75
+node 7 0.6
+node 8 1.0
+node 9 0.9
+elem 1 1 3
+elem 2 2 5
+elem 3 5 4
+elem 4 3 2
+elem 5 7 6
+elem 6 4 7
+elem 7 9 8
+elem 8 6 9
+boudhead 1 2 0
+statboud 1 0
+statboud 8 0
+analysis 2
+analysis probName wave
+analysis solvName gpes

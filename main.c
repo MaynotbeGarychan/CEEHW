@@ -14,6 +14,7 @@ Description: main program of this solution,
 
 #include "Io.h"
 #include "test.h"
+#include "femMain.h"
 
 int main(int argc, char* argv[])
 {
@@ -64,9 +65,6 @@ int main(int argc, char* argv[])
 	{
 	case FEM_MAIN_MODE:
 		retCode = femMain(ioInfo);
-		break;
-	case FEM_TEST_MODE:
-		retCode = femTest(ioInfo);
 		break;
 	case MATRIX_TEST_MODE:
 		retCode = matrixTest();

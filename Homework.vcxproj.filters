@@ -30,9 +30,6 @@
     <ClCompile Include="matrixTest.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="femTest.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DelaunayTriangulation.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -46,6 +43,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="translator.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="model.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="femTest.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -69,6 +72,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="macro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="femMain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

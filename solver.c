@@ -1,9 +1,9 @@
-/*
-*		Related functions, operations for FEM analysis
-*       Header file: solver.h
-*		Author: CHEN Jiawei, the University of Tokyo
-*		Date:	2022/01/26
-*/
+/************************************************************
+FileName: solver.c
+Author: Chen
+Date: 2022/02/02
+Description: constitutive modelling, time integration
+***********************************************************/
 #pragma once
 #include "solver.h"
 #include "matrix.h"
@@ -68,23 +68,6 @@ void assembleTransMatrix(struct element elementDb, struct node nodeDb[], matrix*
     transMatrix->mat[0][1] = -nodeDb[nodeOnePos].x + nodeDb[nodeThreePos].x;
     transMatrix->mat[1][0] = -nodeDb[nodeOnePos].y + nodeDb[nodeTwoPos].y;
     transMatrix->mat[1][1] = -nodeDb[nodeOnePos].y + nodeDb[nodeThreePos].y;
-}
-
-void assembleGlobalStiffnessMatrix(struct meshInfo meshInfoDb, struct element elementDb[], matrix elemMat[], matrix* globalMat)
-{
-    for (int idElem = 0; idElem < meshInfoDb.elementNum; idElem++)
-    {
-        for (int i = 0; i < 3; i++)
-        {
-            int globalRowPos = elementDb[idElem].nodeId[i] - 1;
-            for (int j = 0; j < 3; j++)
-            {
-                int globalColPos = elementDb[idElem].nodeId[j] - 1;
-                globalMat->mat[globalRowPos][globalColPos] += elemMat[idElem].mat[i][j];
-            }
-        }
-        //printMatrix(globalMat);
-    }
 }
 
 int deleteBoundaryRows(struct meshInfo meshInfoDb, struct boundary boundaryDb[], matrix inputMat, matrixInt idVec,

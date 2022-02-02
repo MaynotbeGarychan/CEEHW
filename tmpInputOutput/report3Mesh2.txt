@@ -1,4 +1,4 @@
-mesh 1 2 2 81 78 32
+mesh 1 2 tria 81 78 32
 node 1 0.000000 0.000000
 node 2 0.000000 0.125000
 node 3 0.000000 0.250000
@@ -191,6 +191,6 @@ statboud 78 0.625
 statboud 79 0.75
 statboud 80 0.875
 statboud 81 1.0
+analysis 2
 analysis probName pois
 analysis solvName cgis
-analysis timeInte 1 0.0 20.0 1.0 0.25

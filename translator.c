@@ -21,6 +21,11 @@ void translator(mesh *meshDb, analysis *analysisInfo)
 	getBoundaryNodeList(*meshDb, analysisInfo->boundaryNodeIdList);
 	getInternalNodeList(*meshDb, analysisInfo->boundaryNodeIdList, analysisInfo->internalNodeIdList);
 
+	/*	Calculate the node number of one element
+	*
+	*/
+	meshDb->meshInfoDb.elemNodeNum = getElemNodeNum(meshDb->meshInfoDb.elemType);
+
 	/*	Calculate the degree of freedom
 	*	
 	*/
@@ -58,5 +63,19 @@ void getInternalNodeList(const mesh meshDb, const int *boundaryNodeList[],
 			internalNodeList[tmpVecPos] = meshDb.nodeDb[i].id;
 			tmpVecPos++;
 		}
+	}
+}
+
+int getElemNodeNum(int elemType)
+{
+	switch (elemType)
+	{
+	case LINE_ELEM:
+		return 2;
+	case TRI_ELEM:
+		return 3;
+	default:
+		printf("getElemNodeNum: unsupported element type!");
+		break;
 	}
 }

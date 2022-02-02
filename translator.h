@@ -11,3 +11,4 @@ void translator(mesh* meshDb, analysis* analysisInfo);
 void getBoundaryNodeList(const mesh meshDb, int* boundaryNodeList[]);
 void getInternalNodeList(const mesh meshDb, const int* boundaryNodeList[],
 	int* internalNodeList[]);
+int getElemNodeNum(int elemType);
