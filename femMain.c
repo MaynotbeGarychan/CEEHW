@@ -35,7 +35,13 @@ int femMain(Io ioInfo)
 	// assemble stiffness matrix
 	matrix linearSystem;
 	initilizeMatrix(&linearSystem, meshDb.meshInfoDb.nodeNum, meshDb.meshInfoDb.nodeNum + 1);
-	assemble1DWaveStatic(meshDb, analysisInfo, &linearSystem);
+	assemble2DPoissonStatic(meshDb, analysisInfo, &linearSystem);
+
+	// applied boundary conditions
+	matrix idArray;
+	allocateMatrixInt(&idArray, meshDb.meshInfoDb.nodeNum, 1);
+	initializeIdArray(meshDb, &idArray);
+
 
 	// call matrix solver
 
