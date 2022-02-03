@@ -6,6 +6,19 @@ Description: header file of the translator.c
 ***********************************************************/
 #pragma once
 #include "mesh.h"
+#include "translator.h"
+
+struct nodeScalarResultStep
+{
+	struct node nodeDb[MAX_NUM_NODE];
+	double val[MAX_NUM_NODE];
+	double time;
+};
+
+typedef struct
+{
+	struct nodeScalarResultStep nodeScalarResultDb[MAX_NUM_TIMESTEP];
+}result;
 
 void translator(mesh* meshDb, analysis* analysisInfo);
 void getBoundaryNodeList(const mesh meshDb, int* boundaryNodeList[]);

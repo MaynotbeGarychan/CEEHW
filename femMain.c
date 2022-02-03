@@ -38,13 +38,37 @@ int femMain(Io ioInfo)
 	assemble2DPoissonStatic(meshDb, analysisInfo, &linearSystem);
 
 	// applied boundary conditions
-	matrix idArray;
+	matrixInt idArray;
 	allocateMatrixInt(&idArray, meshDb.meshInfoDb.nodeNum, 1);
 	initializeIdArray(meshDb, &idArray);
 
+	matrix slimLinearSys;
+	allocateMatrix(&slimLinearSys, analysisInfo.dof, meshDb.meshInfoDb.nodeNum + 1);
+	matrixInt slimIdArray;
+	allocateMatrixInt(&slimIdArray, analysisInfo.dof, 1);
+	deleteBoundaryRows(meshDb, analysisInfo, linearSystem, idArray, &slimLinearSys, &slimIdArray);
+	//freeMatrix(&linearSystem);
+	freeMatrix(&idArray);
+
+	matrix finalLinearSys;
+	allocateMatrix(&finalLinearSys, analysisInfo.dof, analysisInfo.dof + 1);
+	applyBoundaryConditionAndDeleteCols(meshDb, analysisInfo, slimLinearSys, &finalLinearSys);
 
 	// call matrix solver
-
+	matrix resultArr;
+	allocateMatrix(&resultArr, analysisInfo.dof, 1);
+	switch (analysisInfo.solverParam.matrixSolverType)
+	{
+	case GAUSSPIVOT_SOLVER:
+		gaussianEliminationSolveMatrix(finalLinearSys, &slimIdArray, &resultArr);
+		break;
+	case CG_SOLVER:
+		conjugateGradientSolveMatrix(finalLinearSys, 1e-3, &resultArr);
+		break;
+	default:
+		gaussianEliminationSolveMatrix(finalLinearSys, &slimIdArray, &resultArr);
+		break;
+	}
 
 	// output results
 

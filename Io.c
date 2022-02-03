@@ -14,6 +14,7 @@ int readTxt(Io ioInfo, mesh *meshDb, analysis *analysisInfo)
 	const FILE* fileIo = fopen(ioInfo.inputDir, "rt");
 	if (fileIo == NULL)
 	{
+		printf("radTxt: Cannot get input Io!");
 		return 0;
 	}
 

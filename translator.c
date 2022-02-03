@@ -34,9 +34,19 @@ void translator(mesh *meshDb, analysis *analysisInfo)
 	/*	Calculate some basic param for time integration scheme
 	*
 	*/
-	analysisInfo->timeInteParam.stepNum = (analysisInfo->timeInteParam.endTime - analysisInfo->timeInteParam.startTime) 
-					/ analysisInfo->timeInteParam.stepLength;
-
+	if (analysisInfo->usedTimeInteScheme == 1)
+	{
+		analysisInfo->timeInteParam.stepNum = (analysisInfo->timeInteParam.endTime - analysisInfo->timeInteParam.startTime)
+			/ analysisInfo->timeInteParam.stepLength;
+	}
+	else
+	{
+		analysisInfo->timeInteParam.stepLength = 0;
+		analysisInfo->timeInteParam.startTime = 0;
+		analysisInfo->timeInteParam.endTime = 0;
+		analysisInfo->timeInteParam.beta = 0;
+		analysisInfo->timeInteParam.stepNum = 0;
+	}
 
 }
 
@@ -77,5 +87,17 @@ int getElemNodeNum(int elemType)
 	default:
 		printf("getElemNodeNum: unsupported element type!");
 		break;
+	}
+}
+
+void saveScalarResultStep(int step, mesh meshDb, matrix resultArr, matrixInt slimIdArray, result* resultDb)
+{
+	for (int i = 0; i < resultArr.numRow; i++)
+	{
+		resultDb->nodeScalarResultDb[]
+
+		resultDb->nodeScalarResultDb[i].timeStep = 0;
+		resultDb->nodeScalarResultDb[i].nodeDb = meshDb.nodeDb[slimIdArray.mat[i][0] - 1];
+		resultDb->nodeScalarResultDb[i].val = resultArr.mat[i][0];
 	}
 }

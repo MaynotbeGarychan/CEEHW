@@ -13,17 +13,6 @@ Description: header file of the femMain.c
 #include "macro.h"
 #include "femMain.h"
 
-struct nodeScalarResult
-{
-	struct node nodeDb;
-	double val;
-	int timeStep;
-};
-
-typedef struct
-{
-	struct nodeScalarResult nodeScalarResultDb[MAX_NUM_NODE];
-}result;
 
 
 int femMain(Io ioInfo);

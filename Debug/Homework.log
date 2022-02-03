@@ -1,69 +1,18 @@
-﻿  DelaunayTriangulation.c
-C:\Users\Administrator\Desktop\CEEHW\DelaunayTriangulation.c(67,45): warning C4047: “函数”:“node *”与“node (*)[200]”的间接级别不同
-C:\Users\Administrator\Desktop\CEEHW\DelaunayTriangulation.c(67,38): warning C4024: “circleNode”: 形参和实参 3 的类型不同
-  Io.c
-C:\Users\Administrator\Desktop\CEEHW\Io.c(98,15): warning C4090: “函数”: 不同的“const”限定符
-C:\Users\Administrator\Desktop\CEEHW\Io.c(106,18): warning C4090: “函数”: 不同的“const”限定符
-C:\Users\Administrator\Desktop\CEEHW\Io.c(106,20): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 1 拥有了类型“char **”
-C:\Users\Administrator\Desktop\CEEHW\Io.c(106,20): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 4 拥有了类型“char **”
-C:\Users\Administrator\Desktop\CEEHW\Io.c(113,12): warning C4013: “strcmp”未定义；假设外部返回 int
-C:\Users\Administrator\Desktop\CEEHW\Io.c(131,15): warning C4090: “函数”: 不同的“const”限定符
-C:\Users\Administrator\Desktop\CEEHW\Io.c(131,17): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 1 拥有了类型“char **”
-C:\Users\Administrator\Desktop\CEEHW\Io.c(131,17): warning C4473: “fscanf”: 没有为格式字符串传递足够的参数
-C:\Users\Administrator\Desktop\CEEHW\Io.c(131,17): message : 占位符和其参数预计 4 可变参数，但提供的却是 3 参数
-C:\Users\Administrator\Desktop\CEEHW\Io.c(131,17): message : 缺失的可变参数 4 为格式字符串“%lf”所需
-C:\Users\Administrator\Desktop\CEEHW\Io.c(137,18): warning C4090: “函数”: 不同的“const”限定符
-C:\Users\Administrator\Desktop\CEEHW\Io.c(137,20): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 1 拥有了类型“char **”
-C:\Users\Administrator\Desktop\CEEHW\Io.c(143,18): warning C4090: “函数”: 不同的“const”限定符
-C:\Users\Administrator\Desktop\CEEHW\Io.c(143,20): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 1 拥有了类型“char **”
-C:\Users\Administrator\Desktop\CEEHW\Io.c(149,15): warning C4090: “函数”: 不同的“const”限定符
-C:\Users\Administrator\Desktop\CEEHW\Io.c(149,17): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 1 拥有了类型“char **”
-C:\Users\Administrator\Desktop\CEEHW\Io.c(149,17): warning C4473: “fscanf”: 没有为格式字符串传递足够的参数
-C:\Users\Administrator\Desktop\CEEHW\Io.c(149,17): message : 占位符和其参数预计 5 可变参数，但提供的却是 4 参数
-C:\Users\Administrator\Desktop\CEEHW\Io.c(149,17): message : 缺失的可变参数 5 为格式字符串“%d”所需
-C:\Users\Administrator\Desktop\CEEHW\Io.c(155,15): warning C4090: “函数”: 不同的“const”限定符
-C:\Users\Administrator\Desktop\CEEHW\Io.c(155,17): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 1 拥有了类型“char **”
-C:\Users\Administrator\Desktop\CEEHW\Io.c(161,18): warning C4090: “函数”: 不同的“const”限定符
-C:\Users\Administrator\Desktop\CEEHW\Io.c(161,20): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 1 拥有了类型“char **”
-C:\Users\Administrator\Desktop\CEEHW\Io.c(167,18): warning C4090: “函数”: 不同的“const”限定符
-C:\Users\Administrator\Desktop\CEEHW\Io.c(167,20): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 1 拥有了类型“char **”
-C:\Users\Administrator\Desktop\CEEHW\Io.c(173,15): warning C4090: “函数”: 不同的“const”限定符
-C:\Users\Administrator\Desktop\CEEHW\Io.c(173,17): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 1 拥有了类型“char **”
-C:\Users\Administrator\Desktop\CEEHW\Io.c(179,15): warning C4090: “函数”: 不同的“const”限定符
-C:\Users\Administrator\Desktop\CEEHW\Io.c(179,17): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 1 拥有了类型“char **”
-C:\Users\Administrator\Desktop\CEEHW\Io.c(185,15): warning C4090: “函数”: 不同的“const”限定符
-C:\Users\Administrator\Desktop\CEEHW\Io.c(185,17): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 1 拥有了类型“char **”
-C:\Users\Administrator\Desktop\CEEHW\Io.c(192,15): warning C4090: “函数”: 不同的“const”限定符
-C:\Users\Administrator\Desktop\CEEHW\Io.c(192,17): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 1 拥有了类型“char **”
-C:\Users\Administrator\Desktop\CEEHW\Io.c(192,17): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 2 拥有了类型“char **”
-C:\Users\Administrator\Desktop\CEEHW\Io.c(196,16): warning C4090: “函数”: 不同的“const”限定符
-C:\Users\Administrator\Desktop\CEEHW\Io.c(196,18): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 1 拥有了类型“char **”
-C:\Users\Administrator\Desktop\CEEHW\Io.c(202,16): warning C4090: “函数”: 不同的“const”限定符
-C:\Users\Administrator\Desktop\CEEHW\Io.c(202,18): warning C4477: “fscanf”: 格式字符串“%s”需要类型“char *”的参数，但可变参数 1 拥有了类型“char **”
-C:\Users\Administrator\Desktop\CEEHW\Io.c(207,16): warning C4090: “函数”: 不同的“const”限定符
-  femMain.c
-C:\Users\Administrator\Desktop\CEEHW\femMain.c(28,9): warning C4013: “readTxt”未定义；假设外部返回 int
-C:\Users\Administrator\Desktop\CEEHW\femMain.c(42,28): warning C4133: “函数”: 从“matrix *”到“matrixInt *”的类型不兼容
-C:\Users\Administrator\Desktop\CEEHW\femMain.c(43,36): warning C4133: “函数”: 从“matrix *”到“matrixInt *”的类型不兼容
-  main.c
+﻿  matrixTest.c
   model.c
-  solver.c
-C:\Users\Administrator\Desktop\CEEHW\solver.c(73,29): warning C4028: 形参 1 与声明不同
-C:\Users\Administrator\Desktop\CEEHW\solver.c(73,46): warning C4028: 形参 2 与声明不同
-C:\Users\Administrator\Desktop\CEEHW\solver.c(85,62): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
   translator.c
-C:\Users\Administrator\Desktop\CEEHW\translator.c(21,63): warning C4047: “函数”:“int **”与“int [100]”的间接级别不同
-C:\Users\Administrator\Desktop\CEEHW\translator.c(21,43): warning C4024: “getBoundaryNodeList”: 形参和实参 2 的类型不同
-C:\Users\Administrator\Desktop\CEEHW\translator.c(22,63): warning C4047: “函数”:“const int **”与“int [100]”的间接级别不同
-C:\Users\Administrator\Desktop\CEEHW\translator.c(22,43): warning C4024: “getInternalNodeList”: 形参和实参 2 的类型不同
-C:\Users\Administrator\Desktop\CEEHW\translator.c(22,97): warning C4047: “函数”:“int **”与“int [200]”的间接级别不同
-C:\Users\Administrator\Desktop\CEEHW\translator.c(22,77): warning C4024: “getInternalNodeList”: 形参和实参 3 的类型不同
-C:\Users\Administrator\Desktop\CEEHW\translator.c(38,46): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-C:\Users\Administrator\Desktop\CEEHW\translator.c(47,58): warning C4047: “=”:“int *”与“const int”的间接级别不同
-C:\Users\Administrator\Desktop\CEEHW\translator.c(51,59): warning C4047: “=”:“int *”与“const int”的间接级别不同
-C:\Users\Administrator\Desktop\CEEHW\translator.c(61,51): warning C4047: “函数”:“int *”与“const int **”的间接级别不同
-C:\Users\Administrator\Desktop\CEEHW\translator.c(61,35): warning C4024: “search”: 形参和实参 2 的类型不同
-C:\Users\Administrator\Desktop\CEEHW\translator.c(63,53): warning C4047: “=”:“int *”与“const int”的间接级别不同
-  正在生成代码...
-C:\Users\Administrator\Desktop\CEEHW\translator.c(81): warning C4715: “getElemNodeNum”: 不是所有的控件路径都返回值
-  Homework.vcxproj -> C:\Users\Administrator\Desktop\CEEHW\Debug\Homework.exe
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(21,63): warning C4047: 'function': 'int **' differs in levels of indirection from 'int [100]'
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(21,63): warning C4024: 'getBoundaryNodeList': different types for formal and actual parameter 2
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(22,63): warning C4047: 'function': 'const int **' differs in levels of indirection from 'int [100]'
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(22,63): warning C4024: 'getInternalNodeList': different types for formal and actual parameter 2
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(22,97): warning C4047: 'function': 'int **' differs in levels of indirection from 'int [200]'
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(22,97): warning C4024: 'getInternalNodeList': different types for formal and actual parameter 3
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(38,46): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(47,58): warning C4047: '=': 'int *' differs in levels of indirection from 'const int'
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(51,59): warning C4047: '=': 'int *' differs in levels of indirection from 'const int'
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(61,51): warning C4047: 'function': 'int *' differs in levels of indirection from 'const int **'
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(61,51): warning C4024: 'search': different types for formal and actual parameter 2
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(63,53): warning C4047: '=': 'int *' differs in levels of indirection from 'const int'
+  Generating Code...
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(81): warning C4715: 'getElemNodeNum': not all control paths return a value
+  Homework.vcxproj -> C:\Users\Gary\Desktop\CEE2021\reportOneSrc\Debug\Homework.exe

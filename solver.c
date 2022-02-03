@@ -93,6 +93,44 @@ int deleteBoundaryRows(mesh meshDb, analysis analysisInfo, matrix linearSystem, 
     return 1;
 }
 
+void applyBoundaryConditionAndDeleteCols(mesh meshDb, analysis analysisInfo, matrix slimLinearSys, matrix* finalLinearSys)
+{
+    int rhsVecPos = slimLinearSys.numCol - 1;
+    double val;
+    int pos;
+    for (int i = 0; i < meshDb.boundaryInfoDb.staticBoundaryNum; i++)
+    {
+        val = meshDb.staticBoundaryDb[i].value;
+        pos = meshDb.staticBoundaryDb[i].nodeId - 1;
+        for (int j = 0; j < slimLinearSys.numRow; j++)
+        {
+            slimLinearSys.mat[j][rhsVecPos] -= slimLinearSys.mat[j][pos] * val;
+            slimLinearSys.mat[j][pos] = 0.0;
+        }
+    }
+	for (int i = 0; i < meshDb.boundaryInfoDb.dynamicBoundaryNum; i++)
+	{
+		val = meshDb.dynamicBoundaryDb[i].value;
+		pos = meshDb.dynamicBoundaryDb[i].nodeId - 1;
+		for (int j = 0; j < slimLinearSys.numRow; j++)
+		{
+			slimLinearSys.mat[j][rhsVecPos] -= slimLinearSys.mat[j][pos] * val;
+			slimLinearSys.mat[j][pos] = 0.0;
+		}
+	}
+	for (int i = 0; i < finalLinearSys->numRow; i++)
+	{
+        finalLinearSys->mat[i][finalLinearSys->numCol - 1] = slimLinearSys.mat[i][rhsVecPos];
+	}
+	for (int i = 0; i < analysisInfo.dof; i++)
+	{
+		for (int j = 0; j < analysisInfo.dof; j++)
+		{
+            finalLinearSys->mat[j][i] = slimLinearSys.mat[j][analysisInfo.internalNodeIdList[i] - 1];
+		}
+	}
+}
+
 void applyBoundaryCondtion(matrix inputMat, int unkownNodeIdVec[], struct meshInfo meshInfoDb, struct boundary boundaryDb[], matrix* outMat)
 {
     int lvPos = inputMat.numCol - 1;

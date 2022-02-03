@@ -46,9 +46,9 @@ typedef struct
 //double funcElemMatrix(matrix tranInvJ, matrix dfaidr, int m, int n);
 //void assembleElementStiffnessMatrix(struct element elementDb, struct node nodeDb[], matrix* elemMatrix);
 //void assembleGlobalStiffnessMatrix(struct meshInfo meshInfoDb, struct element elementDb[], matrix elemMat[], matrix* globalMat);
-int deleteBoundaryRows(struct meshInfo meshInfoDb, struct boundary boundaryDb[], matrix inputMat, matrixInt idVec,
-    matrix* outMat, matrixInt* unknownIdVec);
+int deleteBoundaryRows(mesh meshDb, analysis analysisInfo, matrix linearSystem, matrixInt idArray, matrix* slimLinearSystem, matrixInt* slimIdArray);
 void applyBoundaryCondtion(matrix inputMat, int unkownNodeIdVec[], struct meshInfo meshInfoDb, struct boundary boundaryDb[], matrix* outMat);
 //void assembleLoadVector(struct meshInfo meshInfoDb, struct element elementDb[], double RHSvalue, matrix* loadVector);
 int search(int val, int vec[], int vecLen);
 void initializeIdArray(mesh meshDb, matrixInt* idArray);
+void applyBoundaryConditionAndDeleteCols(mesh meshDb, analysis analysisInfo, matrix slimLinearSys, matrix* finalLinearSys);

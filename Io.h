@@ -8,9 +8,7 @@ typedef struct
 	char* outputDir;
 }Io;
 
-int readMesh(const char* fileName,
-    struct meshInfo* meshInfoDb, struct element* elementDb[], struct node* nodeDb[], struct boundary* boundaryDb[]);
-
+int readTxt(Io ioInfo, mesh* meshDb, analysis* analysisInfo);
 
 void readMeshInfo(const FILE* fileIo, struct meshInfo* meshInfoDb);
 void readNode1D(const FILE* fileIo, struct node* node);

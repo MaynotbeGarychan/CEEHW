@@ -265,7 +265,7 @@ double calculateDetMatrix22(matrix T)
 }
 
 // Direct method
-int gaussianEliminationSolveMatrix(matrix* A, matrixInt* indexVec, matrix *result)
+int gaussianEliminationSolveMatrix(matrix A, matrixInt* indexVec, matrix* result)
 /*begin
     Target: solve ax = b, A = { a | b }
     Step:
@@ -275,27 +275,27 @@ int gaussianEliminationSolveMatrix(matrix* A, matrixInt* indexVec, matrix *resul
 end*/
 {
     // forward elimination
-    if (!forwardElimintationPivot(A, indexVec))
+    if (!forwardElimintationPivot(&A, indexVec))
     {
         return 0;
     }
     //printMatrix(A);
     // backward substitution
-    if (!backwardSubtitution(A))
+    if (!backwardSubtitution(&A))
     {
         return 0;
     }
     //printMatrix(A);
-    // rounde the diagonal component
-    if (!roundDiagonalComponent(A))
+    // round the diagonal component
+    if (!roundDiagonalComponent(&A))
     {
         return 0;
     }
     // get the result to the result vec
-    int resultPos = A->numCol - 1;
-    for (int i = 0; i < A->numRow; i++)
+    int resultPos = A.numCol - 1;
+    for (int i = 0; i < A.numRow; i++)
     {
-        result->mat[i][0] = A->mat[i][resultPos];
+        result->mat[i][0] = A.mat[i][resultPos];
     }
 	printf("result by Gaussian Pivot Elimination is\n");
 	printMatrix(result);
@@ -324,7 +324,7 @@ end*/
             swapRowMatrix(A, targetPos, i);
             swapRowMatrixInt(indexVec, targetPos, i);
         }
-        // if non zero, we can eliminte it
+        // if non zero, we can eliminate it
         for (int j = i + 1; j < A->numRow; j++)
         {
             if (A->mat[j][i] == 0)
@@ -576,7 +576,7 @@ int copyMatrix(matrix inMat, matrix* outMat)
     return 1;
 }
 
-void conjugateSolveMatrix(const matrix systemMatrix, double tolerance, matrix* result)
+void conjugateGradientSolveMatrix(const matrix systemMatrix, double tolerance, matrix* result)
 /*
 *   Target: Conjuate iteration to solve matrix
 *   Note: init the result vector before using it.
