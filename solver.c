@@ -70,48 +70,51 @@ Description: constitutive modelling, time integration
 //    transMatrix->mat[1][1] = -nodeDb[nodeOnePos].y + nodeDb[nodeThreePos].y;
 //}
 
-int deleteBoundaryRows(mesh meshDb, analysis analysisInfo, matrix linearSystem, matrixInt idArray, matrix* slimLinearSystem, matrixInt* slimIdArray)
+int deleteBoundaryRows(int totalNumNodes, int internalNodeNum, int internalNodeIdList[], matrix linearSystem, matrixInt idArray, matrix* slimLinearSystem, matrixInt* slimIdArray)
 {
     int row = 0;
-    for (int i = 0; i < meshDb.meshInfoDb.nodeNum; i++)
+    for (int i = 0; i < totalNumNodes; i++)
     {
         int nodeId = idArray.mat[i][0];
-        if (search(nodeId, analysisInfo.internalNodeIdList, analysisInfo.dof))
+        if (search(nodeId, internalNodeIdList, internalNodeNum))
         {
 			for (int j = 0; j < slimLinearSystem->numCol; j++)
 			{
 				slimLinearSystem->mat[row][j] = linearSystem.mat[i][j];
 			}
-            slimIdArray->mat[row][0] = linearSystem.mat[i][0];
+            slimIdArray->mat[row][0] = idArray.mat[i][0];
             row++;
         }
     }
-    if (row != analysisInfo.dof)
+    if (row != internalNodeNum)
     {
+        printf("deleteBoundaryRows: delete too much or too less rows! \n");
         return 0;
     }
     return 1;
 }
 
-void applyBoundaryConditionAndDeleteCols(mesh meshDb, analysis analysisInfo, matrix slimLinearSys, matrix* finalLinearSys)
+void applyBoundaryConditionAndDeleteCols(int staticBoundaryNum, int dynamicBoundaryNumStep, int internalNodeNum, 
+    struct boundary staticBoundaryDb[], struct boundaryDynamic dynamicBoundaryDbStep[], int internalNodeListStep[],
+    matrix slimLinearSys, matrix* finalLinearSys)
 {
     int rhsVecPos = slimLinearSys.numCol - 1;
     double val;
     int pos;
-    for (int i = 0; i < meshDb.boundaryInfoDb.staticBoundaryNum; i++)
+    for (int i = 0; i < staticBoundaryNum; i++)
     {
-        val = meshDb.staticBoundaryDb[i].value;
-        pos = meshDb.staticBoundaryDb[i].nodeId - 1;
+        val = staticBoundaryDb[i].value;
+        pos = staticBoundaryDb[i].nodeId - 1;
         for (int j = 0; j < slimLinearSys.numRow; j++)
         {
             slimLinearSys.mat[j][rhsVecPos] -= slimLinearSys.mat[j][pos] * val;
             slimLinearSys.mat[j][pos] = 0.0;
         }
     }
-	for (int i = 0; i < meshDb.boundaryInfoDb.dynamicBoundaryNum; i++)
+    for (int i = 0; i < dynamicBoundaryNumStep; i++)
 	{
-		val = meshDb.dynamicBoundaryDb[i].value;
-		pos = meshDb.dynamicBoundaryDb[i].nodeId - 1;
+		val = dynamicBoundaryDbStep[i].value;
+		pos = dynamicBoundaryDbStep[i].nodeId - 1;
 		for (int j = 0; j < slimLinearSys.numRow; j++)
 		{
 			slimLinearSys.mat[j][rhsVecPos] -= slimLinearSys.mat[j][pos] * val;
@@ -122,11 +125,11 @@ void applyBoundaryConditionAndDeleteCols(mesh meshDb, analysis analysisInfo, mat
 	{
         finalLinearSys->mat[i][finalLinearSys->numCol - 1] = slimLinearSys.mat[i][rhsVecPos];
 	}
-	for (int i = 0; i < analysisInfo.dof; i++)
+	for (int i = 0; i < internalNodeNum; i++)
 	{
-		for (int j = 0; j < analysisInfo.dof; j++)
+		for (int j = 0; j < internalNodeNum; j++)
 		{
-            finalLinearSys->mat[j][i] = slimLinearSys.mat[j][analysisInfo.internalNodeIdList[i] - 1];
+            finalLinearSys->mat[j][i] = slimLinearSys.mat[j][internalNodeListStep[i] - 1];
 		}
 	}
 }
@@ -189,4 +192,21 @@ void initializeIdArray(mesh meshDb, matrixInt* idArray)
     {
         idArray->mat[i][0] = meshDb.nodeDb[i].id;
     }
+}
+
+int callMatrixSolver(int matrixSolverType, matrix finalLinearSys, matrixInt slimIdArray, 
+    matrix *resultArr)
+{
+	switch (matrixSolverType)
+	{
+	case GAUSSPIVOT_SOLVER:
+		gaussianEliminationSolveMatrix(finalLinearSys, &slimIdArray, resultArr);
+		break;
+	case CG_SOLVER:
+		conjugateGradientSolveMatrix(finalLinearSys, 1e-3, resultArr);
+		break;
+	default:
+		gaussianEliminationSolveMatrix(finalLinearSys, &slimIdArray, resultArr);
+		break;
+	}
 }

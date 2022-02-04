@@ -1,18 +1,5 @@
-﻿  matrixTest.c
-  model.c
-  translator.c
-C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(21,63): warning C4047: 'function': 'int **' differs in levels of indirection from 'int [100]'
-C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(21,63): warning C4024: 'getBoundaryNodeList': different types for formal and actual parameter 2
-C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(22,63): warning C4047: 'function': 'const int **' differs in levels of indirection from 'int [100]'
-C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(22,63): warning C4024: 'getInternalNodeList': different types for formal and actual parameter 2
-C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(22,97): warning C4047: 'function': 'int **' differs in levels of indirection from 'int [200]'
-C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(22,97): warning C4024: 'getInternalNodeList': different types for formal and actual parameter 3
-C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(38,46): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(47,58): warning C4047: '=': 'int *' differs in levels of indirection from 'const int'
-C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(51,59): warning C4047: '=': 'int *' differs in levels of indirection from 'const int'
-C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(61,51): warning C4047: 'function': 'int *' differs in levels of indirection from 'const int **'
-C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(61,51): warning C4024: 'search': different types for formal and actual parameter 2
-C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(63,53): warning C4047: '=': 'int *' differs in levels of indirection from 'const int'
-  Generating Code...
-C:\Users\Gary\Desktop\CEE2021\reportOneSrc\translator.c(81): warning C4715: 'getElemNodeNum': not all control paths return a value
-  Homework.vcxproj -> C:\Users\Gary\Desktop\CEE2021\reportOneSrc\Debug\Homework.exe
+﻿  femMain.c
+  solver.c
+  正在生成代码...
+C:\Users\Administrator\Desktop\CEEHW\solver.c(212): warning C4716: “callMatrixSolver”: 必须返回一个值
+  Homework.vcxproj -> C:\Users\Administrator\Desktop\CEEHW\Debug\Homework.exe

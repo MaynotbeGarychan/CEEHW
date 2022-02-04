@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
 	*/
 	if (argc != 4 && argv[1] != "mat")
 	{
-		printf("Input of command line is wrong!");
+		printf("Input of command line is wrong!\n");
 		return 1;
 	}
 	for (int i = 0; i < argc; i++)
@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		printf("Unsupported mode now!");
+		printf("Unsupported mode now!\n");
 		return 1;
 	}
 

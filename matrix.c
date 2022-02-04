@@ -69,6 +69,15 @@ void freeMatrix(matrix* T)
     free(T->mat);
 }
 
+void freeMatrixInt(matrixInt* T)
+{
+	for (int i = 0; i < T->numCol; i++)
+	{
+		free(T->mat[i]);
+	}
+	free(T->mat);
+}
+
 // print the matrix
 void printMatrix(const matrix* T)
 {
@@ -81,6 +90,19 @@ void printMatrix(const matrix* T)
         printf("\n");
     }
     printf("\n");
+}
+
+void printMatrixInt(const matrixInt* T)
+{
+	for (int i = 0; i < T->numRow; i++)
+	{
+		for (int j = 0; j < T->numCol; j++)
+		{
+			printf("%d,", T->mat[i][j]);
+		}
+		printf("\n");
+	}
+	printf("\n");
 }
 
 // inverse the matrix

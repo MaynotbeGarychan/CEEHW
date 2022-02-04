@@ -30,6 +30,41 @@ int femMain(Io ioInfo)
 	// translate information, set mesh info and solver param
 	translator(&meshDb, &analysisInfo);
 
+	// make a resultdb to get result
+	result resultDb;
+
+	// go to the specific problem
+	switch (analysisInfo.solveProblem)
+	{
+	case WAVE_PRO:
+		if (analysisInfo.usedTimeInteScheme)
+		{
+
+		}
+		else
+		{
+			fem1dWaveStatic(ioInfo, meshDb, analysisInfo, &resultDb);
+		}
+		break;
+	case POIS_PRO:
+		fem2dPoissonStatic(ioInfo, meshDb, analysisInfo, &resultDb);
+	default:
+		break;
+	}
+
+	// write results to txt
+	writeTxt(ioInfo, meshDb, analysisInfo, resultDb);
+
+	return 1;
+}
+
+int fem1dWaveStatic(Io ioInfo, mesh meshDb, analysis analysisInfo, result* resultDb)
+{
+
+}
+
+int fem2dPoissonStatic(Io ioInfo, mesh meshDb, analysis analysisInfo, result *resultDb)
+{
 	// for example, if we want to use newmark beta, we can set its step, 
 	// but if it's simple fem problem, we can set the step is 1
 	// assemble stiffness matrix
@@ -43,36 +78,27 @@ int femMain(Io ioInfo)
 	initializeIdArray(meshDb, &idArray);
 
 	matrix slimLinearSys;
-	allocateMatrix(&slimLinearSys, analysisInfo.dof, meshDb.meshInfoDb.nodeNum + 1);
+	allocateMatrix(&slimLinearSys, analysisInfo.dof[0], meshDb.meshInfoDb.nodeNum + 1);
 	matrixInt slimIdArray;
-	allocateMatrixInt(&slimIdArray, analysisInfo.dof, 1);
-	deleteBoundaryRows(meshDb, analysisInfo, linearSystem, idArray, &slimLinearSys, &slimIdArray);
+	allocateMatrixInt(&slimIdArray, analysisInfo.dof[0], 1);
+	deleteBoundaryRows(meshDb.meshInfoDb.nodeNum, analysisInfo.dof[0], analysisInfo.internalNodeIdList[0],
+		linearSystem, idArray, &slimLinearSys, &slimIdArray);
 	//freeMatrix(&linearSystem);
-	freeMatrix(&idArray);
+	//freeMatrixInt(&idArray);
 
 	matrix finalLinearSys;
-	allocateMatrix(&finalLinearSys, analysisInfo.dof, analysisInfo.dof + 1);
-	applyBoundaryConditionAndDeleteCols(meshDb, analysisInfo, slimLinearSys, &finalLinearSys);
+	allocateMatrix(&finalLinearSys, analysisInfo.dof[0], analysisInfo.dof[0] + 1);
+	applyBoundaryConditionAndDeleteCols(meshDb.boundaryInfoDb.staticBoundaryNum, meshDb.boundaryInfoDb.dynamicBoundaryNumStep[0],
+		analysisInfo.dof[0], meshDb.staticBoundaryDb, meshDb.dynamicBoundaryDb[0], analysisInfo.internalNodeIdList[0],
+		slimLinearSys, &finalLinearSys);
 
 	// call matrix solver
 	matrix resultArr;
-	allocateMatrix(&resultArr, analysisInfo.dof, 1);
-	switch (analysisInfo.solverParam.matrixSolverType)
-	{
-	case GAUSSPIVOT_SOLVER:
-		gaussianEliminationSolveMatrix(finalLinearSys, &slimIdArray, &resultArr);
-		break;
-	case CG_SOLVER:
-		conjugateGradientSolveMatrix(finalLinearSys, 1e-3, &resultArr);
-		break;
-	default:
-		gaussianEliminationSolveMatrix(finalLinearSys, &slimIdArray, &resultArr);
-		break;
-	}
+	allocateMatrix(&resultArr, analysisInfo.dof[0], 1);
+	callMatrixSolver(analysisInfo.solverParam.matrixSolverType, finalLinearSys, slimIdArray, &resultArr);
 
-	// output results
-
-
+	// save results
+	saveScalarResultStep(0, 0, meshDb, analysisInfo, resultArr, slimIdArray, resultDb);
 
 	return 1;
 }

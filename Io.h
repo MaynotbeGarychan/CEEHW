@@ -1,6 +1,7 @@
 #pragma once
 #include "mesh.h"
 #include "solver.h"
+#include "translator.h"
 
 typedef struct
 {
@@ -25,3 +26,5 @@ int mapProbStrToInt(char* solveProbStr[4]);
 void readAnalysisLine(const FILE* fileIo, analysis* analysisInfo);
 int mapElemTypeStrToInt(char* solveProbStr[4]);
 void readAnalysisHead(const FILE* fileIo, int* analysisNum);
+
+void writeTxt(Io ioInfo, mesh meshDb, analysis analysisInfo, result resultDb);

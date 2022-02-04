@@ -21,7 +21,9 @@ typedef struct
 }result;
 
 void translator(mesh* meshDb, analysis* analysisInfo);
-void getBoundaryNodeList(const mesh meshDb, int* boundaryNodeList[]);
-void getInternalNodeList(const mesh meshDb, const int* boundaryNodeList[],
+void getBoundaryNodeListStep(int step, const mesh meshDb, int* boundaryNodeList[]);
+void getInternalNodeListStep(int step, const mesh meshDb, const int* boundaryNodeList[],
 	int* internalNodeList[]);
 int getElemNodeNum(int elemType);
+
+void saveScalarResultStep(int step, double time, mesh meshDb, analysis analysisInfo, matrix resultArr, matrixInt slimIdArray, result* resultDb);

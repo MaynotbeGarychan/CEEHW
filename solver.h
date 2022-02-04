@@ -32,11 +32,11 @@ typedef struct
 {
 	int dimension;
 	int solveProblem;
-	int dof;
+	int dof[MAX_NUM_TIMESTEP];
 	struct matrixSolverParam solverParam;
 	int appliedAbsorbingBoundary; // 0: no, 1: yes
-	int boundaryNodeIdList[MAX_NUM_BOUD];
-	int internalNodeIdList[MAX_NUM_NODE];
+	int boundaryNodeIdList[MAX_NUM_TIMESTEP][MAX_NUM_BOUD];
+	int internalNodeIdList[MAX_NUM_TIMESTEP][MAX_NUM_NODE];
 
 	int usedTimeInteScheme; // 0: no, 1: yes
 	struct timeIntegrationParam timeInteParam;
@@ -46,9 +46,13 @@ typedef struct
 //double funcElemMatrix(matrix tranInvJ, matrix dfaidr, int m, int n);
 //void assembleElementStiffnessMatrix(struct element elementDb, struct node nodeDb[], matrix* elemMatrix);
 //void assembleGlobalStiffnessMatrix(struct meshInfo meshInfoDb, struct element elementDb[], matrix elemMat[], matrix* globalMat);
-int deleteBoundaryRows(mesh meshDb, analysis analysisInfo, matrix linearSystem, matrixInt idArray, matrix* slimLinearSystem, matrixInt* slimIdArray);
+int deleteBoundaryRows(int totalNumNodes, int internalNodeNum, int internalNodeIdList[], matrix linearSystem, matrixInt idArray, matrix* slimLinearSystem, matrixInt* slimIdArray);
 void applyBoundaryCondtion(matrix inputMat, int unkownNodeIdVec[], struct meshInfo meshInfoDb, struct boundary boundaryDb[], matrix* outMat);
 //void assembleLoadVector(struct meshInfo meshInfoDb, struct element elementDb[], double RHSvalue, matrix* loadVector);
 int search(int val, int vec[], int vecLen);
 void initializeIdArray(mesh meshDb, matrixInt* idArray);
-void applyBoundaryConditionAndDeleteCols(mesh meshDb, analysis analysisInfo, matrix slimLinearSys, matrix* finalLinearSys);
+void applyBoundaryConditionAndDeleteCols(int staticBoundaryNum, int dynamicBoundaryNumStep, int internalNodeNum,
+	struct boundary staticBoundaryDb[], struct boundaryDynamic dynamicBoundaryDbStep[], int internalNodeListStep[],
+	matrix slimLinearSys, matrix* finalLinearSys);
+int callMatrixSolver(int matrixSolverType, matrix finalLinearSys, matrixInt slimIdArray,
+	matrix* resultArr);

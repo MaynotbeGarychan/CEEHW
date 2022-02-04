@@ -55,9 +55,10 @@ struct boundaryDynamic
 struct boundaryInfo
 {
     int id;
-    int totalBoundaryNum;
+    int totalBoundaryNumStep[MAX_NUM_TIMESTEP];
     int staticBoundaryNum;
     int dynamicBoundaryNum;
+    int dynamicBoundaryNumStep[MAX_NUM_TIMESTEP];
 };
 
 typedef struct
@@ -67,7 +68,7 @@ typedef struct
 	struct node nodeDb[MAX_NUM_NODE];
     struct boundaryInfo boundaryInfoDb;
     struct boundary staticBoundaryDb[MAX_NUM_BOUD];
-    struct boundaryDynamic dynamicBoundaryDb[MAX_NUM_BOUD];
+    struct boundaryDynamic dynamicBoundaryDb[MAX_NUM_TIMESTEP][MAX_NUM_BOUD];
 }mesh;
 
 void addNode(int nodeId, double x, double y, struct node* nodeDb);

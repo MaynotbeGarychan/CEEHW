@@ -12,25 +12,6 @@ Description: Translate the input information to the
 
 void translator(mesh *meshDb, analysis *analysisInfo)
 {
-	/*	Get the boundary node list, and then calculate
-	*	 the internal node list.
-	*  
-	*/
-	meshDb->boundaryInfoDb.totalBoundaryNum =
-		meshDb->boundaryInfoDb.staticBoundaryNum + meshDb->boundaryInfoDb.dynamicBoundaryNum;
-	getBoundaryNodeList(*meshDb, analysisInfo->boundaryNodeIdList);
-	getInternalNodeList(*meshDb, analysisInfo->boundaryNodeIdList, analysisInfo->internalNodeIdList);
-
-	/*	Calculate the node number of one element
-	*
-	*/
-	meshDb->meshInfoDb.elemNodeNum = getElemNodeNum(meshDb->meshInfoDb.elemType);
-
-	/*	Calculate the degree of freedom
-	*	
-	*/
-	analysisInfo->dof = meshDb->meshInfoDb.nodeNum - meshDb->boundaryInfoDb.totalBoundaryNum;
-
 	/*	Calculate some basic param for time integration scheme
 	*
 	*/
@@ -41,6 +22,7 @@ void translator(mesh *meshDb, analysis *analysisInfo)
 	}
 	else
 	{
+		analysisInfo->usedTimeInteScheme = 0;
 		analysisInfo->timeInteParam.stepLength = 0;
 		analysisInfo->timeInteParam.startTime = 0;
 		analysisInfo->timeInteParam.endTime = 0;
@@ -48,27 +30,69 @@ void translator(mesh *meshDb, analysis *analysisInfo)
 		analysisInfo->timeInteParam.stepNum = 0;
 	}
 
+
+	/*	1. Get the boundary node list, and then calculate
+	*	 the internal node list.
+	*	2. Calculate the boundary number, degree of freedom per step.
+	* 
+	*/
+	switch (analysisInfo->usedTimeInteScheme)
+	{
+	case 1:
+		for (int i = 0; i < analysisInfo->timeInteParam.stepNum; i++)
+		{
+			meshDb->boundaryInfoDb.totalBoundaryNumStep[i] =
+				meshDb->boundaryInfoDb.staticBoundaryNum + meshDb->boundaryInfoDb.dynamicBoundaryNumStep[i];
+			analysisInfo->dof[i] = meshDb->meshInfoDb.nodeNum - meshDb->boundaryInfoDb.totalBoundaryNumStep[i];
+			getBoundaryNodeListStep(i + 1, *meshDb, analysisInfo->boundaryNodeIdList[i]);
+			getInternalNodeListStep(i + 1, *meshDb, analysisInfo->boundaryNodeIdList[i], analysisInfo->internalNodeIdList[i]);
+		}
+		break;
+	case 0:
+		meshDb->boundaryInfoDb.dynamicBoundaryNumStep[0] = 0;
+		meshDb->boundaryInfoDb.totalBoundaryNumStep[0] =
+			meshDb->boundaryInfoDb.staticBoundaryNum + meshDb->boundaryInfoDb.dynamicBoundaryNumStep[0];
+
+		analysisInfo->dof[0] = meshDb->meshInfoDb.nodeNum - meshDb->boundaryInfoDb.totalBoundaryNumStep[0];
+		
+		getBoundaryNodeListStep(1, *meshDb, analysisInfo->boundaryNodeIdList[0]);
+		getInternalNodeListStep(1, *meshDb, analysisInfo->boundaryNodeIdList[0], analysisInfo->internalNodeIdList[0]);
+		break;
+	default:
+		printf("translator.c : please check whether the timeInteParam is set?\n");
+		break;
+	}
+
+
+	/*	Calculate the node number of one element
+	*
+	*/
+	meshDb->meshInfoDb.elemNodeNum = getElemNodeNum(meshDb->meshInfoDb.elemType);
+
+
 }
 
-void getBoundaryNodeList(const mesh meshDb, int *boundaryNodeList[])
+void getBoundaryNodeListStep(int step,const mesh meshDb, int *boundaryNodeList[])
 {
+	step = step - 1;
 	for (int i = 0; i < meshDb.boundaryInfoDb.staticBoundaryNum; i++)
 	{
 		boundaryNodeList[i] = meshDb.staticBoundaryDb[i].nodeId;
 	}
-	for (int i = meshDb.boundaryInfoDb.staticBoundaryNum; i < meshDb.boundaryInfoDb.totalBoundaryNum; i++)
+	for (int i = meshDb.boundaryInfoDb.staticBoundaryNum; i < meshDb.boundaryInfoDb.totalBoundaryNumStep[step]; i++)
 	{
-		boundaryNodeList[i] = meshDb.dynamicBoundaryDb[i].nodeId;
+		boundaryNodeList[i] = meshDb.dynamicBoundaryDb[step][i].nodeId;
 	}
 }
 
-void getInternalNodeList(const mesh meshDb, const int *boundaryNodeList[],
+void getInternalNodeListStep(int step, const mesh meshDb, const int *boundaryNodeList[],
 	int *internalNodeList[])
 {
+	step = step - 1;
 	int tmpVecPos = 0;
 	for (int i = 0; i < meshDb.meshInfoDb.nodeNum; i++)
 	{
-		if (search(meshDb.nodeDb[i].id, boundaryNodeList, meshDb.boundaryInfoDb.totalBoundaryNum) == 0)
+		if (search(meshDb.nodeDb[i].id, boundaryNodeList, meshDb.boundaryInfoDb.totalBoundaryNumStep[step]) == 0)
 		{
 			internalNodeList[tmpVecPos] = meshDb.nodeDb[i].id;
 			tmpVecPos++;
@@ -90,14 +114,37 @@ int getElemNodeNum(int elemType)
 	}
 }
 
-void saveScalarResultStep(int step, mesh meshDb, matrix resultArr, matrixInt slimIdArray, result* resultDb)
+void saveScalarResultStep(int step, double time, mesh meshDb, analysis analysisInfo, matrix resultArr, matrixInt slimIdArray, result* resultDb)
 {
+	int count = 0;
+	resultDb->nodeScalarResultDb[step].time = time;
 	for (int i = 0; i < resultArr.numRow; i++)
 	{
-		resultDb->nodeScalarResultDb[]
+		resultDb->nodeScalarResultDb[step].nodeDb[count].id = meshDb.nodeDb[slimIdArray.mat[i][0] - 1].id;
+		resultDb->nodeScalarResultDb[step].nodeDb[count].x = meshDb.nodeDb[slimIdArray.mat[i][0] - 1].x;
+		resultDb->nodeScalarResultDb[step].nodeDb[count].y = meshDb.nodeDb[slimIdArray.mat[i][0] - 1].y;
 
-		resultDb->nodeScalarResultDb[i].timeStep = 0;
-		resultDb->nodeScalarResultDb[i].nodeDb = meshDb.nodeDb[slimIdArray.mat[i][0] - 1];
-		resultDb->nodeScalarResultDb[i].val = resultArr.mat[i][0];
+		resultDb->nodeScalarResultDb[step].val[count] = resultArr.mat[i][0];
+		count++;
+	}
+
+	for (int i = 0; i < meshDb.boundaryInfoDb.staticBoundaryNum; i++)
+	{
+		resultDb->nodeScalarResultDb[step].nodeDb[count].id = meshDb.nodeDb[meshDb.staticBoundaryDb[i].nodeId - 1].id;
+		resultDb->nodeScalarResultDb[step].nodeDb[count].x = meshDb.nodeDb[meshDb.staticBoundaryDb[i].nodeId - 1].x;
+		resultDb->nodeScalarResultDb[step].nodeDb[count].y = meshDb.nodeDb[meshDb.staticBoundaryDb[i].nodeId - 1].y;
+
+		resultDb->nodeScalarResultDb[step].val[count] = meshDb.staticBoundaryDb[i].value;
+		count++;
+	}
+
+	for (int i = 0; i < meshDb.boundaryInfoDb.dynamicBoundaryNumStep[step]; i++)
+	{
+		resultDb->nodeScalarResultDb[step].nodeDb[count].id = meshDb.nodeDb[meshDb.dynamicBoundaryDb[step][i].nodeId - 1].id;
+		resultDb->nodeScalarResultDb[step].nodeDb[count].x = meshDb.nodeDb[meshDb.dynamicBoundaryDb[step][i].nodeId - 1].x;
+		resultDb->nodeScalarResultDb[step].nodeDb[count].y = meshDb.nodeDb[meshDb.dynamicBoundaryDb[step][i].nodeId - 1].y;
+
+		resultDb->nodeScalarResultDb[step].val[count] = meshDb.dynamicBoundaryDb[step][i].value;
+		count++;
 	}
 }

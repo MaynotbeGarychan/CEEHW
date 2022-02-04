@@ -16,3 +16,5 @@ Description: header file of the femMain.c
 
 
 int femMain(Io ioInfo);
+int fem2dPoissonStatic(Io ioInfo, mesh meshDb, analysis analysisInfo, result* resultDb);
+int fem1dWaveStatic(Io ioInfo, mesh meshDb, analysis analysisInfo, result* resultDb);

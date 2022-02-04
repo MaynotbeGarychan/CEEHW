@@ -8,13 +8,17 @@ Description: the source file for FEM Input and Output
 #include "Io.h"
 #include "mesh.h"
 #include "solver.h"
+#include "translator.h"
 
+/*	Read Io
+*
+*/
 int readTxt(Io ioInfo, mesh *meshDb, analysis *analysisInfo)
 {
 	const FILE* fileIo = fopen(ioInfo.inputDir, "rt");
 	if (fileIo == NULL)
 	{
-		printf("radTxt: Cannot get input Io!");
+		printf("radTxt: Cannot get input Io!\n");
 		return 0;
 	}
 
@@ -165,7 +169,7 @@ void readBoundary(const FILE* fileIo, struct boundary* boundary)
 void readBoundaryInfo(const FILE* fileIo, struct boundaryInfo* boundaryInfoDb)
 {
 	char* readType[8];
-    fscanf(fileIo, "%s %d %d %d\n", readType, &boundaryInfoDb->id, &boundaryInfoDb->staticBoundaryNum, &boundaryInfoDb->dynamicBoundaryNum);;
+    fscanf(fileIo, "%s %d %d %d\n", readType, &boundaryInfoDb->id, &boundaryInfoDb->staticBoundaryNum, &boundaryInfoDb->dynamicBoundaryNum);
 }
 
 void readStaticBoundary(const FILE* fileIo, struct boundary* boundary)
@@ -205,6 +209,7 @@ void readAnalysisLine(const FILE* fileIo, analysis* analysisInfo)
 	}
 	else if (strcmp(fillType, "timeInte") == 0)
 	{
+		analysisInfo->usedTimeInteScheme = 1;
 		fscanf(fileIo, "%d %lf %lf %lf %lf\n", &analysisInfo->usedTimeInteScheme,
 			&analysisInfo->timeInteParam.startTime, &analysisInfo->timeInteParam.endTime,
 			&analysisInfo->timeInteParam.stepLength, &analysisInfo->timeInteParam.beta);
@@ -243,4 +248,43 @@ int mapSolverStrToInt(char* solveProbStr[4])
 		printf("Unsupported solver now!");
 	}
 	return -1;
+}
+
+/*	Write Io
+*
+*/
+void writeTxt(Io ioInfo, mesh meshDb, analysis analysisInfo, result resultDb)
+{
+	FILE* OutputIo = fopen(ioInfo.outputDir, "w");
+	if (OutputIo == NULL)
+	{
+		return 0;
+	}
+	
+	switch (analysisInfo.usedTimeInteScheme)
+	{
+	case 1:
+		for (int step = 0; step < analysisInfo.timeInteParam.stepNum; step++)
+		{
+			fprintf(OutputIo, "step %d time %lf\n", step + 1, resultDb.nodeScalarResultDb[step].time);
+			for (int index = 0; index < meshDb.meshInfoDb.nodeNum; index++)
+			{
+				fprintf(OutputIo, "x%d %lf %lf %lf\n", resultDb.nodeScalarResultDb[step].nodeDb[index].id,
+					resultDb.nodeScalarResultDb[step].nodeDb[index].x, resultDb.nodeScalarResultDb[step].nodeDb[index].y,
+					resultDb.nodeScalarResultDb[step].val[index]);
+			}
+		}
+		break;
+	case 0:
+		for (int index = 0; index < meshDb.meshInfoDb.nodeNum; index++)
+		{
+			fprintf(OutputIo, "x%d %lf %lf %lf\n", resultDb.nodeScalarResultDb[0].nodeDb[index].id,
+				resultDb.nodeScalarResultDb[0].nodeDb[index].x, resultDb.nodeScalarResultDb[0].nodeDb[index].y,
+				resultDb.nodeScalarResultDb[0].val[index]);
+		}
+		break;
+	default:
+		printf("writeTxt: plz specify the scheme!\n");
+		break;
+	}
 }
