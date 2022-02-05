@@ -56,3 +56,8 @@ void applyBoundaryConditionAndDeleteCols(int staticBoundaryNum, int dynamicBound
 	matrix slimLinearSys, matrix* finalLinearSys);
 int callMatrixSolver(int matrixSolverType, matrix finalLinearSys, matrixInt slimIdArray,
 	matrix* resultArr);
+void updateVelocityAndAccelerationVector(double beta, double stepLen,
+	matrix displacementOld, matrix displacementNew, matrix velocityOld, matrix* velocityNew,
+	matrix acceleartionOld, matrix* accelerationNew);
+void assembleNewDisplacementVec(matrix resultArr, matrixInt slimIdArray, matrix* newDisplacementVec,
+	int statBoundaryNum, int dynaBoundaryNum, struct boundary statBoundaryDb[], struct boundaryDynamic dynaBoundaryDb[]);

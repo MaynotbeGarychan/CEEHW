@@ -210,3 +210,51 @@ int callMatrixSolver(int matrixSolverType, matrix finalLinearSys, matrixInt slim
 		break;
 	}
 }
+
+void updateVelocityAndAccelerationVector(double beta, double stepLen,
+	matrix displacementOld, matrix displacementNew, matrix velocityOld, matrix* velocityNew,
+	matrix acceleartionOld, matrix* accelerationNew)
+{
+	double valOne = 1 - (1 / (2 * beta));
+	double valTwo = 1 - (1 / (4 * beta));
+
+	// displacement gap
+	matrix du;
+	allocateMatrix(&du, displacementOld.numRow, displacementOld.numCol);
+	minusMatrix(displacementNew, displacementOld, &du);
+
+	matrix tempOne, tempTwo, tempThree, tempFour;
+	allocateMatrix(&tempOne, displacementOld.numRow, displacementOld.numCol);
+	allocateMatrix(&tempTwo, displacementOld.numRow, displacementOld.numCol);
+	allocateMatrix(&tempThree, displacementOld.numRow, displacementOld.numCol);
+	allocateMatrix(&tempFour, displacementOld.numRow, displacementOld.numCol);
+	// calculate acceleration
+	scaleMatrix(acceleartionOld, valOne, &tempOne);
+	scaleMatrix(velocityOld, -1 / (beta * stepLen), &tempTwo);
+	scaleMatrix(du, 1 / (beta * stepLen * stepLen), &tempThree);
+	addMatrix(tempOne, tempTwo, &tempFour);
+	addMatrix(tempFour, tempThree, accelerationNew);
+	// calculate velocity
+	scaleMatrix(acceleartionOld, valTwo * stepLen, &tempOne);
+	scaleMatrix(velocityOld, valOne, &tempTwo);
+	scaleMatrix(du, 1 / (2 * beta * stepLen), &tempThree);
+	addMatrix(tempOne, tempTwo, &tempFour);
+	addMatrix(tempFour, tempThree, velocityNew);
+}
+
+void assembleNewDisplacementVec(matrix resultArr, matrixInt slimIdArray, matrix* newDisplacementVec, 
+    int statBoundaryNum, int dynaBoundaryNum, struct boundary statBoundaryDb[], struct boundaryDynamic dynaBoundaryDb[])
+{
+    for (int i = 0; i < resultArr.numRow; i++)
+    {
+        newDisplacementVec->mat[slimIdArray.mat[i][0] - 1][0] = resultArr.mat[i][0];
+    }
+    for (int i = 0; i < statBoundaryNum; i++)
+    {
+        newDisplacementVec->mat[statBoundaryDb[i].nodeId - 1][0] = statBoundaryDb[i].value;
+    }
+	for (int i = 0; i < dynaBoundaryNum; i++)
+	{
+		newDisplacementVec->mat[dynaBoundaryDb[i].nodeId - 1][0] = dynaBoundaryDb[i].value;
+	}
+}

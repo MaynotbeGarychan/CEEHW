@@ -12,6 +12,9 @@ Description: Translate the input information to the
 
 void translator(mesh *meshDb, analysis *analysisInfo)
 {
+	/*	translate analysisInfo
+	*
+	*/
 	/*	Calculate some basic param for time integration scheme
 	*
 	*/
@@ -64,12 +67,23 @@ void translator(mesh *meshDb, analysis *analysisInfo)
 	}
 
 
+	/*	translate the mesh
+	*
+	*/
 	/*	Calculate the node number of one element
 	*
 	*/
 	meshDb->meshInfoDb.elemNodeNum = getElemNodeNum(meshDb->meshInfoDb.elemType);
-
-
+	/*	Set all the y coordinate to be zero in 1D case
+	*
+	*/
+	if (meshDb->meshInfoDb.dimension == 1)
+	{
+		for (int i = 0; i < meshDb->meshInfoDb.nodeNum; i++)
+		{
+			meshDb->nodeDb[i].y = 0.0;
+		}
+	}
 }
 
 void getBoundaryNodeListStep(int step,const mesh meshDb, int *boundaryNodeList[])
@@ -114,37 +128,17 @@ int getElemNodeNum(int elemType)
 	}
 }
 
-void saveScalarResultStep(int step, double time, mesh meshDb, analysis analysisInfo, matrix resultArr, matrixInt slimIdArray, result* resultDb)
+void saveScalarResultStep(int step, double time, struct node nodeDb[], matrixInt idArray, matrix newDisplacementVec, result* resultDb)
 {
 	int count = 0;
 	resultDb->nodeScalarResultDb[step].time = time;
-	for (int i = 0; i < resultArr.numRow; i++)
+
+	for (int i = 0; i < idArray.numRow; i++)
 	{
-		resultDb->nodeScalarResultDb[step].nodeDb[count].id = meshDb.nodeDb[slimIdArray.mat[i][0] - 1].id;
-		resultDb->nodeScalarResultDb[step].nodeDb[count].x = meshDb.nodeDb[slimIdArray.mat[i][0] - 1].x;
-		resultDb->nodeScalarResultDb[step].nodeDb[count].y = meshDb.nodeDb[slimIdArray.mat[i][0] - 1].y;
+		resultDb->nodeScalarResultDb[step].nodeDb[i].id = nodeDb[idArray.mat[i][0] - 1].id;
+		resultDb->nodeScalarResultDb[step].nodeDb[i].x = nodeDb[idArray.mat[i][0] - 1].x;
+		resultDb->nodeScalarResultDb[step].nodeDb[i].y = nodeDb[idArray.mat[i][0] - 1].y;
 
-		resultDb->nodeScalarResultDb[step].val[count] = resultArr.mat[i][0];
-		count++;
-	}
-
-	for (int i = 0; i < meshDb.boundaryInfoDb.staticBoundaryNum; i++)
-	{
-		resultDb->nodeScalarResultDb[step].nodeDb[count].id = meshDb.nodeDb[meshDb.staticBoundaryDb[i].nodeId - 1].id;
-		resultDb->nodeScalarResultDb[step].nodeDb[count].x = meshDb.nodeDb[meshDb.staticBoundaryDb[i].nodeId - 1].x;
-		resultDb->nodeScalarResultDb[step].nodeDb[count].y = meshDb.nodeDb[meshDb.staticBoundaryDb[i].nodeId - 1].y;
-
-		resultDb->nodeScalarResultDb[step].val[count] = meshDb.staticBoundaryDb[i].value;
-		count++;
-	}
-
-	for (int i = 0; i < meshDb.boundaryInfoDb.dynamicBoundaryNumStep[step]; i++)
-	{
-		resultDb->nodeScalarResultDb[step].nodeDb[count].id = meshDb.nodeDb[meshDb.dynamicBoundaryDb[step][i].nodeId - 1].id;
-		resultDb->nodeScalarResultDb[step].nodeDb[count].x = meshDb.nodeDb[meshDb.dynamicBoundaryDb[step][i].nodeId - 1].x;
-		resultDb->nodeScalarResultDb[step].nodeDb[count].y = meshDb.nodeDb[meshDb.dynamicBoundaryDb[step][i].nodeId - 1].y;
-
-		resultDb->nodeScalarResultDb[step].val[count] = meshDb.dynamicBoundaryDb[step][i].value;
-		count++;
+		resultDb->nodeScalarResultDb[step].val[i] = newDisplacementVec.mat[i][0];
 	}
 }

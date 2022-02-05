@@ -74,14 +74,15 @@ int readTxt(Io ioInfo, mesh *meshDb, analysis *analysisInfo)
     /*	read the boundary information
     *  Format: boudhead id staticBoundaryNum dynamicBoundaryNum
     */
-    readBoundaryInfo(fileIo, &meshDb->boundaryInfoDb);
+	int DynamicBoundarySetNum = 0;
+    readBoundaryInfo(fileIo, &meshDb->boundaryInfoDb, &DynamicBoundarySetNum);
     for (int i = 0; i < meshDb->boundaryInfoDb.staticBoundaryNum; i++)
     {
         readBoundary(fileIo, &meshDb->staticBoundaryDb[i]);
     }
-    for (int i = 0; i < meshDb->boundaryInfoDb.dynamicBoundaryNum; i++)
+    for (int i = 0; i < DynamicBoundarySetNum; i++)
     {
-        readDynamicBoundary(fileIo, &meshDb->dynamicBoundaryDb[i]);
+		readDynamicBoundaryStep(fileIo, &meshDb->dynamicBoundaryDb[i], &(meshDb->boundaryInfoDb.dynamicBoundaryNumStep[i]));
     }
 
     /*	read the analysis information
@@ -166,10 +167,10 @@ void readBoundary(const FILE* fileIo, struct boundary* boundary)
     fscanf(fileIo, "%s %d %lf\n", readType, &(boundary->nodeId), &(boundary->value));
 }
 
-void readBoundaryInfo(const FILE* fileIo, struct boundaryInfo* boundaryInfoDb)
+void readBoundaryInfo(const FILE* fileIo, struct boundaryInfo* boundaryInfoDb, int *inteTimeStep)
 {
 	char* readType[8];
-    fscanf(fileIo, "%s %d %d %d\n", readType, &boundaryInfoDb->id, &boundaryInfoDb->staticBoundaryNum, &boundaryInfoDb->dynamicBoundaryNum);
+    fscanf(fileIo, "%s %d %d %d\n", readType, &boundaryInfoDb->id, &boundaryInfoDb->staticBoundaryNum, inteTimeStep);
 }
 
 void readStaticBoundary(const FILE* fileIo, struct boundary* boundary)
@@ -178,10 +179,15 @@ void readStaticBoundary(const FILE* fileIo, struct boundary* boundary)
 	fscanf(fileIo, "%s %d %lf\n", readType, &(boundary->nodeId), &(boundary->value));
 }
 
-void readDynamicBoundary(const FILE* fileIo, struct boundaryDynamic* boundary)
+void readDynamicBoundaryStep(const FILE* fileIo, struct boundaryDynamic* boundary, int* numBoudStep)
 {
 	char* readType[8];
-	fscanf(fileIo, "%s %d %lf %lf\n", readType, &(boundary->nodeId), &boundary->time, &(boundary->value));
+	char* tmpStr[4];
+	fscanf(fileIo, "%s %s %lf %d\n", readType, tmpStr, &boundary->time, numBoudStep);
+	for (int i = 0; i < *numBoudStep; i++)
+	{
+		fscanf(fileIo, "%s %d %lf\n", readType, &(boundary->nodeId), &(boundary->value));
+	}
 }
 
 void readAnalysisHead(const FILE* fileIo, int *analysisNum)

@@ -48,7 +48,7 @@ void initilizeMatrix(matrix* T, int numRow, int numCol)
 }
 
 // zeros the value in matrix
-void ZeroMatrix(matrix* T)
+void zeroMatrix(matrix* T)
 {
 	for (int i = 0; i < T->numRow; i++)
 	{
@@ -663,11 +663,11 @@ void conjugateGradientSolveMatrix(const matrix systemMatrix, double tolerance, m
         // calculate new x
         scaleMatrix(p, alpha, &temp);
         addMatrix(x, temp, &newX);
-        ZeroMatrix(&temp);
+        zeroMatrix(&temp);
         // calculate new residual
         innerProduct(A, newX, &temp);
         minusMatrix(b, temp, &newResidual);
-        ZeroMatrix(&temp);
+        zeroMatrix(&temp);
 
         // check convergence
         ratio = normVector(newResidual) / normVector(b);
@@ -685,7 +685,7 @@ void conjugateGradientSolveMatrix(const matrix systemMatrix, double tolerance, m
         beta = dotProductVec(newResidual, newResidual) / dotProductVec(residual, residual);
         scaleMatrix(p, beta, &temp);
         addMatrix(newResidual, temp, &p);
-        ZeroMatrix(&temp);
+        zeroMatrix(&temp);
         // go to new iteration
         copyMatrix(newX, &x);
         copyMatrix(newResidual, &residual);

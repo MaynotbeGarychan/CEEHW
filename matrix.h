@@ -43,4 +43,4 @@ void conjugateGradientSolveMatrix(const matrix systemMatrix, double tolerance, m
 void scaleMatrix(matrix inMat, double factor, matrix* outMat);
 void createTestMatrixForCG(matrix* testMat);
 int copyMatrix(matrix inMat, matrix* outMat);
-void ZeroMatrix(matrix* T);
+void zeroMatrix(matrix* T);

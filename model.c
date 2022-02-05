@@ -59,7 +59,7 @@ int assemble1DWaveStatic(mesh meshDb, analysis analysisInfo, matrix* linearSyste
 	for (int i = 0; i < meshDb.meshInfoDb.elementNum; i++)
 	{
 		initilizeMatrix(&elemStiffMat[i], meshDb.meshInfoDb.elemNodeNum, meshDb.meshInfoDb.elemNodeNum);
-		assembleElementStiffnessMatrix1DWave(meshDb, i, &elemStiffMat[i]);
+		assembleElementStiffnessMatrix1DWave(meshDb.elementDb[i], meshDb.nodeDb, &elemStiffMat[i]);
 	}
 
 	/* Assemble global stiffness matrix
@@ -71,14 +71,14 @@ int assemble1DWaveStatic(mesh meshDb, analysis analysisInfo, matrix* linearSyste
 	return 1;
 }
 
-void assembleElementStiffnessMatrix1DWave(mesh meshDb, int index, matrix* elemStiffMat)
+void assembleElementStiffnessMatrix1DWave(struct element elem, struct node nodeDb[], matrix* elemStiffMat)
 /*	Note: initialize the matrix before enter this function
 *			the index can be the list index 
 */
 {
 	// calculate the basic component
-	double xleft = meshDb.nodeDb[meshDb.elementDb[index].nodeId[0] - 1].x;
-	double xright = meshDb.nodeDb[meshDb.elementDb[index].nodeId[1] - 1].x;
+	double xleft = nodeDb[elem.nodeId[0] - 1].x;
+	double xright = nodeDb[elem.nodeId[1] - 1].x;
 	double k = 1 / (xright - xleft);
 	// diagonal
 	elemStiffMat->mat[0][0] = k;
@@ -200,4 +200,39 @@ void assembleElemSrcVec2DPoisson(mesh meshDb, double pVal, matrix* loadVector)
 		loadVector->mat[meshDb.elementDb[i].nodeId[1] - 1][0] += val;
 		loadVector->mat[meshDb.elementDb[i].nodeId[2] - 1][0] += val;
 	}
+}
+
+/*	matrix and vector for 1D wave dynamic
+*	G.E.: 1/c2 * d2u/dt2 = d2u/dx2
+*	ABC: at the end node
+*/
+void addMassMatrixToGlobalMatrix1DWaveDynamic(matrix acceleration, matrix massMatrix, matrix* linearSys)
+{
+	for (int i = 0; i < massMatrix.numRow; i++)
+	{
+		for (int j = 0; j < massMatrix.numCol; j++)
+		{
+			linearSys->mat[i][j] += acceleration.mat[j][0] * massMatrix.mat[i][j];
+		}
+	}
+}
+
+void addVelocityMatrixToGlobalMatrix1DWaveDynamic(const double constant, matrix velocity, matrix* linearSys)
+{
+	linearSys->mat[linearSys->numRow - 1][linearSys->numRow - 1] +=
+		velocity.mat[linearSys->numRow - 1][0] / constant;
+}
+
+void assembleElementMassMatrix1DWaveDynamic(struct element elem, struct node nodeDb[], matrix* elemStiffMat)
+{
+	// calculate the basic component
+	double xleft = nodeDb[elem.nodeId[0] - 1].x;
+	double xright = nodeDb[elem.nodeId[1] - 1].x;
+	double k = 1 / (3 * (xright - xleft));
+	// diagonal
+	elemStiffMat->mat[0][0] = k;
+	elemStiffMat->mat[1][1] = k;
+	// non-diagonal
+	elemStiffMat->mat[0][1] = 0.5 * k;
+	elemStiffMat->mat[1][0] = 0.5 * k;
 }

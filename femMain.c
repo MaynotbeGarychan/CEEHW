@@ -30,26 +30,17 @@ int femMain(Io ioInfo)
 	// translate information, set mesh info and solver param
 	translator(&meshDb, &analysisInfo);
 
-	// make a resultdb to get result
+	// make a resultDb to get result
 	result resultDb;
 
 	// go to the specific problem
-	switch (analysisInfo.solveProblem)
+	if (analysisInfo.usedTimeInteScheme == 1)
 	{
-	case WAVE_PRO:
-		if (analysisInfo.usedTimeInteScheme)
-		{
-
-		}
-		else
-		{
-			fem1dWaveStatic(ioInfo, meshDb, analysisInfo, &resultDb);
-		}
-		break;
-	case POIS_PRO:
-		fem2dPoissonStatic(ioInfo, meshDb, analysisInfo, &resultDb);
-	default:
-		break;
+		femMainDynamic(ioInfo, meshDb, analysisInfo, &resultDb);
+	}
+	else
+	{
+		femMainStatic(ioInfo, meshDb, analysisInfo, &resultDb);
 	}
 
 	// write results to txt
@@ -58,19 +49,23 @@ int femMain(Io ioInfo)
 	return 1;
 }
 
-int fem1dWaveStatic(Io ioInfo, mesh meshDb, analysis analysisInfo, result* resultDb)
+int femMainStatic(Io ioInfo, mesh meshDb, analysis analysisInfo, result *resultDb)
 {
-
-}
-
-int fem2dPoissonStatic(Io ioInfo, mesh meshDb, analysis analysisInfo, result *resultDb)
-{
-	// for example, if we want to use newmark beta, we can set its step, 
-	// but if it's simple fem problem, we can set the step is 1
 	// assemble stiffness matrix
 	matrix linearSystem;
 	initilizeMatrix(&linearSystem, meshDb.meshInfoDb.nodeNum, meshDb.meshInfoDb.nodeNum + 1);
-	assemble2DPoissonStatic(meshDb, analysisInfo, &linearSystem);
+
+	switch (analysisInfo.solveProblem)
+	{
+	case POIS_PRO:
+		assemble2DPoissonStatic(meshDb, analysisInfo, &linearSystem);
+		break;
+	case WAVE_PRO:
+		assemble1DWaveStatic(meshDb, analysisInfo, &linearSystem);
+		break;
+	default:
+		break;
+	}
 
 	// applied boundary conditions
 	matrixInt idArray;
@@ -97,8 +92,104 @@ int fem2dPoissonStatic(Io ioInfo, mesh meshDb, analysis analysisInfo, result *re
 	allocateMatrix(&resultArr, analysisInfo.dof[0], 1);
 	callMatrixSolver(analysisInfo.solverParam.matrixSolverType, finalLinearSys, slimIdArray, &resultArr);
 
-	// save results
-	saveScalarResultStep(0, 0, meshDb, analysisInfo, resultArr, slimIdArray, resultDb);
+	matrix newDisplacementVec;
+	allocateMatrix(&newDisplacementVec, meshDb.meshInfoDb.nodeNum, 1);
+	assembleNewDisplacementVec(resultArr, slimIdArray, &newDisplacementVec,
+		meshDb.boundaryInfoDb.staticBoundaryNum, 0, meshDb.staticBoundaryDb, meshDb.dynamicBoundaryDb[0]);
 
+	// save results
+	saveScalarResultStep(0, 0, meshDb.nodeDb,idArray, newDisplacementVec,resultDb);
+
+	return 1;
+}
+
+int femMainDynamic(Io ioInfo, mesh meshDb, analysis analysisInfo, result* resultDb)
+{
+	matrix oldDisplacementVec, newDisplacementVec, oldVelocityVec, newVelocityVec, oldAccelerationVec, newAccelearationVec;
+	matrix massMatrix, linearSystem;
+
+	initilizeMatrix(&oldDisplacementVec, meshDb.meshInfoDb.nodeNum, 1);
+	initilizeMatrix(&newDisplacementVec, meshDb.meshInfoDb.nodeNum, 1);
+	initilizeMatrix(&oldVelocityVec, meshDb.meshInfoDb.nodeNum, 1);
+	initilizeMatrix(&newVelocityVec, meshDb.meshInfoDb.nodeNum, 1);
+	initilizeMatrix(&oldAccelerationVec, meshDb.meshInfoDb.nodeNum, 1);
+	initilizeMatrix(&newAccelearationVec, meshDb.meshInfoDb.nodeNum, 1);
+	initilizeMatrix(&massMatrix, meshDb.meshInfoDb.nodeNum, meshDb.meshInfoDb.nodeNum);
+	initilizeMatrix(&linearSystem, meshDb.meshInfoDb.nodeNum, meshDb.meshInfoDb.nodeNum + 1);
+
+	matrixInt idArray;
+	allocateMatrixInt(&idArray, meshDb.meshInfoDb.nodeNum, 1);
+
+	int currTime = 0;
+	for (int step = 0; step < analysisInfo.timeInteParam.stepNum; step++)
+	{
+		currTime = step * analysisInfo.timeInteParam.stepLength + analysisInfo.timeInteParam.startTime;
+		// assemble stiffness matrix
+		zeroMatrix(&linearSystem);
+
+		switch (analysisInfo.solveProblem)
+		{
+		case POIS_PRO:
+			assemble2DPoissonStatic(meshDb, analysisInfo, &linearSystem);
+			break;
+		case WAVE_PRO:
+			assemble1DWaveStatic(meshDb, analysisInfo, &linearSystem);
+			break;
+		default:
+			break;
+		}
+
+		// add the velocity matrix
+		addVelocityMatrixToGlobalMatrix1DWaveDynamic(10, oldVelocityVec, &linearSystem);
+
+		// add the acceleration matrix
+		matrix elemMassMat[MAX_NUM_ELEM];
+		for (int i = 0; i < meshDb.meshInfoDb.elementNum; i++)
+		{
+			initilizeMatrix(&elemMassMat[i], meshDb.meshInfoDb.elemNodeNum, meshDb.meshInfoDb.elemNodeNum);
+			assembleElementMassMatrix1DWaveDynamic(meshDb.elementDb[i], meshDb.nodeDb, &elemMassMat);
+		}
+		assembleGlobalStiffnessMatrix(meshDb, elemMassMat, &massMatrix);
+		addMassMatrixToGlobalMatrix1DWaveDynamic(oldAccelerationVec, massMatrix, &linearSystem);
+
+
+		// applied boundary conditions
+		initializeIdArray(meshDb, &idArray);
+
+		matrix slimLinearSys;
+		allocateMatrix(&slimLinearSys, analysisInfo.dof[step], meshDb.meshInfoDb.nodeNum + 1);
+		matrixInt slimIdArray;
+		allocateMatrixInt(&slimIdArray, analysisInfo.dof[step], 1);
+		deleteBoundaryRows(meshDb.meshInfoDb.nodeNum, analysisInfo.dof[step], analysisInfo.internalNodeIdList[step],
+			linearSystem, idArray, &slimLinearSys, &slimIdArray);
+
+		matrix finalLinearSys;
+		allocateMatrix(&finalLinearSys, analysisInfo.dof[step], analysisInfo.dof[step] + 1);
+		applyBoundaryConditionAndDeleteCols(meshDb.boundaryInfoDb.staticBoundaryNum, meshDb.boundaryInfoDb.dynamicBoundaryNumStep[step],
+			analysisInfo.dof[step], meshDb.staticBoundaryDb, meshDb.dynamicBoundaryDb[step], analysisInfo.internalNodeIdList[step],
+			slimLinearSys, &finalLinearSys);
+
+		// call matrix solver
+		matrix resultArr;
+		allocateMatrix(&resultArr, analysisInfo.dof[step], 1);
+		callMatrixSolver(analysisInfo.solverParam.matrixSolverType, finalLinearSys, slimIdArray, &resultArr);
+
+		// copy the result to the new displacement
+		assembleNewDisplacementVec(resultArr, slimIdArray, &newDisplacementVec, 
+			meshDb.boundaryInfoDb.staticBoundaryNum, meshDb.boundaryInfoDb.dynamicBoundaryNumStep[step], meshDb.staticBoundaryDb, meshDb.dynamicBoundaryDb[step]);
+
+		// calculate new velocity vector, acceleration vector
+		updateVelocityAndAccelerationVector(0.25, analysisInfo.timeInteParam.stepLength, 
+			oldDisplacementVec, newDisplacementVec, oldVelocityVec, &newVelocityVec, oldAccelerationVec, &newAccelearationVec);
+
+		// save results
+		saveScalarResultStep(step,step*analysisInfo.timeInteParam.stepLength, meshDb.nodeDb, idArray, newDisplacementVec, resultDb);
+
+		// copy the old vec to new vec
+		copyMatrix(newDisplacementVec, &oldDisplacementVec);
+		copyMatrix(newVelocityVec, &oldVelocityVec);
+		copyMatrix(newAccelearationVec, &oldAccelerationVec);
+
+	}
 	return 1;
 }

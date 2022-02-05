@@ -26,4 +26,4 @@ void getInternalNodeListStep(int step, const mesh meshDb, const int* boundaryNod
 	int* internalNodeList[]);
 int getElemNodeNum(int elemType);
 
-void saveScalarResultStep(int step, double time, mesh meshDb, analysis analysisInfo, matrix resultArr, matrixInt slimIdArray, result* resultDb);
+void saveScalarResultStep(int step, double time, struct node nodeDb[], matrixInt idArray, matrix newDisplacementVec, result* resultDb);
