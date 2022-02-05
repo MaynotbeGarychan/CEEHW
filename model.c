@@ -14,22 +14,22 @@ Description: src file for models
 /*  Global operation
 *
 */
-void assembleGlobalStiffnessMatrix(mesh meshDb, matrix elemMat[], matrix* globalMat)
+void assembleGlobalStiffnessMatrix(struct meshInfo meshInfoDb, struct element elementDb[], matrix elemMat[], matrix* globalMat)
 {
-	for (int idElem = 0; idElem < meshDb.meshInfoDb.elementNum; idElem++)
+	for (int idElem = 0; idElem < meshInfoDb.elementNum; idElem++)
 	{
-		for (int i = 0; i < meshDb.meshInfoDb.elemNodeNum; i++)
+		for (int i = 0; i < meshInfoDb.elemNodeNum; i++)
 		{
-			int globalRowPos = meshDb.elementDb[idElem].nodeId[i] - 1;
-			for (int j = 0; j < meshDb.meshInfoDb.elemNodeNum; j++)
+			int globalRowPos = elementDb[idElem].nodeId[i] - 1;
+			for (int j = 0; j < meshInfoDb.elemNodeNum; j++)
 			{
-				int globalColPos = meshDb.elementDb[idElem].nodeId[j] - 1;
+				int globalColPos = elementDb[idElem].nodeId[j] - 1;
 				globalMat->mat[globalRowPos][globalColPos] += elemMat[idElem].mat[i][j];
 			}
 		}
 	}
-	printf("Global stiffness matrix is: \n");
-	printMatrix(globalMat);
+	//printf("Global stiffness matrix is: \n");
+	//printMatrix(globalMat);
 }
 
 void assembleElemSrcVecToLinearSys(matrix elemSrcVec, matrix* linearSystem)
@@ -66,7 +66,7 @@ int assemble1DWaveStatic(mesh meshDb, analysis analysisInfo, matrix* linearSyste
 	*
 	*/
 	assembleElemSrcVecToLinearSys(elemSrcVec, linearSystem);
-	assembleGlobalStiffnessMatrix(meshDb, elemStiffMat, linearSystem);
+	assembleGlobalStiffnessMatrix(meshDb.meshInfoDb, meshDb.elementDb, elemStiffMat, linearSystem);
 
 	return 1;
 }
@@ -126,7 +126,7 @@ int assemble2DPoissonStatic(mesh meshDb, analysis analysisInfo, matrix* linearSy
 	*
 	*/
 	assembleElemSrcVecToLinearSys(elemSrcVec, linearSystem);
-	assembleGlobalStiffnessMatrix(meshDb, elemStiffMat, linearSystem);
+	assembleGlobalStiffnessMatrix(meshDb.meshInfoDb, meshDb.elementDb, elemStiffMat, linearSystem);
 
 	return 1;
 }
@@ -235,4 +235,23 @@ void assembleElementMassMatrix1DWaveDynamic(struct element elem, struct node nod
 	// non-diagonal
 	elemStiffMat->mat[0][1] = 0.5 * k;
 	elemStiffMat->mat[1][0] = 0.5 * k;
+	//printMatrix(elemStiffMat);
+}
+
+void assembleGlobalStiffnessMatrix1DWaveDynamic(struct meshInfo meshInfoDb, struct element elementDb[], struct node nodeDb[], matrix* linearSystem)
+{
+	/*	Assemble element stiffness matrix
+	*
+	*/
+	matrix elemStiffMat[MAX_NUM_ELEM];
+	for (int i = 0; i < meshInfoDb.elementNum; i++)
+	{
+		initilizeMatrix(&elemStiffMat[i], meshInfoDb.elemNodeNum, meshInfoDb.elemNodeNum);
+		assembleElementStiffnessMatrix1DWave(elementDb[i], nodeDb, &elemStiffMat[i]);
+	}
+
+	/* Assemble global stiffness matrix
+	*
+	*/
+	assembleGlobalStiffnessMatrix(meshInfoDb, elementDb, elemStiffMat, linearSystem);
 }

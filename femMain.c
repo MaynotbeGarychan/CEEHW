@@ -130,10 +130,10 @@ int femMainDynamic(Io ioInfo, mesh meshDb, analysis analysisInfo, result* result
 		switch (analysisInfo.solveProblem)
 		{
 		case POIS_PRO:
-			assemble2DPoissonStatic(meshDb, analysisInfo, &linearSystem);
+			
 			break;
 		case WAVE_PRO:
-			assemble1DWaveStatic(meshDb, analysisInfo, &linearSystem);
+			assembleGlobalStiffnessMatrix1DWaveDynamic(meshDb.meshInfoDb, meshDb.elementDb, meshDb.nodeDb, &linearSystem);
 			break;
 		default:
 			break;
@@ -147,11 +147,10 @@ int femMainDynamic(Io ioInfo, mesh meshDb, analysis analysisInfo, result* result
 		for (int i = 0; i < meshDb.meshInfoDb.elementNum; i++)
 		{
 			initilizeMatrix(&elemMassMat[i], meshDb.meshInfoDb.elemNodeNum, meshDb.meshInfoDb.elemNodeNum);
-			assembleElementMassMatrix1DWaveDynamic(meshDb.elementDb[i], meshDb.nodeDb, &elemMassMat);
+			assembleElementMassMatrix1DWaveDynamic(meshDb.elementDb[i], meshDb.nodeDb, &elemMassMat[i]);
 		}
-		assembleGlobalStiffnessMatrix(meshDb, elemMassMat, &massMatrix);
+		assembleGlobalStiffnessMatrix(meshDb.meshInfoDb, meshDb.elementDb, elemMassMat, &massMatrix);
 		addMassMatrixToGlobalMatrix1DWaveDynamic(oldAccelerationVec, massMatrix, &linearSystem);
-
 
 		// applied boundary conditions
 		initializeIdArray(meshDb, &idArray);
@@ -177,7 +176,7 @@ int femMainDynamic(Io ioInfo, mesh meshDb, analysis analysisInfo, result* result
 		// copy the result to the new displacement
 		assembleNewDisplacementVec(resultArr, slimIdArray, &newDisplacementVec, 
 			meshDb.boundaryInfoDb.staticBoundaryNum, meshDb.boundaryInfoDb.dynamicBoundaryNumStep[step], meshDb.staticBoundaryDb, meshDb.dynamicBoundaryDb[step]);
-
+		
 		// calculate new velocity vector, acceleration vector
 		updateVelocityAndAccelerationVector(0.25, analysisInfo.timeInteParam.stepLength, 
 			oldDisplacementVec, newDisplacementVec, oldVelocityVec, &newVelocityVec, oldAccelerationVec, &newAccelearationVec);

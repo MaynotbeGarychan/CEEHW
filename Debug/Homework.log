@@ -1,5 +1,5 @@
 ﻿  femMain.c
 C:\Users\Administrator\Desktop\CEEHW\femMain.c(126,97): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-C:\Users\Administrator\Desktop\CEEHW\femMain.c(150,91): warning C4047: “函数”:“matrix *”与“matrix (*)[100]”的间接级别不同
-C:\Users\Administrator\Desktop\CEEHW\femMain.c(150,79): warning C4024: “assembleElementMassMatrix1DWaveDynamic”: 形参和实参 3 的类型不同
+  model.c
+  正在生成代码...
   Homework.vcxproj -> C:\Users\Administrator\Desktop\CEEHW\Debug\Homework.exe

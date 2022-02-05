@@ -13,7 +13,7 @@ Description: header file for model.c
 /*	Global
 * 
 */
-void assembleGlobalStiffnessMatrix(mesh meshDb, matrix elemMat[], matrix* globalMat);
+void assembleGlobalStiffnessMatrix(struct meshInfo meshInfoDb, struct element elementDb[], matrix elemMat[], matrix* globalMat);
 void assembleElemSrcVecToLinearSys(matrix elemSrcVec, matrix* linearSystem);
 
 /*	1D Wave static
@@ -38,4 +38,4 @@ void assembleElemSrcVec2DPoisson(mesh meshDb, double pVal, matrix* loadVector);
 void addVelocityMatrixToGlobalMatrix1DWaveDynamic(const double constant, matrix velocity, matrix* linearSys);
 void assembleElementMassMatrix1DWaveDynamic(struct element elem, struct node nodeDb[], matrix* elemStiffMat);
 void addMassMatrixToGlobalMatrix1DWaveDynamic(matrix acceleration, matrix massMatrix, matrix* linearSys);
-
+void assembleGlobalStiffnessMatrix1DWaveDynamic(struct meshInfo meshInfoDb, struct element elementDb[], struct node nodeDb[], matrix* linearSystem);
