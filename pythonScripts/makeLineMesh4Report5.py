@@ -1,13 +1,13 @@
 import math
 
-mesh_dir = r'C:\Users\Administrator\Desktop\CEEHW\tmpInputOutput\report5Mesh.txt'
+mesh_dir = r'..\tmpInputOutput\report5Mesh.txt'
 def main():
-    nodeList, elemList = makeMesh(100, 5)
+    nodeList, elemList = makeMesh(20, 1)
     numNode = len(nodeList)
     numElem = len(elemList)
 
     endTime = float(20)
-    dt = float(1)
+    dt = float(0.4)
     dynaBoudList = makeDynamicBoudary(endTime, dt)
     statBoudList = makeStaticBoudary(nodeList)
     numDynaBoud = len(dynaBoudList)

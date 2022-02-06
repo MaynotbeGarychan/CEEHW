@@ -8,19 +8,20 @@ Here are the features of this repo:
 - Matrix solver: Gauss pivot elimination algorithm, Conjugate gradient algorithm, matrix basic operation.
 - Mesh generation: 2D Delaunay triangulation.
 - Database: basic and simple data format, database, I/O for FEM.
-
+![](./figures/structureOfThisRepo.jpg)
 ### PDE problem:
+command line for VS: 
+```buildoutcfg
+fem directoryOfInputFile directoryOfOutputFile
+```
 - The routine to solve the FEM problem:
-![](./figures/structureOf2DFEM.PNG)
+![](./figures/RoadToSolvePDE.JPG)
 
-- Case One - 2D Poisson:
+- Case One - 2D Poisson Static:
 ![](./figures/CaseOne2DPoisson.PNG)
 
-- Case Two - 1D Wave:
+- Case Two - 1D Wave Static:
 ![](./figures/CaseTwo1DWave.PNG)
-
-- Case Three - 1D Wave Dynamic, absorbing boundary condition with time integration scheme:
-  (To be implemented)
 
 - Input and Output format:
 Input:
@@ -67,18 +68,14 @@ solver for the 2D Poisson problem.
 ![](./figures/ComparisonAnalyticalNumerical.JPG)
 
 ### 2D Delaunay triangulation:
+command line for VS:
+```buildoutcfg
+tri directoryOfNodesSeedsFile directoryOfMeshOutputFile
+```
 Delaunay triangulation is a common but popular mesh generation algorithm for triangle
 element. 2D mesh generator for triangle element is supported in this repo now.
 This figure from my report helps you understand the route of Delaunay triangulation:
 ![](./figures/DelaunayTriRoute.jpg)
-If you want to use it, please change the mode of the solution in the main.c by:
-```buildoutcfg
-int testMode = MESH_TEST_MODE;
-```
-Then it will go to the main function for mesh generator:
-```buildoutcfg
-int meshDelauneyTest(void)
-```
 - Input and Output:
 To do the Delaunay triangulation, the node seeds have to be input, here is the format:
 ```buildoutcfg
@@ -99,12 +96,12 @@ exactly, the mesh used for FEM simulation. Also, remember the node sequence
 of each element has to be clockwise for FEM simulation, which has been done in 
 this program:
 ```buildoutcfg
-mesh meshId nodeNum elemNum 0
+mesh meshId dimension elemenType nodeNum elemNum 0
 node nodeId nodeXCoor nodeYCoor
 elem elemId node1Id node2Id node3Id
 ```
 ```buildoutcfg
-mesh 1 6 6 4
+mesh 1 1 tria 6 6 0
 node 1 0.000000 0.000000
 node 2 1.000000 0.000000
 node 3 1.000000 1.000000

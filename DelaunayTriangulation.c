@@ -187,7 +187,7 @@ int meshDelauneyTest(Io ioInfo)
 	{
 		return 0;
 	}
-	fprintf(outputIo, "mesh %d %d %d\n", meshInfoDb.id, meshInfoDb.nodeNum, meshInfoDb.elementNum);
+	fprintf(outputIo, "mesh %d 1 2 tria %d %d 0\n", meshInfoDb.id, meshInfoDb.nodeNum, meshInfoDb.elementNum);
 	for (int i = 0; i < meshInfoDb.nodeNum; i++)
 	{
 		fprintf(outputIo, "node %d %lf %lf\n", nodeDb[i].id, nodeDb[i].x, nodeDb[i].y);

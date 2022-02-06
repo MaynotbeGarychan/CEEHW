@@ -120,10 +120,10 @@ int femMainDynamic(Io ioInfo, mesh meshDb, analysis analysisInfo, result* result
 	matrixInt idArray;
 	allocateMatrixInt(&idArray, meshDb.meshInfoDb.nodeNum, 1);
 
-	int currTime = 0;
+	double currTime = 0;
 	for (int step = 0; step < analysisInfo.timeInteParam.stepNum; step++)
 	{
-		currTime = step * analysisInfo.timeInteParam.stepLength + analysisInfo.timeInteParam.startTime;
+		currTime = (step+1) * analysisInfo.timeInteParam.stepLength + analysisInfo.timeInteParam.startTime;
 		// assemble stiffness matrix
 		zeroMatrix(&linearSystem);
 
@@ -182,7 +182,7 @@ int femMainDynamic(Io ioInfo, mesh meshDb, analysis analysisInfo, result* result
 			oldDisplacementVec, newDisplacementVec, oldVelocityVec, &newVelocityVec, oldAccelerationVec, &newAccelearationVec);
 
 		// save results
-		saveScalarResultStep(step,step*analysisInfo.timeInteParam.stepLength, meshDb.nodeDb, idArray, newDisplacementVec, resultDb);
+		saveScalarResultStep(step, currTime, meshDb.nodeDb, idArray, newDisplacementVec, resultDb);
 
 		// copy the old vec to new vec
 		copyMatrix(newDisplacementVec, &oldDisplacementVec);
