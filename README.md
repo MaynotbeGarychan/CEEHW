@@ -4,48 +4,55 @@ Author: CHEN Jiawei, 2nd year master student at the University of Tokyo
 ### Features
 This is a repo to manage the HW of one of my attended courses.
 Here are the features of this repo: 
-- PDE problem: 1D Wave, 2D Poisson, Newmark beta time integration scheme, Absorbing boundary condition(to be implemented).
+- PDE problem: 1D Wave static, 1D Wave dynamic, 2D Poisson static, Time integration scheme, Absorbing boundary condition.
 - Matrix solver: Gauss pivot elimination algorithm, Conjugate gradient algorithm, matrix basic operation.
 - Mesh generation: 2D Delaunay triangulation.
 - Database: basic and simple data format, database, I/O for FEM.
 ![](./figures/structureOfThisRepo.JPG)
 ### PDE problem:
+command line for VS: 
+```buildoutcfg
+fem directoryOfInputFile directoryOfOutputFile
+```
 - The routine to solve the FEM problem:
 ![](./figures/routeToSolvePDE.jpg)
 
-- Case One - 2D Poisson:
+- Case One - 2D Poisson Static:
 ![](./figures/CaseOne2DPoisson.PNG)
 
-- Case Two - 1D Wave:
+- Case Two - 1D Wave Static:
 ![](./figures/CaseTwo1DWave.PNG)
-
-- Case Three - 1D Wave Dynamic, absorbing boundary condition with time integration scheme:
-  (To be implemented)
 
 - Input and Output format:
 Input:
 ```buildoutcfg
-mesh meshId nodeNum elemNum boudaryNum
+mesh meshId dimension elemType nodeNum elemNum boudaryNum
 node nodeId nodeXCoor nodeYCoor
 elem elemId elemNode1Id elemNode2Id elemNode3Id
-boud nodeId boundaryValue
+boudhead boundaryId staticBoudaryNum dynamicBoundarySetNum
+statboud nodeId boundaryVal
+dynaboud time boundaryNumCurrStep
+dynaboud nodeId boundaryVal
 ```
-Input example:
+Input example for each type:
 ```buildoutcfg
-mesh 1 6 6 4
-node 1 0.000000 0.000000
-node 2 1.000000 0.000000
-node 3 1.000000 1.000000
-elem 1 1 2 3
-boud 1 0.5
+mesh 1 1 line 21 20 20
+node 1 0.0
+elem 1 1 2
+boudhead 1 0 20
+statboud 2 0
+dynaboud 0.0 1
+dynaboud 1 -6.805092493832333e-10
 ```
 Output:
 ```buildoutcfg
+step stepIndex time timeCurrStep (if you use time integration scheme)
 nodeName nodeXCoor nodeYCoor nodeVal
 ```
 
 Output example:
 ```buildoutcfg
+step 1 time 0.000000
 x6 0.700000 0.200000 0.210770
 ```
 
@@ -61,18 +68,14 @@ solver for the 2D Poisson problem.
 ![](./figures/ComparisonAnalyticalNumerical.JPG)
 
 ### 2D Delaunay triangulation:
+command line for VS:
+```buildoutcfg
+tri directoryOfNodesSeedsFile directoryOfMeshOutputFile
+```
 Delaunay triangulation is a common but popular mesh generation algorithm for triangle
 element. 2D mesh generator for triangle element is supported in this repo now.
 This figure from my report helps you understand the route of Delaunay triangulation:
 ![](./figures/DelaunayTriRoute.jpg)
-If you want to use it, please change the mode of the solution in the main.c by:
-```buildoutcfg
-int testMode = MESH_TEST_MODE;
-```
-Then it will go to the main function for mesh generator:
-```buildoutcfg
-int meshDelauneyTest(void)
-```
 - Input and Output:
 To do the Delaunay triangulation, the node seeds have to be input, here is the format:
 ```buildoutcfg
@@ -93,12 +96,12 @@ exactly, the mesh used for FEM simulation. Also, remember the node sequence
 of each element has to be clockwise for FEM simulation, which has been done in 
 this program:
 ```buildoutcfg
-mesh meshId nodeNum elemNum 0
+mesh meshId dimension elemenType nodeNum elemNum 0
 node nodeId nodeXCoor nodeYCoor
 elem elemId node1Id node2Id node3Id
 ```
 ```buildoutcfg
-mesh 1 6 6 4
+mesh 1 1 tria 6 6 0
 node 1 0.000000 0.000000
 node 2 1.000000 0.000000
 node 3 1.000000 1.000000

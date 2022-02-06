@@ -1,5 +1,13 @@
+/************************************************************
+FileName: mesh.h
+Author: Chen
+Date: 2022/02/02
+Description: header file of the mesh.c
+***********************************************************/
 #pragma once
 #include <stdio.h>
+#include "mesh.h"
+#include "macro.h"
 
 struct node
 {
@@ -9,25 +17,59 @@ struct node
     //double z;
 };
 
+enum elementType 
+{
+    LINE_ELEM = 1, TRI_ELEM
+};
+
 struct element
 {
     int id;
     int nodeId[3];
 };
 
-struct boundary
-{
-    int nodeId;
-    double value;
-};
-
 struct meshInfo
 {
     int id;
+    int dimension;
+    int elemType;
     int nodeNum;
     int elementNum;
     int boundaryNum;
+    int elemNodeNum;
 };
+
+struct boundary
+{
+	int nodeId;
+	double value;
+};
+
+struct boundaryDynamic
+{
+    int nodeId;
+    double time;
+    double value;
+};
+
+struct boundaryInfo
+{
+    int id;
+    int totalBoundaryNumStep[MAX_NUM_TIMESTEP];
+    int staticBoundaryNum;
+    int dynamicBoundaryNum;
+    int dynamicBoundaryNumStep[MAX_NUM_TIMESTEP];
+};
+
+typedef struct
+{
+	struct meshInfo meshInfoDb;
+	struct element elementDb[MAX_NUM_ELEM];
+	struct node nodeDb[MAX_NUM_NODE];
+    struct boundaryInfo boundaryInfoDb;
+    struct boundary staticBoundaryDb[MAX_NUM_BOUD];
+    struct boundaryDynamic dynamicBoundaryDb[MAX_NUM_TIMESTEP][MAX_NUM_BOUD];
+}mesh;
 
 void addNode(int nodeId, double x, double y, struct node* nodeDb);
 void addElem(int elemid, int nodeList[3], struct element* elemDb);

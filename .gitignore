@@ -51,4 +51,7 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+# self-defined
 *.xls
+*.ipch
+*.bak

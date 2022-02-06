@@ -8,7 +8,7 @@
 #include "mesh.h"
 #include "Io.h"
 
-int meshDelauneyTest(void)
+int meshDelauneyTest(Io ioInfo)
 {
 	// ----------------------------------------------------------  //
 	//     reading seeds file, translate information               //
@@ -16,7 +16,7 @@ int meshDelauneyTest(void)
 
 	struct node nodeDb[200] = {0};
 	struct meshInfo meshInfoDb = { 0,0,0,0 };
-	FILE* inputIo = fopen("report3NodeSeeds2.txt", "rt");
+	FILE* inputIo = fopen(ioInfo.inputDir, "rt");
 	if (inputIo == NULL)
 	{
 		return 0;
@@ -24,7 +24,7 @@ int meshDelauneyTest(void)
 	readMeshInfo(inputIo, &meshInfoDb);
 	for (int i = 0; i < meshInfoDb.nodeNum; i++)
 	{
-		readNode(inputIo, &nodeDb[i]);
+		readNode2D(inputIo, &nodeDb[i]);
 	}
 	fclose(inputIo);
 	double maxNodeX = maxNodeXCoor(nodeDb, meshInfoDb.nodeNum);
@@ -182,12 +182,12 @@ int meshDelauneyTest(void)
 	//     output the mesh to txt	     //
 	// --------------------------------  //
 
-	FILE* outputIo = fopen("report3Mesh2.txt", "w");
+	FILE* outputIo = fopen(ioInfo.outputDir, "w");
 	if (outputIo == NULL)
 	{
 		return 0;
 	}
-	fprintf(outputIo, "mesh %d %d %d\n", meshInfoDb.id, meshInfoDb.nodeNum, meshInfoDb.elementNum);
+	fprintf(outputIo, "mesh %d 1 2 tria %d %d 0\n", meshInfoDb.id, meshInfoDb.nodeNum, meshInfoDb.elementNum);
 	for (int i = 0; i < meshInfoDb.nodeNum; i++)
 	{
 		fprintf(outputIo, "node %d %lf %lf\n", nodeDb[i].id, nodeDb[i].x, nodeDb[i].y);
