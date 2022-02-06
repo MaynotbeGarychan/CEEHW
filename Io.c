@@ -182,8 +182,7 @@ void readStaticBoundary(const FILE* fileIo, struct boundary* boundary)
 void readDynamicBoundaryStep(const FILE* fileIo, struct boundaryDynamic* boundary, int* numBoudStep)
 {
 	char* readType[8];
-	char* tmpStr[4];
-	fscanf(fileIo, "%s %s %lf %d\n", readType, tmpStr, &boundary->time, numBoudStep);
+	fscanf(fileIo, "%s %lf %d\n", readType, &boundary->time, numBoudStep);
 	for (int i = 0; i < *numBoudStep; i++)
 	{
 		fscanf(fileIo, "%s %d %lf\n", readType, &(boundary->nodeId), &(boundary->value));

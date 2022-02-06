@@ -41,45 +41,45 @@ elem 18 18 19
 elem 19 19 20
 elem 20 20 21
 boudhead 1 0 20
-dynaboud time 0.0 1
+dynaboud 0.0 1
 dynaboud 1 -6.805092493832333e-10
-dynaboud time 1.0 1
+dynaboud 1.0 1
 dynaboud 1 -6.340650817983152e-08
-dynaboud time 2.0 1
+dynaboud 2.0 1
 dynaboud 1 -3.488590416297024e-06
-dynaboud time 3.0 1
+dynaboud 3.0 1
 dynaboud 1 -0.00011245025871503142
-dynaboud time 4.0 1
+dynaboud 4.0 1
 dynaboud 1 -0.00209796666947355
-dynaboud time 5.0 1
+dynaboud 5.0 1
 dynaboud 1 -0.022200222566618633
-dynaboud time 6.0 1
+dynaboud 6.0 1
 dynaboud 1 -0.1282094722211392
-dynaboud time 7.0 1
+dynaboud 7.0 1
 dynaboud 1 -0.36889728596652516
-dynaboud time 8.0 1
+dynaboud 8.0 1
 dynaboud 1 -0.36787944117144245
-dynaboud time 9.0 1
+dynaboud 9.0 1
 dynaboud 1 0.38940039153570233
-dynaboud time 10.0 1
+dynaboud 10.0 1
 dynaboud 1 1.0
-dynaboud time 11.0 1
+dynaboud 11.0 1
 dynaboud 1 0.38940039153570233
-dynaboud time 12.0 1
+dynaboud 12.0 1
 dynaboud 1 -0.36787944117144245
-dynaboud time 13.0 1
+dynaboud 13.0 1
 dynaboud 1 -0.36889728596652516
-dynaboud time 14.0 1
+dynaboud 14.0 1
 dynaboud 1 -0.1282094722211392
-dynaboud time 15.0 1
+dynaboud 15.0 1
 dynaboud 1 -0.022200222566618633
-dynaboud time 16.0 1
+dynaboud 16.0 1
 dynaboud 1 -0.00209796666947355
-dynaboud time 17.0 1
+dynaboud 17.0 1
 dynaboud 1 -0.00011245025871503142
-dynaboud time 18.0 1
+dynaboud 18.0 1
 dynaboud 1 -3.488590416297024e-06
-dynaboud time 19.0 1
+dynaboud 19.0 1
 dynaboud 1 -6.340650817983152e-08
 analysis 3
 analysis probName wave

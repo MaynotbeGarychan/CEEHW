@@ -4,7 +4,7 @@ Author: CHEN Jiawei, 2nd year master student at the University of Tokyo
 ### Features
 This is a repo to manage the HW of one of my attended courses.
 Here are the features of this repo: 
-- PDE problem: 1D Wave, 2D Poisson, Newmark beta time integration scheme, Absorbing boundary condition(to be implemented).
+- PDE problem: 1D Wave static, 1D Wave dynamic, 2D Poisson static, Time integration scheme, Absorbing boundary condition.
 - Matrix solver: Gauss pivot elimination algorithm, Conjugate gradient algorithm, matrix basic operation.
 - Mesh generation: 2D Delaunay triangulation.
 - Database: basic and simple data format, database, I/O for FEM.
@@ -25,27 +25,33 @@ Here are the features of this repo:
 - Input and Output format:
 Input:
 ```buildoutcfg
-mesh meshId nodeNum elemNum boudaryNum
+mesh meshId dimension elemType nodeNum elemNum boudaryNum
 node nodeId nodeXCoor nodeYCoor
 elem elemId elemNode1Id elemNode2Id elemNode3Id
-boud nodeId boundaryValue
+boudhead boundaryId staticBoudaryNum dynamicBoundarySetNum
+statboud nodeId boundaryVal
+dynaboud time boundaryNumCurrStep
+dynaboud nodeId boundaryVal
 ```
-Input example:
+Input example for each type:
 ```buildoutcfg
-mesh 1 6 6 4
-node 1 0.000000 0.000000
-node 2 1.000000 0.000000
-node 3 1.000000 1.000000
-elem 1 1 2 3
-boud 1 0.5
+mesh 1 1 line 21 20 20
+node 1 0.0
+elem 1 1 2
+boudhead 1 0 20
+statboud 2 0
+dynaboud 0.0 1
+dynaboud 1 -6.805092493832333e-10
 ```
 Output:
 ```buildoutcfg
+step stepIndex time timeCurrStep (if you use time integration scheme)
 nodeName nodeXCoor nodeYCoor nodeVal
 ```
 
 Output example:
 ```buildoutcfg
+step 1 time 0.000000
 x6 0.700000 0.200000 0.210770
 ```
 

@@ -24,7 +24,7 @@ def main():
         #for statBoud in statBoudList:
         #    txt.write(f'statboud {statBoud[0]} {statBoud[1]}\n')
         for dynaBoud in dynaBoudList:
-            txt.write(f'dynaboud time {dynaBoud[1]} 1\n')
+            txt.write(f'dynaboud {dynaBoud[1]} 1\n')
             txt.write(f'dynaboud {dynaBoud[0]} {dynaBoud[2]}\n')
         txt.write(f'analysis 3\n')
         txt.write(f'analysis probName wave\n')
