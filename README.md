@@ -8,10 +8,10 @@ Here are the features of this repo:
 - Matrix solver: Gauss pivot elimination algorithm, Conjugate gradient algorithm, matrix basic operation.
 - Mesh generation: 2D Delaunay triangulation.
 - Database: basic and simple data format, database, I/O for FEM.
-
+![](./figures/structureOfThisRepo.JPG)
 ### PDE problem:
 - The routine to solve the FEM problem:
-![](./figures/structureOf2DFEM.PNG)
+![](./figures/routeToSolvePDE.jpg)
 
 - Case One - 2D Poisson:
 ![](./figures/CaseOne2DPoisson.PNG)
