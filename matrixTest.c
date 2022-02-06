@@ -29,14 +29,14 @@ int matrixTest()
     }
     matrix result;
     allocateMatrix(&result, testMat.numRow, 1);
-    gaussianEliminationFEM(&testMat, &idvec,&result);
+    gaussianEliminationSolveMatrix(testMat, &idvec,&result);
 
     // iterative
     createTestMatrixForCG(&testMat);
     printf("input matrix is\n");
     printMatrix(&testMat);
     allocateMatrix(&result, 5, 1);
-    conjugateSolveMatrix(testMat, 1e-2, &result);
+    conjugateGradientSolveMatrix(testMat, 1e-2, &result);
 
     return 1;
 }

@@ -1,2 +1,4 @@
-﻿  main.c
+﻿  DelaunayTriangulation.c
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\DelaunayTriangulation.c(67,45): warning C4047: 'function': 'node *' differs in levels of indirection from 'node (*)[200]'
+C:\Users\Gary\Desktop\CEE2021\reportOneSrc\DelaunayTriangulation.c(67,45): warning C4024: 'circleNode': different types for formal and actual parameter 3
   Homework.vcxproj -> C:\Users\Gary\Desktop\CEE2021\reportOneSrc\Debug\Homework.exe

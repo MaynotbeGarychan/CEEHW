@@ -48,7 +48,7 @@ void initilizeMatrix(matrix* T, int numRow, int numCol)
 }
 
 // zeros the value in matrix
-void ZeroMatrix(matrix* T)
+void zeroMatrix(matrix* T)
 {
 	for (int i = 0; i < T->numRow; i++)
 	{
@@ -69,6 +69,15 @@ void freeMatrix(matrix* T)
     free(T->mat);
 }
 
+void freeMatrixInt(matrixInt* T)
+{
+	for (int i = 0; i < T->numCol; i++)
+	{
+		free(T->mat[i]);
+	}
+	free(T->mat);
+}
+
 // print the matrix
 void printMatrix(const matrix* T)
 {
@@ -81,6 +90,19 @@ void printMatrix(const matrix* T)
         printf("\n");
     }
     printf("\n");
+}
+
+void printMatrixInt(const matrixInt* T)
+{
+	for (int i = 0; i < T->numRow; i++)
+	{
+		for (int j = 0; j < T->numCol; j++)
+		{
+			printf("%d,", T->mat[i][j]);
+		}
+		printf("\n");
+	}
+	printf("\n");
 }
 
 // inverse the matrix
@@ -265,7 +287,7 @@ double calculateDetMatrix22(matrix T)
 }
 
 // Direct method
-int gaussianEliminationSolveMatrix(matrix* A, matrixInt* indexVec, matrix *result)
+int gaussianEliminationSolveMatrix(matrix A, matrixInt* indexVec, matrix* result)
 /*begin
     Target: solve ax = b, A = { a | b }
     Step:
@@ -275,27 +297,27 @@ int gaussianEliminationSolveMatrix(matrix* A, matrixInt* indexVec, matrix *resul
 end*/
 {
     // forward elimination
-    if (!forwardElimintationPivot(A, indexVec))
+    if (!forwardElimintationPivot(&A, indexVec))
     {
         return 0;
     }
     //printMatrix(A);
     // backward substitution
-    if (!backwardSubtitution(A))
+    if (!backwardSubtitution(&A))
     {
         return 0;
     }
     //printMatrix(A);
-    // rounde the diagonal component
-    if (!roundDiagonalComponent(A))
+    // round the diagonal component
+    if (!roundDiagonalComponent(&A))
     {
         return 0;
     }
     // get the result to the result vec
-    int resultPos = A->numCol - 1;
-    for (int i = 0; i < A->numRow; i++)
+    int resultPos = A.numCol - 1;
+    for (int i = 0; i < A.numRow; i++)
     {
-        result->mat[i][0] = A->mat[i][resultPos];
+        result->mat[i][0] = A.mat[i][resultPos];
     }
 	printf("result by Gaussian Pivot Elimination is\n");
 	printMatrix(result);
@@ -324,7 +346,7 @@ end*/
             swapRowMatrix(A, targetPos, i);
             swapRowMatrixInt(indexVec, targetPos, i);
         }
-        // if non zero, we can eliminte it
+        // if non zero, we can eliminate it
         for (int j = i + 1; j < A->numRow; j++)
         {
             if (A->mat[j][i] == 0)
@@ -576,7 +598,7 @@ int copyMatrix(matrix inMat, matrix* outMat)
     return 1;
 }
 
-void conjugateSolveMatrix(const matrix systemMatrix, double tolerance, matrix* result)
+void conjugateGradientSolveMatrix(const matrix systemMatrix, double tolerance, matrix* result)
 /*
 *   Target: Conjuate iteration to solve matrix
 *   Note: init the result vector before using it.
@@ -641,11 +663,11 @@ void conjugateSolveMatrix(const matrix systemMatrix, double tolerance, matrix* r
         // calculate new x
         scaleMatrix(p, alpha, &temp);
         addMatrix(x, temp, &newX);
-        ZeroMatrix(&temp);
+        zeroMatrix(&temp);
         // calculate new residual
         innerProduct(A, newX, &temp);
         minusMatrix(b, temp, &newResidual);
-        ZeroMatrix(&temp);
+        zeroMatrix(&temp);
 
         // check convergence
         ratio = normVector(newResidual) / normVector(b);
@@ -663,7 +685,7 @@ void conjugateSolveMatrix(const matrix systemMatrix, double tolerance, matrix* r
         beta = dotProductVec(newResidual, newResidual) / dotProductVec(residual, residual);
         scaleMatrix(p, beta, &temp);
         addMatrix(newResidual, temp, &p);
-        ZeroMatrix(&temp);
+        zeroMatrix(&temp);
         // go to new iteration
         copyMatrix(newX, &x);
         copyMatrix(newResidual, &residual);
