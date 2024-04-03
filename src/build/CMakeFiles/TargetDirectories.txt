@@ -1,0 +1,3 @@
+/home/chen/Desktop/CEEHW/src/build/CMakeFiles/hw.dir
+/home/chen/Desktop/CEEHW/src/build/CMakeFiles/edit_cache.dir
+/home/chen/Desktop/CEEHW/src/build/CMakeFiles/rebuild_cache.dir

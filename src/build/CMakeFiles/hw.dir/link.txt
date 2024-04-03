@@ -1,0 +1,1 @@
+/usr/bin/cc -rdynamic CMakeFiles/hw.dir/main.o CMakeFiles/hw.dir/DelaunayTriangulation.o CMakeFiles/hw.dir/femMain.o CMakeFiles/hw.dir/Io.o CMakeFiles/hw.dir/matrix.o CMakeFiles/hw.dir/matrixTest.o CMakeFiles/hw.dir/mesh.o CMakeFiles/hw.dir/model.o CMakeFiles/hw.dir/Poisson2DFEM.o CMakeFiles/hw.dir/solver.o CMakeFiles/hw.dir/translator.o -o hw 
